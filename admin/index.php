@@ -716,15 +716,6 @@ require_once 'process_data.php';
                 </nav>
             <?php endif; ?>
             <?php elseif ($active_tab == 'users'): ?>
-                <?php if ($isUpdateAvailable): ?>
-                    <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <div>
-                            Versi terbaru tersedia! Klik <a href="#" id="update-link" class="alert-link">di sini</a> untuk memperbarui.
-                        </div>
-                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif; ?>
                 <h2 class="mb-4 text-primary"><i class="fa-solid fa-user-circle me-2"></i>Kelola Data Users</h2>
                 <div class="row mb-3 gy-2 align-items-center">
                     <div class="col-12 col-md-6">
