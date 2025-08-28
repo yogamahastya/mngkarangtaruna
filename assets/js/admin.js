@@ -13,58 +13,6 @@
     // Set nilai input tanggal dengan tanggal hari ini
     tanggalBayarInput.value = getTodayDate();
 
-// UPDATE APP
-document.addEventListener('DOMContentLoaded', function() {
-    const updateLink = document.getElementById('update-link');
-
-    if (updateLink) {
-        updateLink.addEventListener('click', function(e) {
-            e.preventDefault();
-
-            // Tampilkan pesan loading
-            const originalText = this.textContent;
-            this.textContent = 'Memperbarui...';
-            this.classList.add('disabled');
-
-            // Ganti 'YOUR_SECRET_TOKEN' dengan token yang sama dengan di PHP
-            const data = { token: 'YOUR_SECRET_TOKEN' };
-
-            // Kirim permintaan POST
-            fetch('../../application/update_action.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                // Tangani respons tidak OK
-                if (!response.ok) {
-                    throw new Error('Permintaan gagal dengan status ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('✅ Berhasil diperbarui! Silakan muat ulang halaman.');
-                    location.reload();
-                } else {
-                    alert('❌ Gagal memperbarui: ' + data.message);
-                    console.error('Output server:', data.output);
-                }
-            })
-            .catch(error => {
-                alert('Terjadi kesalahan saat memperbarui.');
-                console.error('Error:', error);
-            })
-            .finally(() => {
-                // Kembalikan link ke kondisi semula
-                this.textContent = originalText;
-                this.classList.remove('disabled');
-            });
-        });
-    }
-});
 
 // document.addEventListener('DOMContentLoaded', function() {
 //         // Logika untuk mengisi data modal Edit Anggota

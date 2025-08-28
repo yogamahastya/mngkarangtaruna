@@ -363,48 +363,4 @@ function countRowsWithFilter($conn, $tableName, $searchTerm = null, $filterYear 
     }
     return 0;
 }
-//UPDATE APP
-function getLatestVersion() {
-    $url = 'https://raw.githubusercontent.com/yogamahastya/mngkarangtaruna/main/application/version.json';
-    
-    // Periksa apakah cURL tersedia
-    if (!function_exists('curl_init')) {
-        // Jika tidak, gunakan file_get_contents sebagai fallback
-        $options = [
-            'http' => [
-                'header' => "User-Agent: mngkarangtaruna\r\n"
-            ]
-        ];
-        $context = stream_context_create($options);
-        $response = @file_get_contents($url, false, $context);
-    } else {
-        // Inisialisasi cURL
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'User-Agent: mngkarangtaruna'
-        ]);
-        
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        
-        // Periksa kode HTTP jika menggunakan cURL
-        if ($httpCode !== 200) {
-            return null;
-        }
-    }
-
-    // Proses respons
-    if ($response) {
-        $data = json_decode($response, true);
-        // Pastikan decoding JSON berhasil dan key 'version' ada
-        if ($data && isset($data['version'])) {
-            return $data['version'];
-        }
-    }
-    
-    return null; // Mengembalikan null jika gagal
-}
 ?>

@@ -1,43 +1,67 @@
 <?php
+header('Content-Type: application/json');
 
-// Pastikan skrip hanya bisa diakses oleh pengguna yang berwenang
-// Ganti 'YOUR_SECRET_TOKEN' dengan token rahasia yang kuat dan unik
-if (!isset($_POST['token']) || $_POST['token'] !== 'nxr232597') {
+// Token keamanan
+$token = $_POST['token'] ?? $_GET['token'] ?? null;
+if ($token !== 'nxr232597') {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Akses ditolak. Token tidak valid.']);
     exit;
 }
 
-// Gunakan __DIR__ untuk mendeteksi lokasi proyek
-$repoPath = realpath(__DIR__ . '/..');
+// ======================
+// KONFIGURASI
+// ======================
+$repoPath     = realpath(__DIR__ . '/..'); // root project
+$localVersion = __DIR__ . '/version.json'; // versi lokal
+$remoteUrl    = "https://raw.githubusercontent.com/yogamahastya/mngkarangtaruna/main/application/version.json";
 
-// Cek apakah direktori proyek valid
-if (!is_dir($repoPath)) {
-    http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Direktori proyek tidak ditemukan.']);
+// ======================
+// AMBIL VERSI LOKAL
+// ======================
+if (!file_exists($localVersion)) {
+    file_put_contents($localVersion, json_encode(['version' => '0.0.0']));
+}
+$localData    = json_decode(file_get_contents($localVersion), true);
+$currentLocal = $localData['version'] ?? "0.0.0";
+
+// ======================
+// AMBIL VERSI REMOTE (GitHub)
+// ======================
+$remoteData   = @file_get_contents($remoteUrl);
+if ($remoteData === false) {
+    echo json_encode(['status' => 'error', 'message' => 'Gagal ambil versi remote dari GitHub.']);
+    exit;
+}
+$remoteJson   = json_decode($remoteData, true);
+$currentRemote = $remoteJson['version'] ?? "0.0.0";
+
+// ======================
+// CEK VERSI
+// ======================
+if ($currentLocal === $currentRemote) {
+    echo json_encode(['status' => 'success', 'message' => 'Sudah versi terbaru ('.$currentLocal.')']);
     exit;
 }
 
-// Pindah ke direktori proyek
+// ======================
+// JALANKAN UPDATE
+// ======================
 chdir($repoPath);
-
-// Jalankan git pull dan tangkap output
-$command = 'git pull 2>&1';
-$output = shell_exec($command);
+$command = 'git reset --hard HEAD && git pull 2>&1';
+$output  = shell_exec($command);
 
 // Catat log
-$logFile = 'git_log.txt';
+$logFile = __DIR__ . '/git_log.txt';
 file_put_contents($logFile, date('Y-m-d H:i:s') . "\n" . $output . "\n\n", FILE_APPEND);
 
-// Periksa apakah pembaruan berhasil
-if (strpos($output, 'Already up to date.') !== false || strpos($output, 'Updating') !== false) {
-    // Jalankan perintah tambahan jika diperlukan, misalnya `composer install`
-    // shell_exec('composer install');
-    echo json_encode(['status' => 'success', 'message' => 'Pembaruan berhasil!']);
+// Kalau sukses, update versi lokal
+if (strpos($output, 'Updating') !== false || strpos($output, 'Fast-forward') !== false) {
+    file_put_contents($localVersion, json_encode(['version' => $currentRemote]));
+    echo json_encode(['status' => 'success', 'message' => 'Update berhasil ke versi '.$currentRemote, 'output' => $output]);
 } else {
     http_response_code(500);
-    // Berikan pesan error yang lebih informatif
-    echo json_encode(['status' => 'error', 'message' => 'Pembaruan gagal. Silakan periksa log.', 'output' => $output]);
+    echo json_encode(['status' => 'error', 'message' => 'Update gagal', 'output' => $output]);
 }
 
 ?>

@@ -165,31 +165,5 @@ if ($result_lokasi && $result_lokasi->num_rows > 0) {
     $current_tolerance = $lokasi_data['toleransi_jarak'];
 }
 
-// UPDATE APP
-// Ambil versi lokal dari file version.json
-$localVersionFile = '../application/version.json';
-$localVersion = null; // Inisialisasi variabel dengan null
-
-if (file_exists($localVersionFile)) {
-    $localVersionData = json_decode(file_get_contents($localVersionFile), true);
-    
-    // Periksa apakah decoding JSON berhasil dan key 'version' ada
-    if ($localVersionData && isset($localVersionData['version'])) {
-        $localVersion = $localVersionData['version'];
-    }
-}
-
-// Ambil versi terbaru dari GitHub
-$latestVersion = getLatestVersion();
-
-// Bandingkan versi
-$isUpdateAvailable = false;
-// Perbandingan hanya dilakukan jika kedua versi berhasil diambil
-if ($localVersion !== null && $latestVersion !== null) {
-    // Membandingkan versi menggunakan version_compare
-    if (version_compare($latestVersion, $localVersion, '>')) {
-        $isUpdateAvailable = true;
-    }
-}
 $profile_image = 'https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg?semt=ais_hybrid&w=740'; // Ganti dengan URL gambar default yang sesuai
 ?>
