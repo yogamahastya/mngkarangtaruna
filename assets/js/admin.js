@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Kirim permintaan pembaruan ke server
+            // Jalur yang benar adalah '../application/update_action.php'
             fetch(`../application/update_action.php?token=${updateToken}`)
                 .then(response => response.json())
                 .then(data => {
