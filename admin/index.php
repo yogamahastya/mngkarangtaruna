@@ -30,11 +30,13 @@ require_once 'process_data.php';
         <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>
             <div>
-                Versi terbaru tersedia! Klik <a href="#" id="update-link" class="alert-link">di sini</a> untuk memperbarui.
+                Versi terbaru tersedia! (<?= htmlspecialchars($remoteVersion) ?>)  
+                <button id="update-button" class="btn btn-primary btn-sm">Perbarui</button>
             </div>
             <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
+
     <?php if (isset($message)): ?>
     <div class="alert alert-<?= $success ? 'success' : 'danger' ?> alert-dismissible fade show" role="alert">
         <?= htmlspecialchars($message) ?>

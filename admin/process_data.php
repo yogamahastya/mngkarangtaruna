@@ -165,5 +165,30 @@ if ($result_lokasi && $result_lokasi->num_rows > 0) {
     $current_tolerance = $lokasi_data['toleransi_jarak'];
 }
 
+// === KONFIGURASI ===
+// Sesuaikan path ke file version.json
+$localVersionFile = __DIR__ . "/../application/version.json"; 
+$remoteUrl = "https://raw.githubusercontent.com/yogamahastya/mngkarangtaruna/main/application/version.json";
+$isUpdateAvailable = false;
+$remoteVersion = null;
+
+// === CEK VERSION LOCAL ===
+$localVersion = null;
+if (file_exists($localVersionFile)) {
+    $localData = json_decode(file_get_contents($localVersionFile), true);
+    $localVersion = $localData['version'] ?? null;
+}
+
+// === CEK VERSION REMOTE ===
+$remoteData = @file_get_contents($remoteUrl);
+if ($remoteData !== false) {
+    $remoteData = json_decode($remoteData, true);
+    $remoteVersion = $remoteData['version'] ?? null;
+    
+    // === BANDINGKAN VERSI ===
+    if ($localVersion && $remoteVersion && $localVersion !== $remoteVersion) {
+        $isUpdateAvailable = true;
+    }
+}
 $profile_image = 'https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg?semt=ais_hybrid&w=740'; // Ganti dengan URL gambar default yang sesuai
 ?>
