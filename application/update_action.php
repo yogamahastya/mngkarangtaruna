@@ -52,6 +52,12 @@ if ($localVersion === $remoteVersion) {
     sendResponse("info", "Sudah versi terbaru.", null, $localVersion);
 }
 
+// === UBAH PERMISSION FILE SEBELUM EKSEKUSI GIT ===
+// Dapatkan path file ini
+$currentFilePath = __FILE__;
+// Ganti permission menjadi 755
+@chmod($currentFilePath, 0755);
+
 // === EKSEKUSI PEMBARUAN GIT ===
 chdir($repoPath);
 
@@ -69,8 +75,8 @@ if (strpos($output_stash, 'No local changes to save') === false) {
 
 // Gabungkan semua output
 $full_output = "Git Stash:\n" . ($output_stash ?? 'null') . "\n\n"
-            . "Git Pull:\n" . ($output_pull ?? 'null') . "\n\n"
-            . "Git Stash Pop:\n" . ($output_pop ?? 'null');
+             . "Git Pull:\n" . ($output_pull ?? 'null') . "\n\n"
+             . "Git Stash Pop:\n" . ($output_pop ?? 'null');
 
 // === SIMPAN LOG KE FILE ===
 file_put_contents(
@@ -78,6 +84,10 @@ file_put_contents(
     "[" . date("Y-m-d H:i:s") . "]\n" . $full_output . "\n\n",
     FILE_APPEND
 );
+
+// === KEMBALIKAN PERMISSION FILE SETELAH EKSEKUSI GIT ===
+// Kembalikan permission ke 644 setelah semua operasi selesai
+@chmod($currentFilePath, 0644);
 
 // === RESPON AKHIR BERDASARKAN HASIL PULL ===
 if (strpos($output_pull, "Already up to date.") !== false || strpos($output_pull, "Updating") !== false) {
