@@ -1147,7 +1147,6 @@ require_once 'process_data.php';
                             </div>
                         <input type="hidden" name="data[anggota_id]" id="add-anggota-id-iuran" required>
                     </div>
-
                     <div class="mb-3">
                         <label for="add-tanggal-bayar" class="form-label">Tanggal Bayar</label>
                         <input type="date" class="form-control" id="add-tanggal-bayar" name="data[tanggal_bayar]" required>
