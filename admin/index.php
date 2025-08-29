@@ -190,17 +190,17 @@ require_once 'process_data.php';
                 <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=anggota&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=anggota&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=anggota&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
                 <?php endif; ?>        
@@ -208,17 +208,17 @@ require_once 'process_data.php';
             <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-md-none">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=anggota&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=anggota&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=anggota&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>
@@ -309,17 +309,17 @@ require_once 'process_data.php';
                 <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=kegiatan&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=kegiatan&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=kegiatan&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>                
@@ -327,17 +327,17 @@ require_once 'process_data.php';
             <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-md-none">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=kegiatan&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=kegiatan&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=kegiatan&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>
@@ -495,17 +495,17 @@ require_once 'process_data.php';
                 <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>
@@ -515,17 +515,17 @@ require_once 'process_data.php';
             <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-md-none">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                    <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>
@@ -684,17 +684,17 @@ require_once 'process_data.php';
                 <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=iuran&year=<?= $selectedYear ?>&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=iuran&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=iuran&year=<?= $selectedYear ?>&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>                
@@ -702,17 +702,17 @@ require_once 'process_data.php';
             <?php if ($total_pages > 1): ?>
                 <nav aria-label="Page navigation example" class="mt-4 d-md-none">
                     <ul class="pagination justify-content-center">
-                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=iuran&year=<?= $selectedYear ?>&page=<?= $page - 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>" tabindex="-1">Previous</a>
-                        </li>
+                        </li>-->
                         <?php for ($i = 1; $i <= $total_pages; $i++): ?>
                             <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
                                 <a class="page-link" href="?tab=iuran&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
                             </li>
                         <?php endfor; ?>
-                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                        <!--<li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
                             <a class="page-link" href="?tab=iuran&year=<?= $selectedYear ?>&page=<?= $page + 1 ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">Next</a>
-                        </li>
+                        </li>-->
                     </ul>
                 </nav>
             <?php endif; ?>
