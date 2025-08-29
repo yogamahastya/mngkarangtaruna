@@ -99,7 +99,7 @@ require_once 'process_data.php';
                     </button>
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped d-none d-md-table">
                     <!--<thead>
                         <tr>
@@ -243,7 +243,7 @@ require_once 'process_data.php';
                     </button>
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped d-none d-md-table">
                     <!--<thead>
                         <tr>
@@ -416,7 +416,7 @@ require_once 'process_data.php';
                     </button>
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped d-none d-md-table">
                     <!--<thead>
                         <tr>
@@ -585,7 +585,7 @@ require_once 'process_data.php';
                     </button>
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped d-none d-md-table">
                     <!--<thead>
                         <tr>
@@ -740,7 +740,7 @@ require_once 'process_data.php';
                         </button>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="">
                     <table class="table table-hover table-striped d-none d-md-table">
                         <!-- <thead>
                             <tr>  

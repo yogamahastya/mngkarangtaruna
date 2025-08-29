@@ -84,7 +84,7 @@ require_once 'process_data.php';
                     }
                 }
             </style>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped" id="anggotaTable">
                 <?php if (count($anggota) > 0): ?>
                     <div class="row">
@@ -249,7 +249,7 @@ require_once 'process_data.php';
                     </div>
                 <?php endif; ?>
                 <?php if (count($anggota) > 0): ?>
-                    <div class="table-responsive">
+                    <div class="">
                         <table class="table table-hover table-striped">
                             <tbody>
                                 <div class="">
@@ -396,7 +396,7 @@ require_once 'process_data.php';
                     </form>
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped" id="kegiatanTable">
                     <tbody>
                         <?php if (count($kegiatan) > 0): ?>
@@ -490,7 +490,7 @@ require_once 'process_data.php';
                     </form>
                 </div>
             </div>
-            <div class="table-responsive">
+            <div class="">
                 <table class="table table-hover table-striped" id="keuanganTable">
                 <tbody>
                         <?php if (count($keuangan) > 0): ?>
@@ -692,7 +692,7 @@ require_once 'process_data.php';
                         </form>
                     </div>
                 </div>
-                <div class="table-responsive">
+                <div class="">
                     <div class="row">
                         <?php if (!empty($iuran)): ?>
                             <?php foreach ($iuran as $row): ?>
