@@ -62,24 +62,19 @@ if ($localVersion === $remoteVersion) {
 // === PINDAH KE ROOT PROJECT ===
 chdir($repoPath);
 
-// === FIX SAFE.DIRECTORY (hindari error Git "dubious ownership") ===
-shell_exec("git config --global --add safe.directory " . escapeshellarg($repoPath));
-
-// === JALANKAN GIT PULL DENGAN AUTO-STASH ===
-$command = "git stash --include-untracked && git pull 2>&1 && git stash pop 2>&1";
+// === JALANKAN GIT PULL ===
+$command = "git pull 2>&1";
 $output  = shell_exec($command);
 
-// === SIMPAN LOG (cek permission dulu) ===
-if (is_writable(dirname($logFile))) {
-    @file_put_contents(
-        $logFile,
-        "[" . date("Y-m-d H:i:s") . "]\n" . ($output ?: "[NO OUTPUT]") . "\n\n",
-        FILE_APPEND
-    );
-}
+// === SIMPAN LOG ===
+file_put_contents(
+    $logFile,
+    "[" . date("Y-m-d H:i:s") . "]\n" . $output . "\n\n",
+    FILE_APPEND
+);
 
 // === RESPON ===
-if ($output && (strpos($output, "Already up to date") !== false || strpos($output, "Updating") !== false)) {
+if (strpos($output, "Already up to date.") !== false || strpos($output, "Updating") !== false) {
     echo json_encode([
         "status"  => "success",
         "message" => "Pembaruan berhasil.",
@@ -92,9 +87,8 @@ if ($output && (strpos($output, "Already up to date") !== false || strpos($outpu
     echo json_encode([
         "status"  => "error",
         "message" => "Pembaruan gagal. Silakan periksa log.",
-        "output"  => $output ?: null
+        "output"  => $output
     ]);
 }
-
 
 ?>
