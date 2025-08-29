@@ -63,7 +63,7 @@ if ($localVersion === $remoteVersion) {
 chdir($repoPath);
 
 // === JALANKAN GIT PULL ===
-$command = "git pull 2>&1";
+$command = "git stash && git pull 2>&1";
 $output  = shell_exec($command);
 
 // === SIMPAN LOG ===
