@@ -2,93 +2,98 @@
 header('Content-Type: application/json');
 
 // === KONFIGURASI ===
-$secretToken = "nxr232597"; // ganti kalau perlu
+$secretToken = "nxr232597"; // Ganti dengan token rahasia Anda
 $logFile     = __DIR__ . "/git_log.txt";
-$repoPath    = realpath(__DIR__ . "/.."); // root project
-$localVersionFile  = $repoPath . "/application/version.json";
+$repoPath    = realpath(__DIR__ . "/.."); // Path ke root project
+$localVersionFile = $repoPath . "/application/version.json";
 $remoteUrl   = "https://raw.githubusercontent.com/yogamahastya/mngkarangtaruna/main/application/version.json";
+
+// === FUNGSI BANTUAN UNTUK RESPON ===
+function sendResponse($status, $message, $output = null, $from = null, $to = null) {
+    echo json_encode([
+        "status"  => $status,
+        "message" => $message,
+        "from"    => $from,
+        "to"      => $to,
+        "output"  => $output
+    ]);
+    exit;
+}
 
 // === CEK TOKEN ===
 $token = $_POST['token'] ?? $_GET['token'] ?? null;
 if ($token !== $secretToken) {
     http_response_code(403);
-    echo json_encode([
-        "status"  => "error",
-        "message" => "Akses ditolak. Token tidak valid."
-    ]);
-    exit;
+    sendResponse("error", "Akses ditolak. Token tidak valid.");
 }
 
-// === CEK DIREKTORI ===
+// === VALIDASI DIREKTORI ===
 if (!$repoPath || !is_dir($repoPath)) {
     http_response_code(500);
-    echo json_encode([
-        "status"  => "error",
-        "message" => "Direktori proyek tidak ditemukan."
-    ]);
-    exit;
+    sendResponse("error", "Direktori proyek tidak ditemukan.");
 }
 
-// === CEK VERSION LOCAL ===
+// === CEK VERSI LOKAL VS. REMOTE ===
 $localVersion = null;
 if (file_exists($localVersionFile)) {
     $localData = json_decode(file_get_contents($localVersionFile), true);
     $localVersion = $localData['version'] ?? null;
 }
 
-// === CEK VERSION REMOTE ===
 $remoteData = @file_get_contents($remoteUrl);
 if ($remoteData === false) {
     http_response_code(500);
-    echo json_encode([
-        "status"  => "error",
-        "message" => "Gagal mengambil version.json dari GitHub."
-    ]);
-    exit;
+    sendResponse("error", "Gagal mengambil version.json dari GitHub.");
 }
 $remoteData = json_decode($remoteData, true);
 $remoteVersion = $remoteData['version'] ?? null;
 
-// === BANDINGKAN ===
 if ($localVersion === $remoteVersion) {
-    echo json_encode([
-        "status"  => "info",
-        "message" => "Sudah versi terbaru.",
-        "version" => $localVersion
-    ]);
-    exit;
+    sendResponse("info", "Sudah versi terbaru.", null, $localVersion);
 }
 
-// === PINDAH KE ROOT PROJECT ===
+// === EKSEKUSI PEMBARUAN GIT ===
 chdir($repoPath);
 
-// === JALANKAN GIT PULL ===
-$command = "git stash && git pull 2>&1";
-$output  = shell_exec($command);
+// 1. Lakukan git stash untuk menyimpan perubahan lokal
+$output_stash = shell_exec("git stash 2>&1");
 
-// === SIMPAN LOG ===
+// 2. Lakukan git pull
+$output_pull = shell_exec("git pull 2>&1");
+
+// 3. Terapkan kembali perubahan yang di-stash jika ada
+$output_pop = '';
+if (strpos($output_stash, 'No local changes to save') === false) {
+    $output_pop = shell_exec("git stash pop 2>&1");
+}
+
+// Gabungkan semua output
+$full_output = "Git Stash:\n" . ($output_stash ?? 'null') . "\n\n"
+            . "Git Pull:\n" . ($output_pull ?? 'null') . "\n\n"
+            . "Git Stash Pop:\n" . ($output_pop ?? 'null');
+
+// === SIMPAN LOG KE FILE ===
 file_put_contents(
     $logFile,
-    "[" . date("Y-m-d H:i:s") . "]\n" . $output . "\n\n",
+    "[" . date("Y-m-d H:i:s") . "]\n" . $full_output . "\n\n",
     FILE_APPEND
 );
 
-// === RESPON ===
-if (strpos($output, "Already up to date.") !== false || strpos($output, "Updating") !== false) {
-    echo json_encode([
-        "status"  => "success",
-        "message" => "Pembaruan berhasil.",
-        "from"    => $localVersion,
-        "to"      => $remoteVersion,
-        "output"  => $output
-    ]);
+// === RESPON AKHIR BERDASARKAN HASIL PULL ===
+if (strpos($output_pull, "Already up to date.") !== false || strpos($output_pull, "Updating") !== false) {
+    sendResponse(
+        "success",
+        "Pembaruan berhasil.",
+        $full_output,
+        $localVersion,
+        $remoteVersion
+    );
 } else {
     http_response_code(500);
-    echo json_encode([
-        "status"  => "error",
-        "message" => "Pembaruan gagal. Silakan periksa log.",
-        "output"  => $output
-    ]);
+    sendResponse(
+        "error",
+        "Pembaruan gagal. Silakan periksa log.",
+        $full_output
+    );
 }
-
 ?>
