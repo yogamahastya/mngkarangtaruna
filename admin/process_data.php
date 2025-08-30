@@ -33,15 +33,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $objectName = '';
     
     // Logika untuk mengambil nama/judul objek berdasarkan tab
+    // Komentar: Menambahkan kondisi untuk tab 'iuran17'.
     if ($tab === 'anggota' && isset($data['nama_lengkap'])) {
         $objectName = $data['nama_lengkap'];
     } elseif ($tab === 'kegiatan' && isset($data['nama_kegiatan'])) {
         $objectName = $data['nama_kegiatan'];
-    } elseif ($tab === 'iuran' && isset($data['anggota_id'])) {
-        $objectName = getAnggotaNameById($conn, $data['anggota_id']);
+    } elseif ($tab === 'iuran' || $tab === 'iuran17') {
+        if (isset($data['anggota_id'])) {
+            $objectName = getAnggotaNameById($conn, $data['anggota_id']);
+        }
     } 
     
     // Logika untuk mengambil nama/judul objek saat edit atau hapus
+    // Komentar: Menambahkan kondisi untuk tab 'iuran17'.
     if (($action == 'edit' || $action == 'delete') && isset($_POST['id'])) {
         $id = $_POST['id'];
         $sql = "SELECT * FROM `$tab` WHERE id = ?";
@@ -57,9 +61,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } elseif ($tab === 'keuangan') {
                 // Perbaikan di baris ini: hilangkan jumlah
                 $objectName = $resultData['jenis_transaksi'];
-            } elseif ($tab === 'iuran') {
+            } elseif ($tab === 'iuran' || $tab === 'iuran17') {
                 $anggotaNama = getAnggotaNameById($conn, $resultData['anggota_id']);
-                $objectName = "iuran " . $anggotaNama;
+                // Komentar: Menggunakan variabel tab untuk menentukan jenis iuran dalam pesan.
+                $objectName = "{$tab} " . $anggotaNama;
             } elseif ($tab === 'users') {
                 $objectName = $resultData['username'];
             }
@@ -73,11 +78,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $message = "Operasi tambah data {$objectName} berhasil! 🎉";
         } elseif ($result === 'duplicate_entry') {
             $success = false;
+            // Komentar: Menambahkan kondisi untuk tab 'iuran17' pada pesan kesalahan duplikat.
             if ($tab === 'anggota' && isset($data['nama_lengkap'])) {
                 $message = "Operasi gagal: Nama anggota '{$data['nama_lengkap']}' sudah ada. Silakan gunakan nama lain. ❌";
-            } elseif ($tab === 'iuran') {
+            } elseif ($tab === 'iuran' || $tab === 'iuran17') {
                 $tanggal = $data['tanggal_bayar'] ?? 'N/A';
-                $message = "Operasi gagal: Data iuran untuk {$objectName} pada tanggal {$tanggal} sudah ada. ❗";
+                $message = "Operasi gagal: Data {$tab} untuk {$objectName} pada tanggal {$tanggal} sudah ada. ❗";
             } else {
                 $message = "Operasi gagal: Data duplikat terdeteksi. Silakan periksa kembali entri Anda. ❗";
             }
@@ -123,6 +129,8 @@ $anggota = [];
 $kegiatan = [];
 $keuangan = [];
 $iuran = [];
+// Komentar: Menambahkan inisialisasi variabel untuk iuran17.
+$iuran17 = [];
 $users = [];
 if ($active_tab === 'anggota') {
     $anggota = fetchDataWithPagination($conn, 'anggota', $start, $limit, $searchTerm, $selectedYear);
@@ -132,12 +140,16 @@ if ($active_tab === 'anggota') {
     $keuangan = fetchDataWithPagination($conn, 'keuangan', $start, $limit, $searchTerm, $selectedYear);
 } elseif ($active_tab === 'iuran') {
     $iuran = fetchDataWithPagination($conn, 'iuran', $start, $limit, $searchTerm, $selectedYear);
+} elseif ($active_tab === 'iuran17') {
+    // Komentar: Menambahkan pengambilan data untuk tab 'iuran17'.
+    $iuran17 = fetchDataWithPagination($conn, 'iuran17', $start, $limit, $searchTerm, $selectedYear);
 } elseif ($active_tab === 'users') {
     $users = fetchDataWithPagination($conn, 'users', $start, $limit, $searchTerm, $selectedYear);
 }
 $totalAnggota = countRowsWithFilter($conn, 'anggota');
 $totalPemasukan = 0;
 $totalPengeluaran = 0;
+// Komentar: Memuat data keuangan untuk perhitungan total.
 $allKeuangan = fetchDataWithPagination($conn, 'keuangan', 0, 10000, null, $selectedYear);
 foreach ($allKeuangan as $transaksi) {
     if ($transaksi['jenis_transaksi'] == 'pemasukan') {
@@ -148,10 +160,19 @@ foreach ($allKeuangan as $transaksi) {
 }
 $saldo = $totalPemasukan - $totalPengeluaran;
 $totalIuran = 0;
+// Komentar: Menambahkan perhitungan total iuran untuk iuran17.
+$totalIuran17 = 0;
+// Komentar: Mengambil data iuran dari tabel 'iuran' dan 'iuran17' secara terpisah untuk perhitungan total.
 $allIuran = fetchDataWithPagination($conn, 'iuran', 0, 10000, null, $selectedYear);
+$allIuran17 = fetchDataWithPagination($conn, 'iuran17', 0, 10000, null, $selectedYear);
+
 foreach ($allIuran as $transaksi) {
     $totalIuran += $transaksi['jumlah_bayar'];
 }
+foreach ($allIuran17 as $transaksi) {
+    $totalIuran17 += $transaksi['jumlah_bayar'];
+}
+
 $anggotaList = fetchDataWithPagination($conn, 'anggota', 0, 10000, null, null);
 $current_latitude = -7.527444;
 $current_longitude = 110.628819;

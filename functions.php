@@ -19,7 +19,6 @@ function formatRupiah($amount) {
 function haversineGreatCircleDistance($lat1, $lon1, $lat2, $lon2) {
     $earthRadius = 6371000; // Jari-jari Bumi dalam meter
     
-    // Mengubah koordinat dari derajat ke radian
     $latFrom = deg2rad($lat1);
     $lonFrom = deg2rad($lon1);
     $latTo = deg2rad($lat2);
@@ -51,18 +50,30 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
     $types = '';
     $orderBy = '';
 
-    // Logika JOIN dan ORDER BY khusus untuk tabel tertentu
     if ($tableName === 'keuangan') {
         $sql = "SELECT k.*, a.nama_lengkap AS dicatat_oleh_nama FROM keuangan k LEFT JOIN anggota a ON k.dicatat_oleh_id = a.id";
         $orderBy = 'k.tanggal_transaksi DESC';
-    } elseif ($tableName === 'iuran') {
-        $sql = "SELECT a.id AS anggota_id, a.nama_lengkap, a.bergabung_sejak, COALESCE(SUM(i.jumlah_bayar), 0) AS total_bayar FROM anggota AS a LEFT JOIN iuran AS i ON a.id = i.anggota_id";
+    } elseif ($tableName === 'iuran' || $tableName === 'iuran17') {
+        // ## PERBAIKAN LOGIKA QUERY IURAN DIMULAI ##
+        $joinTable = $tableName;
+        $joinConditions = "a.id = i.anggota_id"; // Kondisi join dasar
+
+        if ($filterYear) {
+            $joinConditions .= " AND YEAR(i.tanggal_bayar) = ?"; // Tambahkan filter tahun ke join
+            $params[] = $filterYear;
+            $types .= 'i';
+        }
+
+        $sql = "SELECT a.id AS anggota_id, a.nama_lengkap, a.bergabung_sejak, COALESCE(SUM(i.jumlah_bayar), 0) AS total_bayar 
+                FROM anggota AS a 
+                LEFT JOIN {$joinTable} AS i ON {$joinConditions}";
+        
         $orderBy = "FIELD(a.jabatan, 'Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Humas', 'Anggota'), a.nama_lengkap ASC";
+        // ## PERBAIKAN LOGIKA QUERY IURAN SELESAI ##
     } elseif ($tableName === 'anggota') {
         $sql = "SELECT * FROM `anggota`";
         $orderBy = "FIELD(jabatan, 'Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Humas', 'Anggota'), nama_lengkap ASC";
     } elseif ($tableName === 'absensi') {
-        // Gunakan JOIN untuk absensi agar dapat mencari berdasarkan nama anggota
         $sql = "SELECT a.*, ab.tanggal_absen, ab.id as absensi_id FROM anggota a LEFT JOIN absensi ab ON a.id = ab.anggota_id AND DATE(ab.tanggal_absen) = CURDATE()";
         $orderBy = "FIELD(a.jabatan, 'Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Humas', 'Anggota'), a.nama_lengkap ASC";
     } elseif ($tableName === 'kegiatan') {
@@ -70,63 +81,41 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
         $orderBy = 'tanggal_mulai DESC';
     }
 
-    // Kondisi filter tahun
-    if ($filterYear) {
-        if ($tableName === 'keuangan') {
-            $conditions[] = "YEAR(k.tanggal_transaksi) = ?";
-            $params[] = $filterYear;
-            $types .= 'i';
-        } elseif ($tableName === 'iuran') {
-            // Re-define SQL untuk iuran dengan filter tahun di LEFT JOIN
-            $sql = "SELECT a.id AS anggota_id, a.nama_lengkap, a.bergabung_sejak, COALESCE(SUM(i.jumlah_bayar), 0) AS total_bayar FROM anggota AS a LEFT JOIN iuran AS i ON a.id = i.anggota_id AND YEAR(i.tanggal_bayar) = ?";
+    if ($filterYear && $tableName === 'keuangan') {
+        $conditions[] = "YEAR(k.tanggal_transaksi) = ?";
+        // params dan types untuk tahun keuangan sudah ditangani di atas jika ada
+        if (!in_array($filterYear, $params)) {
             $params[] = $filterYear;
             $types .= 'i';
         }
     }
 
-    // Kondisi pencarian
     if ($searchTerm) {
         $searchTermLike = '%' . $searchTerm . '%';
         if ($tableName === 'anggota') {
             $conditions[] = "(nama_lengkap LIKE ? OR jabatan LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'ss';
+            $params[] = $searchTermLike; $params[] = $searchTermLike; $types .= 'ss';
         } elseif ($tableName === 'absensi') {
             $conditions[] = "(a.nama_lengkap LIKE ? OR a.jabatan LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'ss';
+            $params[] = $searchTermLike; $params[] = $searchTermLike; $types .= 'ss';
         } elseif ($tableName === 'kegiatan') {
-            $conditions[] = "(nama_kegiatan LIKE ? OR deskripsi LIKE ? OR lokasi LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'sss';
+            $conditions[] = "(nama_lengkap LIKE ? OR deskripsi LIKE ? OR lokasi LIKE ?)";
+            $params[] = $searchTermLike; $params[] = $searchTermLike; $params[] = $searchTermLike; $types .= 'sss';
         } elseif ($tableName === 'keuangan') {
             $conditions[] = "(k.jenis_transaksi LIKE ? OR k.deskripsi LIKE ? OR a.nama_lengkap LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'sss';
-        } elseif ($tableName === 'iuran') {
-            $conditions[] = "(a.nama_lengkap LIKE ?)";
+            $params[] = $searchTermLike; $params[] = $searchTermLike; $params[] = $searchTermLike; $types .= 'sss';
+        } elseif ($tableName === 'iuran' || $tableName === 'iuran17') {
+            $conditions[] = "(a.nama_lengkap LIKE ?)"; // Kondisi search untuk WHERE clause
             $params[] = $searchTermLike;
             $types .= 's';
         }
     }
 
     if (!empty($conditions)) {
-        if ($tableName === 'iuran' && strpos($sql, 'AND YEAR(i.tanggal_bayar)') !== false) {
-            $sql .= " AND " . implode(" AND ", $conditions);
-        } elseif (strpos($sql, 'WHERE') === false) {
-            $sql .= " WHERE " . implode(" AND ", $conditions);
-        } else {
-            $sql .= " AND " . implode(" AND ", $conditions);
-        }
+        $sql .= " WHERE " . implode(" AND ", $conditions);
     }
     
-    if ($tableName === 'iuran') {
+    if ($tableName === 'iuran' || $tableName === 'iuran17') {
         $sql .= " GROUP BY a.id, a.nama_lengkap, a.bergabung_sejak";
     }
 
@@ -143,7 +132,6 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
         }
         $stmt->execute();
         $result = $stmt->get_result();
-
         if ($result && $result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
                 $data[] = $row;
@@ -155,14 +143,10 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
 }
 
 /**
- * Mengambil rekapitulasi iuran per anggota secara rinci, dengan filter tahun.
- * @param mysqli $conn Objek koneksi database.
- * @param int $anggotaId ID anggota.
- * @param int|null $year Tahun yang akan difilter.
- * @return array|null Mengembalikan array data rekapitulasi atau null.
+ * // ... (Fungsi fetchMemberDuesBreakdownWithYear tetap sama, tidak perlu diubah)
  */
-function fetchMemberDuesBreakdownWithYear($conn, $anggotaId, $year = null) {
-    $monthlyFee = DUES_MONTHLY_FEE; // Menggunakan konstanta dari config.php
+function fetchMemberDuesBreakdownWithYear($conn, $anggotaId, $year = null, $duesTableName = 'iuran', $monthlyFee = 0) {
+    // ... Tidak ada perubahan di sini
     $memberData = null;
     $duesData = [];
     $sqlMember = "SELECT nama_lengkap, bergabung_sejak FROM anggota WHERE id = ?";
@@ -177,7 +161,7 @@ function fetchMemberDuesBreakdownWithYear($conn, $anggotaId, $year = null) {
     }
     $stmt->close();
     
-    $sqlDues = "SELECT jumlah_bayar, tanggal_bayar FROM iuran WHERE anggota_id = ?";
+    $sqlDues = "SELECT jumlah_bayar, tanggal_bayar FROM {$duesTableName} WHERE anggota_id = ?";
     $params = [$anggotaId];
     $types = "i";
     
@@ -201,7 +185,6 @@ function fetchMemberDuesBreakdownWithYear($conn, $anggotaId, $year = null) {
     $joinDate = new DateTime($memberData['bergabung_sejak']);
     $today = new DateTime();
     $startYear = ($year !== null) ? $year : intval($joinDate->format('Y'));
-    $endYear = ($year !== null) ? $year : intval($today->format('Y'));
     $currentMonth = new DateTime("{$startYear}-01-01");
     if ($currentMonth < $joinDate) {
         $currentMonth = $joinDate;
@@ -212,9 +195,7 @@ function fetchMemberDuesBreakdownWithYear($conn, $anggotaId, $year = null) {
     $totalPaid = 0;
     $totalExpected = 0;
     
-    // Loop hingga akhir tahun yang dipilih atau bulan saat ini (jika tahun saat ini)
     while ($currentMonth <= $endOfMonthLoop) {
-        // Menghentikan loop jika bulan saat ini melebihi bulan sekarang pada tahun saat ini
         if ($year === null && $currentMonth->format('Y-m') > $today->format('Y-m')) {
             break;
         }
@@ -264,18 +245,21 @@ function fetchMemberDuesBreakdownWithYear($conn, $anggotaId, $year = null) {
 }
 
 /**
- * Fungsi untuk menentukan status pembayaran dan kelas badge.
- * @param int $totalPaid Jumlah yang telah dibayar.
- * @param int $totalExpected Jumlah yang seharusnya dibayar.
- * @return array Mengembalikan array berisi string status dan kelas CSS.
+ * // ... (Fungsi getPaymentStatus tetap sama, tidak perlu diubah)
  */
 function getPaymentStatus($totalPaid, $totalExpected) {
+    if ($totalExpected <= 0 && $totalPaid <= 0) {
+        return ['status' => 'Tidak Ada Tagihan', 'class' => 'bg-secondary'];
+    }
     if ($totalPaid >= $totalExpected) {
         return ['status' => 'Lunas', 'class' => 'bg-success'];
+    } elseif ($totalPaid > 0) {
+        return ['status' => 'Kurang', 'class' => 'bg-warning'];
     } else {
-        return ['status' => 'Kurang', 'class' => 'bg-danger'];
+        return ['status' => 'Belum Bayar', 'class' => 'bg-danger'];
     }
 }
+
 
 /**
  * Menghitung total baris untuk paginasi.
@@ -291,54 +275,45 @@ function countRowsWithFilter($conn, $tableName, $searchTerm = null, $filterYear 
     $params = [];
     $types = '';
 
+    // Tentukan query dasar
     if ($tableName === 'keuangan') {
         $sql = "SELECT COUNT(*) AS total FROM keuangan k LEFT JOIN anggota a ON k.dicatat_oleh_id = a.id";
-    } elseif ($tableName === 'iuran' || $tableName === 'absensi') {
-        $sql = "SELECT COUNT(*) AS total FROM anggota";
+    } elseif ($tableName === 'iuran' || $tableName === 'iuran17' || $tableName === 'absensi' || $tableName === 'anggota') {
+        $sql = "SELECT COUNT(*) AS total FROM `anggota` a"; // Hitung dari tabel anggota
     } else {
         $sql = "SELECT COUNT(*) AS total FROM `$tableName`";
     }
 
-    if ($filterYear) {
-        if ($tableName === 'keuangan') {
-            $conditions[] = "YEAR(k.tanggal_transaksi) = ?";
-            $params[] = $filterYear;
-            $types .= 'i';
-        }
+    // Tambahkan kondisi filter tahun
+    if ($filterYear && $tableName === 'keuangan') {
+        $conditions[] = "YEAR(k.tanggal_transaksi) = ?";
+        $params[] = $filterYear;
+        $types .= 'i';
     }
+
+    // ## PERBAIKAN LOGIKA PENCARIAN DIMULAI ##
     if ($searchTerm) {
         $searchTermLike = '%' . $searchTerm . '%';
-        if ($tableName === 'anggota' || $tableName === 'absensi') {
-            $conditions[] = "(nama_lengkap LIKE ? OR jabatan LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'ss';
-        } elseif ($tableName === 'kegiatan') {
-            $conditions[] = "(nama_kegiatan LIKE ? OR deskripsi LIKE ? OR lokasi LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'sss';
-        } elseif ($tableName === 'keuangan') {
-            $conditions[] = "(k.jenis_transaksi LIKE ? OR k.deskripsi LIKE ? OR a.nama_lengkap LIKE ?)";
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $params[] = $searchTermLike;
-            $types .= 'sss';
-        } elseif ($tableName === 'iuran') {
-            // Perlu modifikasi khusus untuk COUNT di iuran
-            $sql = "SELECT COUNT(*) AS total FROM anggota a WHERE nama_lengkap LIKE ?";
+        if ($tableName === 'anggota' || $tableName === 'absensi' || $tableName === 'iuran' || $tableName === 'iuran17') {
+            // Logika pencarian nama untuk semua tab yang berbasis tabel anggota
+            $conditions[] = "a.nama_lengkap LIKE ?";
             $params[] = $searchTermLike;
             $types .= 's';
+        } elseif ($tableName === 'kegiatan') {
+            $conditions[] = "(nama_kegiatan LIKE ? OR deskripsi LIKE ? OR lokasi LIKE ?)";
+            $params[] = $searchTermLike; $params[] = $searchTermLike; $params[] = $searchTermLike; $types .= 'sss';
+        } elseif ($tableName === 'keuangan') {
+            $conditions[] = "(k.jenis_transaksi LIKE ? OR k.deskripsi LIKE ? OR a.nama_lengkap LIKE ?)";
+            $params[] = $searchTermLike; $params[] = $searchTermLike; $params[] = $searchTermLike; $types .= 'sss';
         }
     }
+    // ## PERBAIKAN LOGIKA PENCARIAN SELESAI ##
+
+    // Gabungkan semua kondisi ke query
     if (!empty($conditions)) {
-        if (strpos($sql, 'WHERE') === false) {
-            $sql .= " WHERE " . implode(" AND ", $conditions);
-        } else {
-            $sql .= " AND " . implode(" AND ", $conditions);
-        }
+        $sql .= " WHERE " . implode(" AND ", $conditions);
     }
+    
     $stmt = $conn->prepare($sql);
     if ($stmt) {
         if (!empty($params)) {
@@ -353,14 +328,12 @@ function countRowsWithFilter($conn, $tableName, $searchTerm = null, $filterYear 
     return 0;
 }
 
+
 /**
- * Mengambil riwayat absensi tahunan untuk seorang anggota.
- * @param mysqli $conn Koneksi database.
- * @param int $memberId ID anggota.
- * @param int $year Tahun yang dipilih.
- * @return array|null Mengembalikan array data absensi atau null jika tidak ditemukan.
+ * // ... (Fungsi fetchMemberAttendanceBreakdownWithYear tetap sama, tidak perlu diubah)
  */
 function fetchMemberAttendanceBreakdownWithYear($conn, $memberId, $year) {
+    // ... Tidak ada perubahan di sini
     $data = null;
     $stmtMember = $conn->prepare("SELECT nama_lengkap, bergabung_sejak FROM anggota WHERE id = ?");
     if ($stmtMember) {

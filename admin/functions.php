@@ -1,5 +1,6 @@
 <?php
 function getAnggotaIdFromUserId($conn, $userId) {
+    // Komentar: Fungsi ini mengambil ID anggota dari ID pengguna. Tidak ada perubahan.
     $sql = "SELECT anggota_id FROM users WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $userId);
@@ -12,6 +13,7 @@ function getAnggotaIdFromUserId($conn, $userId) {
 }
 // Fungsi baru untuk mendapatkan nama lengkap anggota
 function getAnggotaNameById($conn, $anggotaId) {
+    // Komentar: Fungsi ini mengambil nama lengkap anggota berdasarkan ID. Tidak ada perubahan.
     $sql = "SELECT nama_lengkap FROM anggota WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $anggotaId);
@@ -23,6 +25,7 @@ function getAnggotaNameById($conn, $anggotaId) {
     return 'Anggota tidak dikenal'; // Default jika ID tidak ditemukan
 }
 function getParamTypes($data) {
+    // Komentar: Fungsi ini menentukan tipe parameter untuk bind_param. Tidak ada perubahan.
     $types = '';
     foreach ($data as $value) {
         if (is_int($value)) {
@@ -39,7 +42,10 @@ function getParamTypes($data) {
  * Menangani operasi tambah data dengan penanganan error duplikat.
  */
 function handleAdd($conn, $tableName, $data) {
-    if ($tableName === 'iuran') {
+    // Komentar: Menambahkan logika untuk tabel 'iuran17'.
+    // Logikanya sama dengan 'iuran' yaitu menyalin 'tanggal_bayar' ke 'periode' dan
+    // memastikan 'keterangan' ada.
+    if ($tableName === 'iuran' || $tableName === 'iuran17') {
         $data['periode'] = $data['tanggal_bayar'];
         if (!isset($data['keterangan'])) {
             $data['keterangan'] = '';
@@ -86,7 +92,9 @@ function handleAdd($conn, $tableName, $data) {
     return $result;
 }
 function handleEdit($conn, $tableName, $id, $data) {
-    if ($tableName === 'iuran') {
+    // Komentar: Menambahkan logika untuk tabel 'iuran17'.
+    // Jika 'tanggal_bayar' ada, salin ke 'periode'.
+    if ($tableName === 'iuran' || $tableName === 'iuran17') {
         if (isset($data['tanggal_bayar'])) {
             $data['periode'] = $data['tanggal_bayar'];
         }
@@ -117,6 +125,9 @@ function handleEdit($conn, $tableName, $id, $data) {
     return $stmt->execute();
 }
 function handleDelete($conn, $tableName, $id) {
+    // Komentar: Tidak ada perubahan yang diperlukan di sini, karena logika delete
+    // sudah umum dan tidak spesifik untuk tabel 'iuran' atau 'iuran17'.
+    
     // Mulai transaksi
     $conn->begin_transaction();
 
@@ -151,12 +162,13 @@ function handleDelete($conn, $tableName, $id) {
     }
 }
 function handleUpdateLocation($conn, $latitude, $longitude, $toleransi) {
+    // Komentar: Tidak ada perubahan yang diperlukan di sini.
     $sql = "INSERT INTO lokasi_absensi (id, latitude, longitude, toleransi_jarak)
-            VALUES (1, ?, ?, ?)
-            ON DUPLICATE KEY UPDATE
-            latitude = VALUES(latitude),
-            longitude = VALUES(longitude),
-            toleransi_jarak = VALUES(toleransi_jarak)";
+                VALUES (1, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                latitude = VALUES(latitude),
+                longitude = VALUES(longitude),
+                toleransi_jarak = VALUES(toleransi_jarak)";
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         error_log("Prepare failed: (" . $conn->errno . ") " . $conn->error);
@@ -188,12 +200,16 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
     $orderBy = 'id ASC';
 
     // Logika JOIN khusus untuk tabel tertentu
+    // Komentar: Menambahkan logika JOIN untuk 'iuran17' yang serupa dengan 'iuran'.
     if ($tableName === 'keuangan') {
         $sql = "SELECT k.*, a.nama_lengkap AS dicatat_oleh_nama FROM keuangan k LEFT JOIN anggota a ON k.dicatat_oleh_id = a.id";
         $orderBy = 'k.tanggal_transaksi ASC';
     } elseif ($tableName === 'iuran') {
         $sql = "SELECT i.*, a.nama_lengkap AS anggota_nama FROM iuran i LEFT JOIN anggota a ON i.anggota_id = a.id";
         $orderBy = 'i.tanggal_bayar ASC';
+    } elseif ($tableName === 'iuran17') {
+        $sql = "SELECT i17.*, a.nama_lengkap AS anggota_nama FROM iuran17 i17 LEFT JOIN anggota a ON i17.anggota_id = a.id";
+        $orderBy = 'i17.tanggal_bayar ASC';
     } elseif ($tableName === 'anggota') {
         // Logika pengurutan khusus untuk anggota
         $orderBy = "FIELD(jabatan, 'Ketua', 'Wakil Ketua', 'Sekretaris', 'Bendahara', 'Humas', 'Anggota'), nama_lengkap ASC";
@@ -204,6 +220,7 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
     }
 
     // Kondisi filter tahun
+    // Komentar: Menambahkan kondisi filter tahun untuk 'iuran17'.
     if ($filterYear) {
         if ($tableName === 'keuangan') {
             $conditions[] = "YEAR(k.tanggal_transaksi) = ?";
@@ -213,10 +230,15 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
             $conditions[] = "YEAR(i.tanggal_bayar) = ?";
             $params[] = $filterYear;
             $types .= 'i';
+        } elseif ($tableName === 'iuran17') {
+            $conditions[] = "YEAR(i17.tanggal_bayar) = ?";
+            $params[] = $filterYear;
+            $types .= 'i';
         }
     }
 
     // Kondisi pencarian
+    // Komentar: Menambahkan kondisi pencarian untuk 'iuran17'.
     if ($searchTerm) {
         $searchTermLike = '%' . $searchTerm . '%';
         if ($tableName === 'anggota') {
@@ -238,6 +260,11 @@ function fetchDataWithPagination($conn, $tableName, $start, $limit, $searchTerm 
             $types .= 'sss';
         } elseif ($tableName === 'iuran') {
             $conditions[] = "(a.nama_lengkap LIKE ? OR i.keterangan LIKE ?)";
+            $params[] = $searchTermLike;
+            $params[] = $searchTermLike;
+            $types .= 'ss';
+        } elseif ($tableName === 'iuran17') {
+            $conditions[] = "(a.nama_lengkap LIKE ? OR i17.keterangan LIKE ?)";
             $params[] = $searchTermLike;
             $params[] = $searchTermLike;
             $types .= 'ss';
@@ -294,13 +321,17 @@ function countRowsWithFilter($conn, $tableName, $searchTerm = null, $filterYear 
     $types = '';
 
     // Logika JOIN khusus untuk tabel tertentu
+    // Komentar: Menambahkan logika JOIN untuk 'iuran17' yang serupa dengan 'iuran'.
     if ($tableName === 'keuangan') {
         $sql = "SELECT COUNT(*) AS total FROM keuangan k LEFT JOIN anggota a ON k.dicatat_oleh_id = a.id";
     } elseif ($tableName === 'iuran') {
         $sql = "SELECT COUNT(*) AS total FROM iuran i LEFT JOIN anggota a ON i.anggota_id = a.id";
+    } elseif ($tableName === 'iuran17') {
+        $sql = "SELECT COUNT(*) AS total FROM iuran17 i17 LEFT JOIN anggota a ON i17.anggota_id = a.id";
     }
 
     // Kondisi filter tahun
+    // Komentar: Menambahkan kondisi filter tahun untuk 'iuran17'.
     if ($filterYear) {
         if ($tableName === 'keuangan') {
             $conditions[] = "YEAR(k.tanggal_transaksi) = ?";
@@ -310,10 +341,15 @@ function countRowsWithFilter($conn, $tableName, $searchTerm = null, $filterYear 
             $conditions[] = "YEAR(i.tanggal_bayar) = ?";
             $params[] = $filterYear;
             $types .= 'i';
+        } elseif ($tableName === 'iuran17') {
+            $conditions[] = "YEAR(i17.tanggal_bayar) = ?";
+            $params[] = $filterYear;
+            $types .= 'i';
         }
     }
 
     // Kondisi pencarian
+    // Komentar: Menambahkan kondisi pencarian untuk 'iuran17'.
     if ($searchTerm) {
         $searchTermLike = '%' . $searchTerm . '%';
         if ($tableName === 'anggota') {
@@ -335,6 +371,11 @@ function countRowsWithFilter($conn, $tableName, $searchTerm = null, $filterYear 
             $types .= 'sss';
         } elseif ($tableName === 'iuran') {
             $conditions[] = "(a.nama_lengkap LIKE ? OR i.keterangan LIKE ?)";
+            $params[] = $searchTermLike;
+            $params[] = $searchTermLike;
+            $types .= 'ss';
+        } elseif ($tableName === 'iuran17') {
+            $conditions[] = "(a.nama_lengkap LIKE ? OR i17.keterangan LIKE ?)";
             $params[] = $searchTermLike;
             $params[] = $searchTermLike;
             $types .= 'ss';

@@ -26,6 +26,7 @@ $anggota = [];
 $kegiatan = [];
 $keuangan = [];
 $iuran = [];
+$iuran17 = [];
 
 // Inisialisasi variabel total untuk semua tab agar tidak ada warning
 $total_anggota = 0;
@@ -33,6 +34,7 @@ $total_anggota_absensi = 0;
 $total_kegiatan = 0;
 $total_keuangan = 0;
 $total_iuran = 0;
+$total_iuran17 = 0;
 
 // =================================================================
 // Paginasi dan pengambilan data utama
@@ -61,6 +63,10 @@ switch ($active_tab) {
         $iuran = fetchDataWithPagination($conn, 'iuran', $start, $limit, $searchTerm, $selectedYear);
         $total_iuran = $total_rows;
         break;
+    case 'iuran17':
+        $iuran17 = fetchDataWithPagination($conn, 'iuran17', $start, $limit, $searchTerm, $selectedYear);
+        $total_iuran17 = $total_rows;
+        break;
 }
 
 // =================================================================
@@ -74,11 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['absen_submit'])) {
     $userLat = floatval($_POST['latitude'] ?? 0);
     $userLon = floatval($_POST['longitude'] ?? 0);
 
-    // Ambil IP Address Klien
     $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'];
     $clientIp = explode(',', $clientIp)[0];
 
-    // Cooldown (Rate Limiting)
     $canProceed = true;
     $stmt = $conn->prepare("SELECT last_attempt_time FROM ip_attendance_cooldown WHERE ip_address = ?");
     $stmt->bind_param("s", $clientIp);
@@ -91,47 +95,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['absen_submit'])) {
         $lastAttemptTime = new DateTime($lastAttempt['last_attempt_time']);
         $currentTime = new DateTime();
         $interval = $currentTime->getTimestamp() - $lastAttemptTime->getTimestamp();
-        if ($interval < COOLDOWN_SECONDS) {
+        if ($interval < (defined('COOLDOWN_SECONDS') ? COOLDOWN_SECONDS : 60)) {
             $message = "Anda sudah absen. Harap tunggu " . (COOLDOWN_SECONDS - $interval) . " detik sebelum mencoba lagi.";
             $messageType = "danger";
             $canProceed = false;
         }
     }
 
-    // Ambil data lokasi absensi
-    $stmt = $conn->prepare("SELECT latitude, longitude, toleransi_jarak FROM lokasi_absensi WHERE id = 1 LIMIT 1");
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $lokasiDb = $result->fetch_assoc();
-    $stmt->close();
-
-    $jarakToleransi = $lokasiDb['toleransi_jarak'] ?? DEFAULT_TOLERANCE;
-    $lokasiPerkumpulan = [
-        'latitude' => $lokasiDb['latitude'] ?? DEFAULT_LATITUDE,
-        'longitude' => $lokasiDb['longitude'] ?? DEFAULT_LONGITUDE
-    ];
-
+    // Ambil data lokasi absensi jika bisa melanjutkan
     if ($canProceed) {
+        $stmtLoc = $conn->prepare("SELECT latitude, longitude, toleransi_jarak FROM lokasi_absensi WHERE id = 1 LIMIT 1");
+        $stmtLoc->execute();
+        $result = $stmtLoc->get_result();
+        $lokasiDb = $result->fetch_assoc();
+        $stmtLoc->close();
+
+        $jarakToleransi = $lokasiDb['toleransi_jarak'] ?? (defined('DEFAULT_TOLERANCE') ? DEFAULT_TOLERANCE : 100);
+        $lokasiPerkumpulan = [
+            'latitude' => $lokasiDb['latitude'] ?? (defined('DEFAULT_LATITUDE') ? DEFAULT_LATITUDE : 0),
+            'longitude' => $lokasiDb['longitude'] ?? (defined('DEFAULT_LONGITUDE') ? DEFAULT_LONGITUDE : 0)
+        ];
+
         if ($anggotaId === 0 || empty($userLat) || empty($userLon)) {
             $message = "Gagal absen. Data absen tidak lengkap (ID anggota, lokasi tidak valid).";
             $messageType = "danger";
         } else {
-            // Cek apakah anggota sudah absen hari ini
-            $stmt = $conn->prepare("SELECT COUNT(*) as cnt FROM absensi WHERE anggota_id = ? AND DATE(tanggal_absen) = CURDATE()");
-            $stmt->bind_param("i", $anggotaId);
-            $stmt->execute();
-            $stmt->bind_result($absenCount);
-            $stmt->fetch();
-            $stmt->close();
+            $stmtCheck = $conn->prepare("SELECT COUNT(*) as cnt FROM absensi WHERE anggota_id = ? AND DATE(tanggal_absen) = CURDATE()");
+            $stmtCheck->bind_param("i", $anggotaId);
+            $stmtCheck->execute();
+            $stmtCheck->bind_result($absenCount);
+            $stmtCheck->fetch();
+            $stmtCheck->close();
 
             if ($absenCount > 0) {
                 $message = "Anda sudah melakukan absensi untuk hari ini.";
                 $messageType = "danger";
-                // Update cooldown
-                $stmt = $conn->prepare("INSERT INTO ip_attendance_cooldown (ip_address, last_attempt_time) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_attempt_time = NOW()");
-                $stmt->bind_param("s", $clientIp);
-                $stmt->execute();
-                $stmt->close();
+                $stmtCooldown = $conn->prepare("INSERT INTO ip_attendance_cooldown (ip_address, last_attempt_time) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_attempt_time = NOW()");
+                $stmtCooldown->bind_param("s", $clientIp);
+                $stmtCooldown->execute();
+                $stmtCooldown->close();
             } else {
                 $distance = haversineGreatCircleDistance(
                     $lokasiPerkumpulan['latitude'],
@@ -143,19 +145,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['absen_submit'])) {
                 if ($distance <= $jarakToleransi) {
                     $stmt = $conn->prepare("INSERT INTO absensi (anggota_id, tanggal_absen, latitude, longitude) VALUES (?, NOW(), ?, ?)");
                     $stmt->bind_param("idd", $anggotaId, $userLat, $userLon);
+                    
                     if ($stmt->execute()) {
                         $message = "Absensi berhasil! Selamat datang di perkumpulan.";
                         $messageType = "success";
-                        // Update cooldown
-                        $stmt = $conn->prepare("INSERT INTO ip_attendance_cooldown (ip_address, last_attempt_time) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_attempt_time = NOW()");
-                        $stmt->bind_param("s", $clientIp);
-                        $stmt->execute();
-                        $stmt->close();
+                        
+                        // ## PERBAIKAN DI SINI ##
+                        // Gunakan nama variabel baru ($stmt_cooldown) agar tidak menimpa $stmt
+                        $stmt_cooldown = $conn->prepare("INSERT INTO ip_attendance_cooldown (ip_address, last_attempt_time) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_attempt_time = NOW()");
+                        $stmt_cooldown->bind_param("s", $clientIp);
+                        $stmt_cooldown->execute();
+                        $stmt_cooldown->close(); // Tutup statement yang baru dibuat
                     } else {
                         $message = "Terjadi kesalahan saat menyimpan data: " . $stmt->error;
                         $messageType = "danger";
                     }
-                    $stmt->close();
+                    $stmt->close(); // Tutup statement insert absensi dengan aman
                 } else {
                     $message = "Gagal absen. Anda berada terlalu jauh dari lokasi perkumpulan. Jarak Anda: " . round($distance, 2) . " meter";
                     $messageType = "danger";
@@ -163,7 +168,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['absen_submit'])) {
             }
         }
     }
+    
+    // Jika ini adalah request AJAX, kirim response JSON
+    if (!empty($_POST['is_ajax'])) {
+        header('Content-Type: application/json');
+        echo json_encode(['message' => $message, 'type' => $messageType]);
+        exit();
+    }
 }
+
 
 // =================================================================
 // Riwayat absensi
@@ -177,35 +190,18 @@ if ($attendanceMemberId) {
 }
 
 // =================================================================
-// Riwayat iuran
+// Riwayat iuran (Untuk Detail Anggota)
 // =================================================================
 $memberId = $attendanceMemberId;
 $memberDuesBreakdown = null;
 
-if ($active_tab == 'iuran' && $memberId) {
-    $memberDuesBreakdown = fetchMemberDuesBreakdownWithYear($conn, $memberId, $selectedYear);
+if (($active_tab == 'iuran' || $active_tab == 'iuran17') && $memberId) {
+    if ($active_tab == 'iuran17') {
+        $memberDuesBreakdown = fetchMemberDuesBreakdownWithYear($conn, $memberId, $selectedYear, 'iuran17', (defined('DUES_MONTHLY_FEE17') ? DUES_MONTHLY_FEE17 : 0));
+    } else {
+        $memberDuesBreakdown = fetchMemberDuesBreakdownWithYear($conn, $memberId, $selectedYear, 'iuran', (defined('DUES_MONTHLY_FEE') ? DUES_MONTHLY_FEE : 0));
+    }
 }
-
-// Search iuran
-$sql_iuran = "SELECT 
-                anggota.id AS anggota_id, 
-                anggota.nama_lengkap,
-                anggota.bergabung_sejak,
-                SUM(iuran.jumlah_bayar) AS total_bayar
-            FROM anggota
-            LEFT JOIN iuran ON anggota.id = iuran.anggota_id AND YEAR(iuran.tanggal_bayar) = ?
-            WHERE anggota.nama_lengkap LIKE ?
-            GROUP BY anggota.id
-            ORDER BY anggota.nama_lengkap
-            LIMIT ? OFFSET ?";
-
-$searchParam = "%" . $searchTerm . "%";
-$stmt = $conn->prepare($sql_iuran);
-$stmt->bind_param("isii", $selectedYear, $searchParam, $limit, $start);
-$stmt->execute();
-$result_iuran = $stmt->get_result();
-$iuran = $result_iuran->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
 
 // =================================================================
 // Gambar profil default
