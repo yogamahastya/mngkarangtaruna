@@ -48,23 +48,61 @@ require_once 'process_data.php';
                     <i class="fa-solid fa-wallet icon me-2"></i> Keuangan
                 </a>
             </li>
-            <li class="nav-item dropdown" role="presentation">
-                <a class="nav-link dropdown-toggle <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" href="#" id="iuranDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-receipt icon me-2"></i> Iuran
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" 
+                href="#" 
+                data-bs-toggle="modal" 
+                data-bs-target="#iuranModal">
+                    <i class="fa-solid fa-receipt me-2 fa-lg"></i>
+                    <span class="fw-bold">Iuran</span>
                 </a>
-                <ul class="dropdown-menu" aria-labelledby="iuranDropdown">
-                    <li>
-                        <a class="dropdown-item <?= ($active_tab == 'iuran') ? 'active' : '' ?>" href="?tab=iuran">
-                            Iuran Kas
-                        </a>
-                    </li>
-                    <li>
-                        <a class="dropdown-item <?= ($active_tab == 'iuran17') ? 'active' : '' ?>" href="?tab=iuran17">
-                            Iuran 17
-                        </a>
-                    </li>
-                </ul>
             </li>
+
+            <div class="modal fade" id="iuranModal" tabindex="-1" aria-labelledby="iuranModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-md">
+                    <div class="modal-content border-0 shadow-lg rounded-4">
+                        <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                            <h4 class="modal-title fw-bolder text-dark" id="iuranModalLabel">Pilih Jenis Iuran Anda</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <p class="text-muted mb-4">Silakan pilih kategori iuran yang ingin Anda kelola atau lihat.</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <a href="?tab=iuran" 
+                                    class="card card-hover h-100 text-decoration-none border-0 shadow-sm rounded-3 p-3 d-flex flex-column justify-content-between">
+                                        <div class="card-body">
+                                            <div class="icon-circle bg-primary-subtle text-primary mb-3">
+                                                <i class="fa-solid fa-coins fa-2x"></i>
+                                            </div>
+                                            <h5 class="card-title text-dark fw-bold mb-1">Iuran Kas</h5>
+                                            <p class="card-text text-muted small">Kelola iuran rutin kas bulanan.</p>
+                                        </div>
+                                        <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
+                                            <small class="text-primary fw-bold">Pilih <i class="fa-solid fa-arrow-right ms-1"></i></small>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="?tab=iuran17" 
+                                    class="card card-hover h-100 text-decoration-none border-0 shadow-sm rounded-3 p-3 d-flex flex-column justify-content-between">
+                                        <div class="card-body">
+                                            <div class="icon-circle bg-danger-subtle text-danger mb-3">
+                                                <i class="fa-solid fa-star fa-2x"></i>
+                                            </div>
+                                            <h5 class="card-title text-dark fw-bold mb-1">Iuran Kemerdekaan 17-an</h5>
+                                            <p class="card-text text-muted small">Lihat detail dan kontribusi untuk acara 17 Agustus.</p>
+                                        </div>
+                                        <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
+                                            <small class="text-danger fw-bold">Pilih <i class="fa-solid fa-arrow-right ms-1"></i></small>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </ul>
     </div>
     <div class="content-card">
