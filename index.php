@@ -49,7 +49,7 @@ require_once 'process_data.php';
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" 
+                <a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" 
                 href="#" 
                 data-bs-toggle="modal" 
                 data-bs-target="#iuranModal">
