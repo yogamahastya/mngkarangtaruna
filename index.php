@@ -53,8 +53,7 @@ require_once 'process_data.php';
                 href="#" 
                 data-bs-toggle="modal" 
                 data-bs-target="#iuranModal">
-                    <i class="fa-solid fa-receipt me-2 fa-lg"></i>
-                    <span class="fw-bold">Iuran</span>
+                    <i class="fa-solid fa-receipt me-2 fa-lg"></i>Iuran
                 </a>
             </li>
 

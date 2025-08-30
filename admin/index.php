@@ -61,9 +61,8 @@ require_once 'process_data.php';
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal">
-                    <i class="fa-solid fa-receipt me-2 fa-lg"></i>
-                    <span class="fw-bold">Iuran</span>
+                <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal">
+                    <i class="fa-solid fa-receipt me-2 fa-lg"></i> Iuran
                 </a>
             </li>
 
