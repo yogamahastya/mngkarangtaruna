@@ -102,8 +102,8 @@ $labelsJson = json_encode($labels);
     </div>
 </div>
 
-<div class="row mb-4 gy-3">
-    <div class="col-12 col-md-4">
+<div class="row mb-4">
+    <div class="col-4">
         <div class="card text-white bg-success">
             <div class="card-body">
                 <h5 class="card-title">Total Pemasukan</h5>
@@ -111,7 +111,7 @@ $labelsJson = json_encode($labels);
             </div>
         </div>
     </div>
-    <div class="col-12 col-md-4">
+    <div class="col-4">
         <div class="card text-white bg-danger">
             <div class="card-body">
                 <h5 class="card-title">Total Pengeluaran</h5>
@@ -119,7 +119,7 @@ $labelsJson = json_encode($labels);
             </div>
         </div>
     </div>
-    <div class="col-12 col-md-4">
+    <div class="col-4">
         <div class="card text-white bg-primary">
             <div class="card-body">
                 <h5 class="card-title">Sisa Saldo</h5>
