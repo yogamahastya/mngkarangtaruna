@@ -70,51 +70,48 @@
 <?php else: ?>
     
     <h2 class="mb-4 text-primary"><i class="fa-solid fa-user-check me-2"></i>Absensi Perkumpulan Hari Ini</h2>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <?php
     // Pastikan $conn sudah terdefinisi dan terhubung ke database.
 
-    // Mengambil data statistik kehadiran
-    $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE MONTH(tanggal_absen) = MONTH(CURDATE()) AND YEAR(tanggal_absen) = YEAR(CURDATE())");
+    // Mengambil total anggota (diperlukan untuk menghitung yang tidak hadir)
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM anggota");
     $stmt->execute();
-    $stmt->bind_result($thisMonthCount);
+    $stmt->bind_result($totalAnggota);
     $stmt->fetch();
     $stmt->close();
 
-    $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE MONTH(tanggal_absen) = MONTH(CURDATE() - INTERVAL 1 MONTH) AND YEAR(tanggal_absen) = YEAR(CURDATE() - INTERVAL 1 MONTH)");
-    $stmt->execute();
-    $stmt->bind_result($lastMonthCount);
-    $stmt->fetch();
-    $stmt->close();
-
-    $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE YEAR(tanggal_absen) = YEAR(CURDATE())");
-    $stmt->execute();
-    $stmt->bind_result($yearlyCount);
-    $stmt->fetch();
-    $stmt->close();
-
-    // Mengambil data kehadiran bulanan untuk 12 bulan terakhir untuk chart
-    $monthlyData = [];
+    // Mengambil data kehadiran bulanan dan ketidakhadiran untuk 12 bulan terakhir
+    $hadirData = [];
+    $tidakHadirData = [];
     $labels = [];
+
+    // Loop untuk 12 bulan ke belakang
     for ($i = 11; $i >= 0; $i--) {
         $date = new DateTime("-$i months");
         $month = $date->format('m');
         $year = $date->format('Y');
-        $monthName = $date->format('M Y'); // Contoh: Jan 2024
+        $monthName = $date->format('M Y'); // Contoh: Okt 2024
 
+        // Kueri untuk menghitung jumlah kehadiran unik per bulan
         $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE MONTH(tanggal_absen) = ? AND YEAR(tanggal_absen) = ?");
         $stmt->bind_param("ss", $month, $year);
         $stmt->execute();
-        $stmt->bind_result($count);
+        $stmt->bind_result($hadirCount);
         $stmt->fetch();
         $stmt->close();
 
-        $monthlyData[] = $count;
-        $labels[] = $monthName;
+        // HANYA TAMBAHKAN DATA JIKA ADA KEHADIRAN DI BULAN TERSEBUT
+        if ($hadirCount > 0) {
+            $tidakHadirCount = $totalAnggota - $hadirCount;
+            $hadirData[] = $hadirCount;
+            $tidakHadirData[] = $tidakHadirCount;
+            $labels[] = $monthName;
+        }
     }
 
-    $monthlyDataJson = json_encode($monthlyData);
+    // Mengubah array PHP ke JSON untuk digunakan di JavaScript
+    $hadirDataJson = json_encode($hadirData);
+    $tidakHadirDataJson = json_encode($tidakHadirData);
     $labelsJson = json_encode($labels);
     ?>
 
@@ -327,64 +324,77 @@
     }
 </script>
 <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Data untuk Bar Chart
-            const monthlyData = <?= $monthlyDataJson ?>;
-            const labels = <?= $labelsJson ?>;
+    document.addEventListener('DOMContentLoaded', function() {
+        const hadirData = <?= $hadirDataJson ?>;
+        const tidakHadirData = <?= $tidakHadirDataJson ?>;
+        const labels = <?= $labelsJson ?>;
 
-            const data = {
-                labels: labels,
-                datasets: [{
-                    label: 'Jumlah Kehadiran',
-                    data: monthlyData,
-                    backgroundColor: 'rgba(0, 123, 255, 0.7)',
-                    borderColor: 'rgba(0, 123, 255, 1)',
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Hadir',
+                    data: hadirData,
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
                     borderWidth: 1
-                }]
-            };
+                },
+                {
+                    label: 'Tidak Hadir',
+                    data: tidakHadirData,
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
 
-            const config = {
-                type: 'bar',
-                data: data,
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Jumlah Anggota Hadir'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Bulan'
-                            }
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Bulan'
                         }
                     },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.raw;
-                                    return label;
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Anggota'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
                                 }
+                                label += context.raw;
+                                return label;
                             }
                         }
                     }
                 }
-            };
+            }
+        };
 
-            new Chart(document.getElementById('monthlyBarChart'), config);
-        });
-    </script>
+        new Chart(document.getElementById('monthlyBarChart'), config);
+    });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <?php endif; ?>
