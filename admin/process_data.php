@@ -103,11 +103,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $latitude = filter_var($_POST['lokasi_latitude'], FILTER_VALIDATE_FLOAT);
         $longitude = filter_var($_POST['lokasi_longitude'], FILTER_VALIDATE_FLOAT);
         $toleransi = filter_var($_POST['jarak_toleransi'], FILTER_VALIDATE_INT);
-        if ($latitude === false || $longitude === false || $toleransi === false) {
+        $durasi_absensi = filter_var($_POST['lokasi_durasi'], FILTER_VALIDATE_INT); // Tambahkan baris ini
+
+        if ($latitude === false || $longitude === false || $toleransi === false || $durasi_absensi === false) {
             $success = false;
             $message = "Operasi update lokasi gagal: Data tidak valid.";
         } else {
-            $success = handleUpdateLocation($conn, $latitude, $longitude, $toleransi);
+            // Ambil waktu saat ini sebagai waktu_dibuat yang baru
+            $success = handleUpdateLocation($conn, $latitude, $longitude, $toleransi, $durasi_absensi); // Perbaiki parameter yang dikirim
         }
         $message = $success ? "Operasi update lokasi berhasil! 📍" : "Operasi update lokasi gagal: " . $conn->error;
         $tab = 'users';
@@ -177,13 +180,15 @@ $anggotaList = fetchDataWithPagination($conn, 'anggota', 0, 10000, null, null);
 $current_latitude = -7.527444;
 $current_longitude = 110.628819;
 $current_tolerance = 50;
-$sql_lokasi = "SELECT latitude, longitude, toleransi_jarak FROM lokasi_absensi WHERE id = 1 LIMIT 1";
+$sql_lokasi = "SELECT latitude, longitude, toleransi_jarak, waktu_dibuat, durasi_absensi FROM lokasi_absensi ORDER BY waktu_dibuat DESC LIMIT 1";
 $result_lokasi = $conn->query($sql_lokasi);
 if ($result_lokasi && $result_lokasi->num_rows > 0) {
     $lokasi_data = $result_lokasi->fetch_assoc();
     $current_latitude = $lokasi_data['latitude'];
     $current_longitude = $lokasi_data['longitude'];
     $current_tolerance = $lokasi_data['toleransi_jarak'];
+    $waktu_dibuat = $lokasi_data['waktu_dibuat'];
+    $current_duration = $lokasi_data['durasi_absensi'];
 }
 
 // === KONFIGURASI ===

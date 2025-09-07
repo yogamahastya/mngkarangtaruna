@@ -93,6 +93,16 @@
             <?= $message ?>
         </div>
     <?php endif; ?>
+
+    <?php if ($is_absensi_active): ?>
+        <div id="countdown-timer" class="alert alert-warning text-center fw-bold mt-3" role="alert">
+            Waktu Absensi: <span id="timer-display"></span>
+        </div>
+    <?php else: ?>
+        <div class="alert alert-danger text-center fw-bold mt-3" role="alert">
+            Sesi Absensi Sudah Berakhir.
+        </div>
+    <?php endif; ?>
     <?php if (count($anggota) > 0): ?>
         <div class="">
             <table class="table table-hover table-striped">
@@ -176,16 +186,60 @@
         </ul>
     </nav>
     <script>
+    // =================================================================
+    // Logika JavaScript untuk Timer dan Geolocation
+    // =================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menggunakan PHP untuk mengirim data ke JavaScript
+        const remainingTime = <?= json_encode($remaining_time); ?>;
+        const isAbsensiActive = <?= json_encode($is_absensi_active); ?>;
+        const timerDisplay = document.getElementById('timer-display');
+        const absenButtons = document.querySelectorAll('.absen-btn');
+    
+        // Memastikan timer hanya berjalan jika sesi aktif dan ada sisa waktu
+        if (isAbsensiActive && remainingTime > 0) {
+            let time = remainingTime;
+            const timerInterval = setInterval(() => {
+                time--;
+                timerDisplay.textContent = time + ' detik';
+    
+                if (time <= 0) {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = 'Waktu habis!';
+                    absenButtons.forEach(button => {
+                        button.disabled = true;
+                        button.textContent = 'Absensi Berakhir';
+                        button.classList.remove('btn-primary');
+                        button.classList.add('btn-secondary');
+                    });
+                }
+            }, 1000);
+        } else {
+            // Jika sesi tidak aktif dari awal, nonaktifkan tombol absensi
+            absenButtons.forEach(button => {
+                button.disabled = true;
+                button.textContent = 'Absensi Berakhir';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-secondary');
+            });
+        }
+    });
+
     function getLocationAndSubmit(anggotaId) {
+        // Cek kembali status absensi sebelum mengirim
+        const absenBtn = document.getElementById('absenBtn_' + anggotaId);
+        if (absenBtn && absenBtn.disabled) {
+            alert("Absensi sudah berakhir.");
+            return;
+        }
+
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(position) {
                     const latitude = position.coords.latitude;
                     const longitude = position.coords.longitude;
-                    // Menetapkan nilai ke input tersembunyi
                     document.getElementById('userLat_' + anggotaId).value = latitude;
                     document.getElementById('userLon_' + anggotaId).value = longitude;
-                    // Mengirim form
                     document.getElementById('formAbsen_' + anggotaId).submit();
                 },
                 function(error) {

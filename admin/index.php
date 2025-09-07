@@ -724,6 +724,11 @@ require_once 'process_data.php';
                         <input type="number" class="form-control" id="jarak_toleransi" name="jarak_toleransi" required value="<?= htmlspecialchars($current_tolerance) ?>">
                         <div class="form-text">Jarak maksimal dari lokasi yang diizinkan untuk absensi.</div>
                     </div>
+                    <div class="mb-3">
+                        <label for="durasi_absensi" class="form-label">Durasi Absensi (menit)</label>
+                        <input type="number" class="form-control" id="lokasi_durasi" name="lokasi_durasi" required value="<?= htmlspecialchars($current_duration) ?>">
+                        <div class="form-text">Contoh: 60 menit = 1 jam.</div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>

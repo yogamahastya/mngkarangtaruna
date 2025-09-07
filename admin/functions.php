@@ -161,20 +161,22 @@ function handleDelete($conn, $tableName, $id) {
         return false;
     }
 }
-function handleUpdateLocation($conn, $latitude, $longitude, $toleransi) {
-    // Komentar: Tidak ada perubahan yang diperlukan di sini.
-    $sql = "INSERT INTO lokasi_absensi (id, latitude, longitude, toleransi_jarak)
-                VALUES (1, ?, ?, ?)
-                ON DUPLICATE KEY UPDATE
-                latitude = VALUES(latitude),
-                longitude = VALUES(longitude),
-                toleransi_jarak = VALUES(toleransi_jarak)";
+function handleUpdateLocation($conn, $latitude, $longitude, $toleransi, $durasi) {
+    $sql = "INSERT INTO lokasi_absensi (id, latitude, longitude, toleransi_jarak, durasi_absensi, waktu_dibuat)
+            VALUES (1, ?, ?, ?, ?, NOW())
+            ON DUPLICATE KEY UPDATE
+            latitude = VALUES(latitude),
+            longitude = VALUES(longitude),
+            toleransi_jarak = VALUES(toleransi_jarak),
+            durasi_absensi = VALUES(durasi_absensi),
+            waktu_dibuat = NOW()"; 
+    
     $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        error_log("Prepare failed: (" . $conn->errno . ") " . $conn->error);
-        return false;
-    }
-    $stmt->bind_param("ddi", $latitude, $longitude, $toleransi);
+    
+    // Pastikan bind_param sesuai dengan urutan dan tipe data
+    // d = double, d = double, i = integer, i = integer
+    $stmt->bind_param("ddii", $latitude, $longitude, $toleransi, $durasi);
+    
     return $stmt->execute();
 }
 // =================================================================
