@@ -100,6 +100,110 @@
     </div>
 <?php else: ?>
     <h2 class="mb-4 text-primary"><i class="fa-solid fa-receipt me-2"></i>Rekapitulasi iuran17</h2>
+    <?php
+    // Pastikan $conn sudah terdefinisi dan terhubung ke database.
+
+    // Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
+    $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
+
+    // Mengambil total iuran keseluruhan untuk tahun yang dipilih
+    $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran17 WHERE YEAR(tanggal_bayar) = ?");
+    $stmt->bind_param("s", $selectedYear);
+    $stmt->execute();
+    $stmt->bind_result($totalIuran17);
+    $stmt->fetch();
+    $stmt->close();
+
+    // Mengambil data pemasukan iuran bulanan untuk tahun yang dipilih
+    $pemasukanData = [];
+    $labels = [];
+
+    // Loop dari Januari hingga Desember di tahun yang dipilih
+    for ($i = 1; $i <= 12; $i++) {
+        $date = new DateTime("$selectedYear-$i-01");
+        $month = $date->format('m');
+        $monthName = $date->format('M Y'); // Contoh: Jan 2024
+
+        // Kueri untuk menghitung total pemasukan iuran per bulan
+        $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran17 WHERE MONTH(tanggal_bayar) = ? AND YEAR(tanggal_bayar) = ?");
+        $stmt->bind_param("ss", $month, $selectedYear);
+        $stmt->execute();
+        $stmt->bind_result($monthlyPemasukan);
+        $stmt->fetch();
+        $stmt->close();
+
+        $monthlyPemasukan = $monthlyPemasukan ?? 0;
+
+        // HANYA TAMBAHKAN DATA JIKA ADA PEMASUKAN DI BULAN TERSEBUT
+        if ($monthlyPemasukan > 0) {
+            $pemasukanData[] = $monthlyPemasukan;
+            $labels[] = $monthName;
+        }
+    }
+
+    // Mengubah array PHP ke JSON untuk digunakan di JavaScript
+    $pemasukanDataJson = json_encode($pemasukanData);
+    $labelsJson = json_encode($labels);
+    ?>
+
+    <div class="row mb-3 gy-2 align-items-center">
+        <div class="col-12 col-md-6">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa-solid fa-calendar-alt"></i></span>
+                <select class="form-select" onchange="window.location.href = '?tab=<?= $active_tab ?>&year=' + this.value + '<?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>'">
+                    <?php
+                    $minYearQuery = "SELECT MIN(YEAR(tanggal_bayar)) AS min_year FROM iuran17";
+                    $minYearResult = $conn->query($minYearQuery);
+                    $minYearRow = $minYearResult->fetch_assoc();
+                    $minYear = $minYearRow['min_year'] ? $minYearRow['min_year'] : date('Y');
+
+                    for ($year = date('Y'); $year >= $minYear; $year--):
+                    ?>
+                        <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
+                            <?= $year ?>
+                        </option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <form action="" method="GET" class="d-flex w-100">
+                <input type="hidden" name="tab" value="iuran17">
+                <input type="hidden" name="year" value="<?= $selectedYear ?>">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Cari iuran 17..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
+                    <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                    <?php if (!empty($searchTerm)): ?>
+                        <a href="?tab=iuran17&year=<?= $selectedYear ?>" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="">
+        <div class="col-12 col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">Total Pemasukan Iuran 17</h5>
+                    <p class="card-text fs-4">Rp<?= number_format($totalIuran17, 0, ',', '.') ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Progres Pemasukan Iuran 17 Bulanan (Tahun <?= $selectedYear ?>)</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <canvas id="pemasukan17BarChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row mb-3 gy-2 align-items-center">
         <div class="col-12 col-md-6">
             <form action="" method="GET" class="d-flex align-items-center w-100">
@@ -220,3 +324,71 @@
         </nav>
     </div>
 <?php endif; ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const pemasukanData = <?= $pemasukanDataJson ?>;
+        const labels = <?= $labelsJson ?>;
+
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Total Pemasukan (Rp)',
+                    data: pemasukanData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        const config = {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Jumlah Pemasukan (Rp)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Bulan'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += 'Rp' + context.raw.toLocaleString('id-ID');
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(document.getElementById('pemasukan17BarChart'), config);
+    });
+</script>
