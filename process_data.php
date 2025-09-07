@@ -123,7 +123,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['absen_submit'])) {
     $anggotaId = intval($_POST['anggota_id'] ?? 0);
     $userLat = floatval($_POST['latitude'] ?? 0);
     $userLon = floatval($_POST['longitude'] ?? 0);
-    $userIp = $_SERVER['REMOTE_ADDR'];
+
+    // Perbaikan: Tambahkan logika untuk mendapatkan IP publik yang benar
+    function get_client_ip() {
+        $ipaddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if(isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if(isset($_SERVER['HTTP_FORWARDED']))
+            $ipaddress = $_SERVER['HTTP_FORWARDED'];
+        else if(isset($_SERVER['REMOTE_ADDR']))
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
+    }
+
+    $userIp = get_client_ip();
 
     // LANGKAH 1: Validasi waktu utama. Jika absensi tidak aktif, segera tolak.
     if (!$is_absensi_active) {
