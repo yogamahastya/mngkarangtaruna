@@ -68,7 +68,69 @@
         </div>
     </div>
 <?php else: ?>
+    
     <h2 class="mb-4 text-primary"><i class="fa-solid fa-user-check me-2"></i>Absensi Perkumpulan Hari Ini</h2>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <?php
+    // Pastikan $conn sudah terdefinisi dan terhubung ke database.
+
+    // Mengambil data statistik kehadiran
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE MONTH(tanggal_absen) = MONTH(CURDATE()) AND YEAR(tanggal_absen) = YEAR(CURDATE())");
+    $stmt->execute();
+    $stmt->bind_result($thisMonthCount);
+    $stmt->fetch();
+    $stmt->close();
+
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE MONTH(tanggal_absen) = MONTH(CURDATE() - INTERVAL 1 MONTH) AND YEAR(tanggal_absen) = YEAR(CURDATE() - INTERVAL 1 MONTH)");
+    $stmt->execute();
+    $stmt->bind_result($lastMonthCount);
+    $stmt->fetch();
+    $stmt->close();
+
+    $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE YEAR(tanggal_absen) = YEAR(CURDATE())");
+    $stmt->execute();
+    $stmt->bind_result($yearlyCount);
+    $stmt->fetch();
+    $stmt->close();
+
+    // Mengambil data kehadiran bulanan untuk 12 bulan terakhir untuk chart
+    $monthlyData = [];
+    $labels = [];
+    for ($i = 11; $i >= 0; $i--) {
+        $date = new DateTime("-$i months");
+        $month = $date->format('m');
+        $year = $date->format('Y');
+        $monthName = $date->format('M Y'); // Contoh: Jan 2024
+
+        $stmt = $conn->prepare("SELECT COUNT(DISTINCT anggota_id) FROM absensi WHERE MONTH(tanggal_absen) = ? AND YEAR(tanggal_absen) = ?");
+        $stmt->bind_param("ss", $month, $year);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+
+        $monthlyData[] = $count;
+        $labels[] = $monthName;
+    }
+
+    $monthlyDataJson = json_encode($monthlyData);
+    $labelsJson = json_encode($labels);
+    ?>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Progres Kehadiran Bulanan (1 Tahun Terakhir)</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12">
+                    <canvas id="monthlyBarChart" style="max-height: 400px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row mb-3 gy-2 align-items-center">
         <div class="col-12 col-md-6">
             <div class="alert alert-info mb-0" role="alert">
@@ -88,6 +150,7 @@
             </form>
         </div>
     </div>
+
     <?php if (!empty($message)): ?>
         <div class="alert alert-<?= $messageType ?> mt-3 mb-4" role="alert">
             <?= $message ?>
@@ -103,77 +166,74 @@
             Sesi Absensi Sudah Berakhir.
         </div>
     <?php endif; ?>
-    <?php if (count($anggota) > 0): ?>
+
+    <?php if (isset($anggota) && is_array($anggota) && count($anggota) > 0): ?>
         <div class="">
-            <table class="table table-hover table-striped">
-                <tbody>
-                    <div class="">
-                        <div class="row">
-                            <?php 
-                            foreach ($anggota as $row): 
-                                // Memeriksa status absensi hari ini
-                                $stmt = $conn->prepare("SELECT COUNT(*) FROM absensi WHERE anggota_id = ? AND DATE(tanggal_absen) = CURDATE()");
-                                if (!$stmt) {
-                                    // Handle error (optional, sudah ada di proses_data)
-                                } else {
-                                    $stmt->bind_param("i", $row['id']);
-                                    $stmt->execute();
-                                    $stmt->bind_result($isAbsent);
-                                    $stmt->fetch();
-                                    $stmt->close();
-                                }
-                            ?>
-                            <div class="col-lg-4 col-md-6 col-sm-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center">
-                                            <div>
-                                                <img src="<?= $profile_image ?>" alt="" class="avatar-md rounded-circle img-thumbnail" />
-                                            </div>
-                                            <div class="flex-1 ms-3">
-                                                <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a></h5>
-                                                <?php if (isset($isAbsent) && $isAbsent > 0): ?>
-                                                    <span class="badge badge-soft-success mb-0">Hadir</span>
-                                                <?php else: ?>
-                                                    <span class="badge badge-soft-danger mb-0">Belum Hadir</span>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                        <div class="d-flex gap-2 pt-4">
-                                            <?php if (!isset($isAbsent) || $isAbsent == 0): ?>
-                                                <a href="?tab=absensi&member_id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-soft-primary btn-sm w-50">
-                                                    <i class="bx bx-receipt me-1"></i> Riwayat Absen
-                                                </a>
-                                                <form id="formAbsen_<?= $row['id'] ?>" action="?tab=absensi" method="POST" style="display:none;">
-                                                    <input type="hidden" name="absen_submit" value="1">
-                                                    <input type="hidden" name="anggota_id" value="<?= $row['id'] ?>">
-                                                    <input type="hidden" name="latitude" id="userLat_<?= $row['id'] ?>">
-                                                    <input type="hidden" name="longitude" id="userLon_<?= $row['id'] ?>">
-                                                </form>
-                                                <button type="button" class="btn btn-primary btn-sm w-50" onclick="getLocationAndSubmit(<?= $row['id'] ?>)">
-                                                    <i class="bx bx-check me-1"></i> Absen
-                                                </button>                                                            
-                                            <?php else: ?>
-                                                <a href="?tab=absensi&member_id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-soft-primary btn-sm w-50">
-                                                    <i class="bx bx-receipt me-1"></i> Riwayat Absen
-                                                </a>
-                                                <button class="btn btn-soft-secondary btn-sm w-50 me-2" disabled>
-                                                    <i class="bx bx-check-circle me-1"></i> Sudah Absen
-                                                </button>
-                                            <?php endif; ?>
-                                        </div>
+            <div class="row">
+                <?php 
+                foreach ($anggota as $row): 
+                    // Memeriksa status absensi hari ini
+                    // Pastikan $conn sudah terdefinisi di file yang sama atau di-include
+                    $stmt = $conn->prepare("SELECT COUNT(*) FROM absensi WHERE anggota_id = ? AND DATE(tanggal_absen) = CURDATE()");
+                    if (!$stmt) {
+                        // Jika ada error pada prepare statement
+                        // Anda bisa menambahkan logging atau pesan error di sini
+                    } else {
+                        $stmt->bind_param("i", $row['id']);
+                        $stmt->execute();
+                        $stmt->bind_result($isAbsent);
+                        $stmt->fetch();
+                        $stmt->close();
+                    }
+                ?>
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <img src="<?= htmlspecialchars($profile_image) ?>" alt="Profil Anggota" class="avatar-md rounded-circle img-thumbnail" />
+                                    </div>
+                                    <div class="flex-1 ms-3">
+                                        <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a></h5>
+                                        <?php if (isset($isAbsent) && $isAbsent > 0): ?>
+                                            <span class="badge badge-soft-success mb-0">Hadir</span>
+                                        <?php else: ?>
+                                            <span class="badge badge-soft-danger mb-0">Belum Hadir</span>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
+                                <div class="d-flex gap-2 pt-4">
+                                    <?php if (!isset($isAbsent) || $isAbsent == 0): ?>
+                                        <a href="?tab=absensi&member_id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-soft-primary btn-sm w-50">
+                                            <i class="bx bx-receipt me-1"></i> Riwayat Absen
+                                        </a>
+                                        <form id="formAbsen_<?= $row['id'] ?>" action="?tab=absensi" method="POST" style="display:none;">
+                                            <input type="hidden" name="absen_submit" value="1">
+                                            <input type="hidden" name="anggota_id" value="<?= htmlspecialchars($row['id']) ?>">
+                                            <input type="hidden" name="latitude" id="userLat_<?= $row['id'] ?>">
+                                            <input type="hidden" name="longitude" id="userLon_<?= $row['id'] ?>">
+                                        </form>
+                                        <button type="button" class="btn btn-primary btn-sm w-50" onclick="getLocationAndSubmit(<?= htmlspecialchars($row['id']) ?>)">
+                                            <i class="bx bx-check me-1"></i> Absen
+                                        </button>
+                                    <?php else: ?>
+                                        <a href="?tab=absensi&member_id=<?= htmlspecialchars($row['id']) ?>" class="btn btn-soft-primary btn-sm w-50">
+                                            <i class="bx bx-receipt me-1"></i> Riwayat Absen
+                                        </a>
+                                        <button class="btn btn-soft-secondary btn-sm w-50 me-2" disabled>
+                                            <i class="bx bx-check-circle me-1"></i> Sudah Absen
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                            <?php endforeach; ?>
                         </div>
                     </div>
-                </tbody>
-            </table>
+                <?php endforeach; ?>
+            </div>
         </div>
     <?php else: ?>
-        <div class="col-12 text-center text-muted mt-5">
-            <p>Tidak ada data absensi.</p>
+        <div class="alert alert-warning text-center">
+            <i class="fas fa-exclamation-triangle me-2"></i> Tidak ada data anggota yang ditemukan.
         </div>
     <?php endif; ?>
     <nav aria-label="Page navigation example">
@@ -266,4 +326,65 @@
         }
     }
 </script>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data untuk Bar Chart
+            const monthlyData = <?= $monthlyDataJson ?>;
+            const labels = <?= $labelsJson ?>;
+
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Kehadiran',
+                    data: monthlyData,
+                    backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            };
+
+            const config = {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Jumlah Anggota Hadir'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Bulan'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.raw;
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            new Chart(document.getElementById('monthlyBarChart'), config);
+        });
+    </script>
 <?php endif; ?>
