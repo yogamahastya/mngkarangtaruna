@@ -97,7 +97,11 @@
                                         </div>
                                         <div class="flex-1 ms-3">
                                             <h5 class="font-size-16 mb-1 text-dark"><?= htmlspecialchars($title_text) ?></h5>
-                                            <span class="badge <?= $badge_class ?> mb-0"><?= htmlspecialchars(ucfirst($row['deskripsi'])) ?></span>
+                                            <div class="d-block mt-1">
+                                                <span class="badge <?= $badge_class ?>" style="word-break: break-word; white-space: normal;">
+                                                    <?= htmlspecialchars(ucfirst($row['deskripsi'])) ?>
+                                                </span>
+                                            </div>
                                         </div>
                                         <div class="ms-auto">
                                             <div class="dropdown">
@@ -138,18 +142,16 @@
         </tbody>
     </table>
     <?php if ($total_pages > 1): ?>
-    <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
-        <ul class="pagination justify-content-center">
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
+        <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
+            <ul class="pagination justify-content-center">
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                        <a class="page-link" href="?tab=keuangan&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
+                    </li>
+                <?php endfor; ?>
             </ul>
-    </nav>
-<?php endif; ?>
-
-    
+        </nav>
+    <?php endif; ?>
 </div>
 <?php if ($total_pages > 1): ?>
     <nav aria-label="Page navigation example" class="mt-4 d-md-none">

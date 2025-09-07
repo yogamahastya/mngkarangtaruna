@@ -56,15 +56,21 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-md">
+                                    <div class="avatar-md flex-shrink-0">
                                         <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
                                             <i class="<?= $icon_class ?>"></i>
                                         </div>
                                     </div>
                                     <div class="flex-1 ms-3">
-                                        <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($title_text) ?></a></h5>
-                                        <span class="badge <?= $badge_class ?> mb-0"><?= htmlspecialchars(ucfirst($row['deskripsi'])) ?></span>
+                                        <h5 class="font-size-16 mb-1 text-dark"><?= htmlspecialchars($title_text) ?></h5>
+                                        <div class="d-block mt-1">
+                                            <span class="badge <?= $badge_class ?>" style="word-break: break-word; white-space: normal;">
+                                                <?= htmlspecialchars(ucfirst($row['deskripsi'])) ?>
+                                            </span>
+                                        </div>
                                     </div>
+                                    <div class="ms-auto">
+                                        </div>
                                 </div>
                                 <div class="mt-3 pt-1">
                                     <h4 class="<?= $amount_color ?> mb-0"><?= htmlspecialchars(formatRupiah($row['jumlah'])) ?></h4>
