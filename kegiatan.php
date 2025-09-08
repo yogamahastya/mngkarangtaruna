@@ -37,10 +37,12 @@
                                         </div>
                                     </div>
                                     <div class="mt-3 pt-1">
-                                        <p class="text-muted mb-0"><i class="mdi mdi-map-marker-outline font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['lokasi']) ?></p>
-                                        <p class="text-muted mb-0 mt-2"><i class="mdi mdi-calendar-range font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['tanggal_mulai']) ?></p>
+                                        <p class="text-muted mb-2"><i class="mdi mdi-map-marker-outline font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['lokasi'] ?? '') ?></p>
+                                        <p class="text-muted mb-2"><i class="mdi mdi-text-long font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['deskripsi'] ?? '') ?></p>               
+                                        <p class="text-muted mb-2"><i class="mdi mdi-file-document-outline font-size-15 align-middle pe-2 text-primary"></i> Notulen: <?= htmlspecialchars($row['notulen'] ?? '') ?></p>                                    
+                                        <p class="text-muted mb-0"><i class="mdi mdi-calendar-range font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['tanggal_mulai'] ?? '') ?></p>
                                     </div>
-                                    </div>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
