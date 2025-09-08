@@ -108,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // BAGIAN EDIT KEGIATAN
 
-
 document.addEventListener('DOMContentLoaded', function () {
     var editModal = document.getElementById('editKegiatanModal');
     editModal.addEventListener('show.bs.modal', function (event) {
