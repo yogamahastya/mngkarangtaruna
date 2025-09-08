@@ -949,6 +949,33 @@ require_once 'process_data.php';
             console.error("Elemen tombol atau input iuran17 tidak ditemukan.");
         }
     });
-</script>   
+</script> 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Dapatkan modal dan elemen form
+    const editIuran17Modal = document.getElementById('editIuran17Modal');
+    const form = editIuran17Modal.querySelector('form');
+
+    // Tambahkan event listener saat modal muncul
+    editIuran17Modal.addEventListener('show.bs.modal', function (event) {
+        // Dapatkan tombol yang memicu modal
+        const button = event.relatedTarget; 
+
+        // Ambil data dari atribut data-*
+        const id = button.getAttribute('data-id');
+        const anggotaId = button.getAttribute('data-anggota-id');
+        const tanggal = button.getAttribute('data-tanggal');
+        const jumlah = button.getAttribute('data-jumlah');
+        const keterangan = button.getAttribute('data-keterangan');
+
+        // Isi form di dalam modal dengan data yang diambil
+        document.getElementById('edit-iuran17-id').value = id;
+        document.getElementById('edit-anggota-id17').value = anggotaId;
+        document.getElementById('edit-tanggal-bayar17').value = tanggal;
+        document.getElementById('edit-jumlah-iuran17').value = jumlah;
+        document.getElementById('edit-keterangan17').value = keterangan;
+    });
+});
+</script>  
 </body>
 </html>

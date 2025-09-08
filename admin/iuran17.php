@@ -13,6 +13,9 @@ $stmt->bind_result($totalIuran17);
 $stmt->fetch();
 $stmt->close();
 
+// === PERBAIKAN DI SINI ===
+$totalIuran17 = $totalIuran17 ?? 0;
+
 // Mengambil data pemasukan iuran bulanan untuk tahun yang dipilih
 $pemasukanData = [];
 $labels = [];
@@ -118,22 +121,22 @@ $labelsJson = json_encode($labels);
                 <?php if (count($iuran17) > 0): ?>
                     <?php foreach ($iuran17 as $row): ?>
                         <?php
-                            $anggotaName = 'Tidak Ditemukan';
-                            // Periksa jika ada anggota_nama dari join (jika search term diterapkan)
-                            if (isset($row['anggota_nama'])) {
-                                $anggotaName = $row['anggota_nama'];
-                            } else {
-                                // Jika tidak ada join, cari manual dari anggotaList
-                                foreach ($anggotaList as $member) {
-                                    if ($member['id'] == $row['anggota_id']) {
-                                        $anggotaName = $member['nama_lengkap'];
-                                        break;
-                                    }
+                        $anggotaName = 'Tidak Ditemukan';
+                        // Periksa jika ada anggota_nama dari join (jika search term diterapkan)
+                        if (isset($row['anggota_nama'])) {
+                            $anggotaName = $row['anggota_nama'];
+                        } else {
+                            // Jika tidak ada join, cari manual dari anggotaList
+                            foreach ($anggotaList as $member) {
+                                if ($member['id'] == $row['anggota_id']) {
+                                    $anggotaName = $member['nama_lengkap'];
+                                    break;
                                 }
                             }
-                            // Logika untuk menentukan status berdasarkan DUES_MONTHLY_FEE17 dari config.php
-                            $status = ($row['jumlah_bayar'] >= DUES_MONTHLY_FEE17) ? 'Lunas' : 'Belum Lunas';
-                            $badgeClass = ($status == 'Lunas') ? 'bg-success' : 'bg-danger';
+                        }
+                        // Logika untuk menentukan status berdasarkan DUES_MONTHLY_FEE17 dari config.php
+                        $status = ($row['jumlah_bayar'] >= DUES_MONTHLY_FEE17) ? 'Lunas' : 'Belum Lunas';
+                        $badgeClass = ($status == 'Lunas') ? 'bg-success' : 'bg-danger';
                         ?>
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
                             <div class="card h-100 shadow-sm">

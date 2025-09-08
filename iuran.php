@@ -101,50 +101,54 @@
 <?php else: ?>
     <h2 class="mb-4 text-primary"><i class="fa-solid fa-receipt me-2"></i>Rekapitulasi Iuran</h2>
     <?php
-    // Pastikan $conn sudah terdefinisi dan terhubung ke database.
+// Pastikan $conn sudah terdefinisi dan terhubung ke database.
 
-    // Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
-    $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
+// Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
+$selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
 
-    // Mengambil total iuran keseluruhan untuk tahun yang dipilih
-    $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran WHERE YEAR(tanggal_bayar) = ?");
-    $stmt->bind_param("s", $selectedYear);
+// Mengambil total iuran keseluruhan untuk tahun yang dipilih
+$stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran WHERE YEAR(tanggal_bayar) = ?");
+$stmt->bind_param("s", $selectedYear);
+$stmt->execute();
+$stmt->bind_result($totalIuran);
+$stmt->fetch();
+$stmt->close();
+
+// === PERBAIKAN UTAMA DI SINI ===
+// Pastikan $totalIuran adalah 0 jika tidak ada data ditemukan
+$totalIuran = $totalIuran ?? 0;
+
+// Mengambil data pemasukan iuran bulanan untuk tahun yang dipilih
+$pemasukanData = [];
+$labels = [];
+
+// Loop dari Januari hingga Desember di tahun yang dipilih
+for ($i = 1; $i <= 12; $i++) {
+    $date = new DateTime("$selectedYear-$i-01");
+    $month = $date->format('m');
+    $monthName = $date->format('M Y'); // Contoh: Jan 2024
+
+    // Kueri untuk menghitung total pemasukan iuran per bulan
+    $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran WHERE MONTH(tanggal_bayar) = ? AND YEAR(tanggal_bayar) = ?");
+    $stmt->bind_param("ss", $month, $selectedYear);
     $stmt->execute();
-    $stmt->bind_result($totalIuran);
+    $stmt->bind_result($monthlyPemasukan);
     $stmt->fetch();
     $stmt->close();
 
-    // Mengambil data pemasukan iuran bulanan untuk tahun yang dipilih
-    $pemasukanData = [];
-    $labels = [];
+    $monthlyPemasukan = $monthlyPemasukan ?? 0;
 
-    // Loop dari Januari hingga Desember di tahun yang dipilih
-    for ($i = 1; $i <= 12; $i++) {
-        $date = new DateTime("$selectedYear-$i-01");
-        $month = $date->format('m');
-        $monthName = $date->format('M Y'); // Contoh: Jan 2024
-
-        // Kueri untuk menghitung total pemasukan iuran per bulan
-        $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran WHERE MONTH(tanggal_bayar) = ? AND YEAR(tanggal_bayar) = ?");
-        $stmt->bind_param("ss", $month, $selectedYear);
-        $stmt->execute();
-        $stmt->bind_result($monthlyPemasukan);
-        $stmt->fetch();
-        $stmt->close();
-
-        $monthlyPemasukan = $monthlyPemasukan ?? 0;
-
-        // HANYA TAMBAHKAN DATA JIKA ADA PEMASUKAN DI BULAN TERSEBUT
-        if ($monthlyPemasukan > 0) {
-            $pemasukanData[] = $monthlyPemasukan;
-            $labels[] = $monthName;
-        }
+    // HANYA TAMBAHKAN DATA JIKA ADA PEMASUKAN DI BULAN TERSEBUT
+    if ($monthlyPemasukan > 0) {
+        $pemasukanData[] = $monthlyPemasukan;
+        $labels[] = $monthName;
     }
+}
 
-    // Mengubah array PHP ke JSON untuk digunakan di JavaScript
-    $pemasukanDataJson = json_encode($pemasukanData);
-    $labelsJson = json_encode($labels);
-    ?>
+// Mengubah array PHP ke JSON untuk digunakan di JavaScript
+$pemasukanDataJson = json_encode($pemasukanData);
+$labelsJson = json_encode($labels);
+?>
 
     <div class="">
         <div class="col-12 col-md-4">
