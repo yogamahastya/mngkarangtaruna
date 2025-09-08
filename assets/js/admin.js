@@ -105,3 +105,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// BAGIAN EDIT KEGIATAN
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    var editModal = document.getElementById('editKegiatanModal');
+    editModal.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget; // Tombol yang diklik
+
+        // Ambil data dari tombol
+        var id        = button.getAttribute('data-id');
+        var nama      = button.getAttribute('data-nama');
+        var lokasi    = button.getAttribute('data-lokasi');
+        var deskripsi = button.getAttribute('data-deskripsi');
+        var notulen = button.getAttribute('data-notulen');
+        var tanggal   = button.getAttribute('data-tanggal');
+
+        // Isi ke dalam form di modal
+        editModal.querySelector('#edit-kegiatan-id').value   = id;
+        editModal.querySelector('#edit-nama-kegiatan').value = nama;
+        editModal.querySelector('#edit-lokasi').value        = lokasi;
+        editModal.querySelector('#edit-deskripsi').value     = deskripsi;
+        editModal.querySelector('#edit-notulen').value       = notulen;
+        editModal.querySelector('#edit-tanggal-mulai').value = tanggal;
+    });
+});
+
+
+
+
+//BAGIAN IURAN
+document.addEventListener('DOMContentLoaded', function() {
+    // Dapatkan modal dan elemen form
+    const editIuran17Modal = document.getElementById('editIuran17Modal');
+    const form = editIuran17Modal.querySelector('form');
+
+    // Tambahkan event listener saat modal muncul
+    editIuran17Modal.addEventListener('show.bs.modal', function (event) {
+        // Dapatkan tombol yang memicu modal
+        const button = event.relatedTarget; 
+
+        // Ambil data dari atribut data-*
+        const id = button.getAttribute('data-id');
+        const anggotaId = button.getAttribute('data-anggota-id');
+        const tanggal = button.getAttribute('data-tanggal');
+        const jumlah = button.getAttribute('data-jumlah');
+        const keterangan = button.getAttribute('data-keterangan');
+
+        // Isi form di dalam modal dengan data yang diambil
+        document.getElementById('edit-iuran17-id').value = id;
+        document.getElementById('edit-anggota-id17').value = anggotaId;
+        document.getElementById('edit-tanggal-bayar17').value = tanggal;
+        document.getElementById('edit-jumlah-iuran17').value = jumlah;
+        document.getElementById('edit-keterangan17').value = keterangan;
+    });
+});

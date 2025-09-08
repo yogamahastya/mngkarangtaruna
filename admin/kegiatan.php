@@ -30,9 +30,18 @@
                                 <div class="dropdown float-end">
                                     <a class="text-muted dropdown-toggle font-size-16" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"><i class="bx bx-dots-horizontal-rounded"></i></a>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a class="dropdown-item edit-btn" href="#" data-bs-toggle="modal" data-bs-target="#editKegiatanModal" data-id="<?= $row['id'] ?>" data-nama="<?= htmlspecialchars($row['nama_kegiatan']) ?>" data-deskripsi="<?= htmlspecialchars($row['deskripsi']) ?>" data-lokasi="<?= htmlspecialchars($row['lokasi']) ?>" data-tanggal="<?= htmlspecialchars($row['tanggal_mulai']) ?>">
+                                        <a class="dropdown-item edit-btn" href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editKegiatanModal"
+                                            data-id="<?= $row['id'] ?>"
+                                            data-nama="<?= htmlspecialchars($row['nama_kegiatan']) ?>"
+                                            data-deskripsi="<?= htmlspecialchars($row['deskripsi']) ?>"
+                                            data-lokasi="<?= htmlspecialchars($row['lokasi']) ?>"
+                                            data-notulen="<?= htmlspecialchars($row['notulen']) ?>"
+                                            data-tanggal="<?= date('Y-m-d', strtotime($row['tanggal_mulai'])) ?>">
                                             <i class="bx bx-edit me-1"></i> Edit
                                         </a>
+
                                         <form action="" method="POST" class="d-inline">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="tab" value="kegiatan">
@@ -55,9 +64,10 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 pt-1">
-                                    <p class="text-muted mb-2"><i class="mdi mdi-map-marker-outline font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['lokasi']) ?></p>
-                                    <p class="text-muted mb-2"><i class="mdi mdi-text-long font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['deskripsi']) ?></p>
-                                    <p class="text-muted mb-0"><i class="mdi mdi-calendar-range font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['tanggal_mulai']) ?></p>
+                                    <p class="text-muted mb-2"><i class="mdi mdi-map-marker-outline font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['lokasi'] ?? '') ?></p>
+                                    <p class="text-muted mb-2"><i class="mdi mdi-text-long font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['deskripsi'] ?? '') ?></p>               
+                                    <p class="text-muted mb-2"><i class="mdi mdi-file-document-outline font-size-15 align-middle pe-2 text-primary"></i> Notulen: <?= htmlspecialchars($row['notulen'] ?? '') ?></p>                                    
+                                    <p class="text-muted mb-0"><i class="mdi mdi-calendar-range font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['tanggal_mulai'] ?? '') ?></p>
                                 </div>
                             </div>
                         </div>

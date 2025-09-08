@@ -255,16 +255,20 @@ require_once 'process_data.php';
                         <input type="text" class="form-control" id="add-nama-kegiatan" name="data[nama_kegiatan]" required>
                     </div>
                     <div class="mb-3">
-                        <label for="add-deskripsi" class="form-label">Deskripsi</label>
-                        <textarea class="form-control" id="add-deskripsi" name="data[deskripsi]" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
                         <label for="add-lokasi" class="form-label">Lokasi</label>
                         <input type="text" class="form-control" id="add-lokasi" name="data[lokasi]">
                     </div>
                     <div class="mb-3">
+                        <label for="add-deskripsi" class="form-label">Deskripsi</label>
+                        <input type="text" class="form-control" id="add-deskripsi" name="data[deskripsi]" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-notulen" class="form-label">Notulen</label>
+                        <textarea class="form-control" id="add-notulen" name="data[notulen]" rows="3"></textarea>
+                    </div>                  
+                    <div class="mb-3">
                         <label for="add-tanggal-mulai" class="form-label">Tanggal Mulai</label>
-                        <input type="date" class="form-control" id="add-tanggal-mulai" name="data[tanggal_mulai]" required>
+                        <input type="date" class="form-control" id="add-tanggal-mulai" name="data[tanggal_mulai]" value="<?= date('Y-m-d'); ?>" required>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -288,22 +292,32 @@ require_once 'process_data.php';
                     <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="tab" value="kegiatan">
                     <input type="hidden" name="id" id="edit-kegiatan-id">
+
                     <div class="mb-3">
                         <label for="edit-nama-kegiatan" class="form-label">Nama Kegiatan</label>
                         <input type="text" class="form-control" id="edit-nama-kegiatan" name="data[nama_kegiatan]" required>
                     </div>
-                    <div class="mb-3">
-                        <label for="edit-deskripsi" class="form-label">Deskripsi</label>
-                        <textarea class="form-control" id="edit-deskripsi" name="data[deskripsi]" rows="3"></textarea>
-                    </div>
+
                     <div class="mb-3">
                         <label for="edit-lokasi" class="form-label">Lokasi</label>
                         <input type="text" class="form-control" id="edit-lokasi" name="data[lokasi]">
                     </div>
+
+                    <div class="mb-3">
+                        <label for="edit-deskripsi" class="form-label">Deskripsi</label>
+                        <input type="text" class="form-control" id="edit-deskripsi" name="data[deskripsi]" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="edit-notulen" class="form-label">Notulen</label>
+                        <textarea class="form-control" id="edit-notulen" name="data[notulen]" rows="3"></textarea>
+                    </div> 
+
                     <div class="mb-3">
                         <label for="edit-tanggal-mulai" class="form-label">Tanggal Mulai</label>
                         <input type="date" class="form-control" id="edit-tanggal-mulai" name="data[tanggal_mulai]" required>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
@@ -877,7 +891,7 @@ require_once 'process_data.php';
     });
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Pastikan data anggota tersedia (misal dari PHP)
     const anggotaList = [
         <?php foreach ($anggotaList as $anggota): ?>
@@ -950,32 +964,5 @@ require_once 'process_data.php';
         }
     });
 </script> 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Dapatkan modal dan elemen form
-    const editIuran17Modal = document.getElementById('editIuran17Modal');
-    const form = editIuran17Modal.querySelector('form');
-
-    // Tambahkan event listener saat modal muncul
-    editIuran17Modal.addEventListener('show.bs.modal', function (event) {
-        // Dapatkan tombol yang memicu modal
-        const button = event.relatedTarget; 
-
-        // Ambil data dari atribut data-*
-        const id = button.getAttribute('data-id');
-        const anggotaId = button.getAttribute('data-anggota-id');
-        const tanggal = button.getAttribute('data-tanggal');
-        const jumlah = button.getAttribute('data-jumlah');
-        const keterangan = button.getAttribute('data-keterangan');
-
-        // Isi form di dalam modal dengan data yang diambil
-        document.getElementById('edit-iuran17-id').value = id;
-        document.getElementById('edit-anggota-id17').value = anggotaId;
-        document.getElementById('edit-tanggal-bayar17').value = tanggal;
-        document.getElementById('edit-jumlah-iuran17').value = jumlah;
-        document.getElementById('edit-keterangan17').value = keterangan;
-    });
-});
-</script>  
 </body>
 </html>
