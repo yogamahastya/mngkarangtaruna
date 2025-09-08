@@ -41,7 +41,6 @@
                                             data-tanggal="<?= date('Y-m-d', strtotime($row['tanggal_mulai'])) ?>">
                                             <i class="bx bx-edit me-1"></i> Edit
                                         </a>
-
                                         <form action="" method="POST" class="d-inline">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="tab" value="kegiatan">
