@@ -1,3 +1,48 @@
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .bg-success-gradient {
+            background: linear-gradient(45deg, #28a745, #1d7e35);
+        }
+        .bg-danger-gradient {
+            background: linear-gradient(45deg, #dc3545, #a32734);
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .table-responsive-card {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+        .responsive-amount {
+            /* Tetapkan ukuran font default yang besar untuk desktop */
+            font-size: 2rem; /* Ukuran default yang besar */
+            white-space: nowrap; /* Mencegah angka pecah baris */
+        }
+
+        /* Untuk layar kecil (misalnya, handphone) */
+        @media (max-width: 767.98px) {
+            .responsive-amount {
+                font-size: 1.5rem; /* Kurangi ukuran font agar muat */
+            }
+        }
+
+        /* Atau, jika ingin lebih spesifik untuk layar yang sangat sempit */
+        @media (max-width: 575.98px) {
+            .responsive-amount {
+                font-size: 1.25rem; /* Kurangi lagi agar muat di layar ekstra kecil */
+            }
+        }
+    </style>
+</head>
 <h2 class="mb-4 text-primary"><i class="fa-solid fa-receipt me-2"></i>Kelola Data Iuran</h2>
 <?php
 // Pastikan $conn sudah terdefinisi dan terhubung ke database.
@@ -84,27 +129,27 @@ $labelsJson = json_encode($labels);
     </div>
 </div>
 
-<div class="">
-    <div class="col-12 col-md-4">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <h5 class="card-title">Total Pemasukan Iuran</h5>
-                <p class="card-text fs-4">Rp<?= number_format($totalIuran, 0, ',', '.') ?></p>
+<div class="row mb-4 g-3 d-flex align-items-stretch">
+    <div class="col-12 col-sm-4">
+        <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-cash-stack fs-1 me-3 flex-shrink-0"></i>
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="card-title mb-1 text-truncate">Total Pemasukan</h6>
+                    <p class="card-text fs-4 fw-bold responsive-amount">
+                        Rp<?= number_format($totalIuran, 0, ',', '.') ?>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="card mb-4">
-    <div class="card-header bg-info text-white">
-        <h5 class="mb-0">Progres Pemasukan Iuran Bulanan (Tahun <?= $selectedYear ?>)</h5>
+<div>
+<div class="card mb-4 shadow rounded-4">
+    <div class="card-header bg-primary text-white fw-bold">
+        Progres pemasukan Iuran - Bulanan (Tahun <?= $selectedYear ?>)
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-12">
-                <canvas id="pemasukanBarChart" style="max-height: 400px;"></canvas>
-            </div>
-        </div>
+        <canvas id="pemasukanBarChart" style="height:350px; width:100%;"></canvas>
     </div>
 </div>
 
