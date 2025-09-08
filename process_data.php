@@ -18,7 +18,7 @@ session_start();
 $active_tab = $_GET['tab'] ?? 'anggota';
 $selectedYear = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 $searchTerm = trim($_GET['search'] ?? '');
-$limit = 10;
+$limit = 12;
 $page = isset($_GET['page']) ? max(1, intval($page)) : 1;
 $start = ($page - 1) * $limit;
 
