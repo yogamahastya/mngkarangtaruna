@@ -1,71 +1,116 @@
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .bg-success-gradient {
+            background: linear-gradient(45deg, #28a745, #1d7e35);
+        }
+        .bg-danger-gradient {
+            background: linear-gradient(45deg, #dc3545, #a32734);
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+        }
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .table-responsive-card {
+            display: block;
+            width: 100%;
+            overflow-x: auto;
+        }
+        .responsive-amount {
+            /* Tetapkan ukuran font default yang besar untuk desktop */
+            font-size: 2rem; /* Ukuran default yang besar */
+            white-space: nowrap; /* Mencegah angka pecah baris */
+        }
+
+        /* Untuk layar kecil (misalnya, handphone) */
+        @media (max-width: 767.98px) {
+            .responsive-amount {
+                font-size: 1.5rem; /* Kurangi ukuran font agar muat */
+            }
+        }
+
+        /* Atau, jika ingin lebih spesifik untuk layar yang sangat sempit */
+        @media (max-width: 575.98px) {
+            .responsive-amount {
+                font-size: 1.25rem; /* Kurangi lagi agar muat di layar ekstra kecil */
+            }
+        }
+    </style>
+</head>
 <h2 class="mb-4 text-primary"><i class="fa-solid fa-wallet me-2"></i>Laporan Keuangan</h2>
-<?php
-// Pastikan $conn sudah terdefinisi dan terhubung ke database.
-// Asumsi $active_tab dan $searchTerm sudah didefinisikan di bagian lain skrip Anda
+    <?php
+    // Pastikan $conn sudah terdefinisi dan terhubung ke database.
+    // Asumsi $active_tab dan $searchTerm sudah didefinisikan di bagian lain skrip Anda
 
-// Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
-$selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
+    // Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
+    $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
 
-// Mengambil total pemasukan dan pengeluaran untuk tahun yang dipilih
-$stmtPemasukan = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pemasukan'");
-$stmtPemasukan->bind_param("s", $selectedYear);
-$stmtPemasukan->execute();
-$stmtPemasukan->bind_result($totalPemasukan);
-$stmtPemasukan->fetch();
-$stmtPemasukan->close();
+    // Mengambil total pemasukan dan pengeluaran untuk tahun yang dipilih
+    $stmtPemasukan = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pemasukan'");
+    $stmtPemasukan->bind_param("s", $selectedYear);
+    $stmtPemasukan->execute();
+    $stmtPemasukan->bind_result($totalPemasukan);
+    $stmtPemasukan->fetch();
+    $stmtPemasukan->close();
 
-$stmtPengeluaran = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pengeluaran'");
-$stmtPengeluaran->bind_param("s", $selectedYear);
-$stmtPengeluaran->execute();
-$stmtPengeluaran->bind_result($totalPengeluaran);
-$stmtPengeluaran->fetch();
-$stmtPengeluaran->close();
+    $stmtPengeluaran = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pengeluaran'");
+    $stmtPengeluaran->bind_param("s", $selectedYear);
+    $stmtPengeluaran->execute();
+    $stmtPengeluaran->bind_result($totalPengeluaran);
+    $stmtPengeluaran->fetch();
+    $stmtPengeluaran->close();
 
-// Menggunakan operator null coalescing (??) untuk menangani nilai NULL dari query
-$totalPemasukan = $totalPemasukan ?? 0;
-$totalPengeluaran = $totalPengeluaran ?? 0;
+    // Menggunakan operator null coalescing (??) untuk menangani nilai NULL dari query
+    $totalPemasukan = $totalPemasukan ?? 0;
+    $totalPengeluaran = $totalPengeluaran ?? 0;
 
-$saldo = $totalPemasukan - $totalPengeluaran;
+    $saldo = $totalPemasukan - $totalPengeluaran;
 
-// Mengambil data bulanan untuk grafik
-$pemasukanData = [];
-$pengeluaranData = [];
-$labels = [];
+    // Mengambil data bulanan untuk grafik
+    $pemasukanData = [];
+    $pengeluaranData = [];
+    $labels = [];
 
-for ($i = 1; $i <= 12; $i++) {
-    $date = new DateTime("$selectedYear-$i-01");
-    $month = $date->format('m');
-    $monthName = $date->format('M Y');
+    for ($i = 1; $i <= 12; $i++) {
+        $date = new DateTime("$selectedYear-$i-01");
+        $month = $date->format('m');
+        $monthName = $date->format('M Y');
 
-    // Kueri pemasukan bulanan
-    $stmtPemasukanBulan = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE MONTH(tanggal_transaksi) = ? AND YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pemasukan'");
-    $stmtPemasukanBulan->bind_param("ss", $month, $selectedYear);
-    $stmtPemasukanBulan->execute();
-    $stmtPemasukanBulan->bind_result($monthlyPemasukan);
-    $stmtPemasukanBulan->fetch();
-    $stmtPemasukanBulan->close();
-    $monthlyPemasukan = $monthlyPemasukan ?? 0;
+        // Kueri pemasukan bulanan
+        $stmtPemasukanBulan = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE MONTH(tanggal_transaksi) = ? AND YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pemasukan'");
+        $stmtPemasukanBulan->bind_param("ss", $month, $selectedYear);
+        $stmtPemasukanBulan->execute();
+        $stmtPemasukanBulan->bind_result($monthlyPemasukan);
+        $stmtPemasukanBulan->fetch();
+        $stmtPemasukanBulan->close();
+        $monthlyPemasukan = $monthlyPemasukan ?? 0;
 
-    // Kueri pengeluaran bulanan
-    $stmtPengeluaranBulan = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE MONTH(tanggal_transaksi) = ? AND YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pengeluaran'");
-    $stmtPengeluaranBulan->bind_param("ss", $month, $selectedYear);
-    $stmtPengeluaranBulan->execute();
-    $stmtPengeluaranBulan->bind_result($monthlyPengeluaran);
-    $stmtPengeluaranBulan->fetch();
-    $stmtPengeluaranBulan->close();
-    $monthlyPengeluaran = $monthlyPengeluaran ?? 0;
+        // Kueri pengeluaran bulanan
+        $stmtPengeluaranBulan = $conn->prepare("SELECT SUM(jumlah) FROM keuangan WHERE MONTH(tanggal_transaksi) = ? AND YEAR(tanggal_transaksi) = ? AND jenis_transaksi = 'pengeluaran'");
+        $stmtPengeluaranBulan->bind_param("ss", $month, $selectedYear);
+        $stmtPengeluaranBulan->execute();
+        $stmtPengeluaranBulan->bind_result($monthlyPengeluaran);
+        $stmtPengeluaranBulan->fetch();
+        $stmtPengeluaranBulan->close();
+        $monthlyPengeluaran = $monthlyPengeluaran ?? 0;
 
-    // HANYA TAMBAHKAN DATA JIKA ADA TRANSAKSI (PEMASUKAN ATAU PENGELUARAN) DI BULAN TERSEBUT
-    if ($monthlyPemasukan > 0 || $monthlyPengeluaran > 0) {
-        $pemasukanData[] = $monthlyPemasukan;
-        $pengeluaranData[] = $monthlyPengeluaran;
-        $labels[] = $monthName;
+        // HANYA TAMBAHKAN DATA JIKA ADA TRANSAKSI (PEMASUKAN ATAU PENGELUARAN) DI BULAN TERSEBUT
+        if ($monthlyPemasukan > 0 || $monthlyPengeluaran > 0) {
+            $pemasukanData[] = $monthlyPemasukan;
+            $pengeluaranData[] = $monthlyPengeluaran;
+            $labels[] = $monthName;
+        }
     }
-}
 
-$pemasukanDataJson = json_encode($pemasukanData);
-$pengeluaranDataJson = json_encode($pengeluaranData);
-$labelsJson = json_encode($labels);
+    $pemasukanDataJson = json_encode($pemasukanData);
+    $pengeluaranDataJson = json_encode($pengeluaranData);
+    $labelsJson = json_encode($labels);
 ?>
 <div class="row mb-3 gy-2 align-items-center">
     <div class="col-12 col-md-6">
@@ -107,43 +152,68 @@ $labelsJson = json_encode($labels);
         </form>
     </div>
 </div>
-<div class="row mb-4">
+<!-- Card Statistik -->
+<div class="row mb-4 g-3 d-flex align-items-stretch">
     <div class="col-12 col-sm-4">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <h5 class="card-title">Total Pemasukan</h5>
-                <p class="card-text fs-4">Rp<?= number_format($totalPemasukan, 0, ',', '.') ?></p>
+        <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-cash-stack fs-1 me-3 flex-shrink-0"></i>
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="card-title mb-1 text-truncate">Total Pemasukan</h6>
+                    <p class="card-text fs-4 fw-bold responsive-amount">
+                        Rp<?= number_format($totalPemasukan, 0, ',', '.') ?>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="col-12 col-sm-4">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <h5 class="card-title">Total Pengeluaran</h5>
-                <p class="card-text fs-4">Rp<?= number_format($totalPengeluaran, 0, ',', '.') ?></p>
+        <div class="card text-white shadow-lg rounded-4 bg-danger-gradient stat-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-cart-dash fs-1 me-3 flex-shrink-0"></i>
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="card-title mb-1 text-truncate">Total Pengeluaran</h6>
+                    <p class="card-text fs-4 fw-bold responsive-amount">
+                        Rp<?= number_format($totalPengeluaran, 0, ',', '.') ?>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="col-12 col-sm-4">
-        <div class="card text-white bg-primary">
-            <div class="card-body">
-                <h5 class="card-title">Sisa Saldo</h5>
-                <p class="card-text fs-4">Rp<?= number_format($saldo, 0, ',', '.') ?></p>
+        <div class="card text-white shadow-lg rounded-4 bg-primary-gradient stat-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-wallet2 fs-1 me-3 flex-shrink-0"></i>
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="card-title mb-1 text-truncate">Sisa Saldo</h6>
+                    <p class="card-text fs-4 fw-bold responsive-amount">
+                        Rp<?= number_format($saldo, 0, ',', '.') ?>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">Progres Keuangan Bulanan (Tahun <?= $selectedYear ?>)</h5>
+<!-- Chart: Bar + Line -->
+<div class="card mb-4 shadow rounded-4">
+    <div class="card-header bg-primary text-white fw-bold">
+        Progres Keuangan Bulanan (Tahun <?= $selectedYear ?>)
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-12">
-                <canvas id="keuanganBarChart" style="max-height: 400px;"></canvas>
-            </div>
-        </div>
+        <canvas id="keuanganBarChart" style="height:350px; width:100%;"></canvas>
+    </div>
+</div>
+
+<!-- Chart: Pie Ringkasan -->
+<div class="card mb-4 shadow rounded-4">
+    <div class="card-header bg-secondary text-white fw-bold">
+        Ringkasan Pemasukan vs Pengeluaran
+    </div>
+    <div class="card-body text-center">
+        <canvas id="ringkasanPie" style="max-height:280px;"></canvas>
     </div>
 </div>
 <div class="">
@@ -206,6 +276,45 @@ $labelsJson = json_encode($labels);
     </ul>
 </nav>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+    const pemasukan = <?= json_encode($pemasukanBulanan ?? []) ?>;
+    const pengeluaran = <?= json_encode($pengeluaranBulanan ?? []) ?>;
+
+    // Hitung saldo kumulatif
+    let saldo = [];
+    let running = 0;
+    for (let i=0; i<bulan.length; i++) {
+        let masuk = pemasukan[i] ?? 0;
+        let keluar = pengeluaran[i] ?? 0;
+        running += masuk - keluar;
+        saldo.push(running);
+    }
+
+    // Pie Chart Ringkasan
+    new Chart(document.getElementById('ringkasanPie'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Pemasukan','Pengeluaran'],
+            datasets: [{
+                data: [<?= $totalPemasukan ?>, <?= $totalPengeluaran ?>],
+                backgroundColor: ['#28a745','#dc3545']
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ctx.label + ": Rp" + ctx.raw.toLocaleString("id-ID")
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+<!-- BAR CHART-->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const pemasukanData = <?= $pemasukanDataJson ?>;
