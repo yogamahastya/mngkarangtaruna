@@ -83,7 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $message = "Operasi gagal: Nama anggota '{$data['nama_lengkap']}' sudah ada. Silakan gunakan nama lain. ❌";
             } elseif ($tab === 'iuran' || $tab === 'iuran17') {
                 $tanggal = $data['tanggal_bayar'] ?? 'N/A';
-                $message = "Operasi gagal: Data {$tab} untuk {$objectName} pada tanggal {$tanggal} sudah ada. ❗";
+                $bulanTahun = date('F Y', strtotime($tanggal));
+                $message = "Operasi gagal: {$objectName} untuk bulan {$bulanTahun} sudah tercatat. ❗";
             } else {
                 $message = "Operasi gagal: Data duplikat terdeteksi. Silakan periksa kembali entri Anda. ❗";
             }

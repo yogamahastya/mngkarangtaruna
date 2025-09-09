@@ -42,55 +42,83 @@ function getParamTypes($data) {
  * Menangani operasi tambah data dengan penanganan error duplikat.
  */
 function handleAdd($conn, $tableName, $data) {
-    // Komentar: Menambahkan logika untuk tabel 'iuran17'.
-    // Logikanya sama dengan 'iuran' yaitu menyalin 'tanggal_bayar' ke 'periode' dan
-    // memastikan 'keterangan' ada.
+    // === Khusus iuran & iuran17 ===
     if ($tableName === 'iuran' || $tableName === 'iuran17') {
         $data['periode'] = $data['tanggal_bayar'];
         if (!isset($data['keterangan'])) {
             $data['keterangan'] = '';
         }
-    } elseif ($tableName === 'keuangan') {
+
+        // Cek apakah anggota sudah punya iuran di bulan & tahun yang sama
+        if (isset($data['anggota_id'], $data['tanggal_bayar'])) {
+            $anggotaId = $data['anggota_id'];
+            $month = date('m', strtotime($data['tanggal_bayar']));
+            $year  = date('Y', strtotime($data['tanggal_bayar']));
+
+            $checkSql = "
+                SELECT 1 
+                FROM `$tableName`
+                WHERE anggota_id = ? 
+                  AND MONTH(tanggal_bayar) = ? 
+                  AND YEAR(tanggal_bayar) = ?
+                LIMIT 1
+            ";
+            $checkStmt = $conn->prepare($checkSql);
+            $checkStmt->bind_param("iii", $anggotaId, $month, $year);
+            $checkStmt->execute();
+            $checkStmt->store_result();
+
+            if ($checkStmt->num_rows > 0) {
+                $checkStmt->close();
+                return 'duplicate_entry'; // langsung keluar
+            }
+            $checkStmt->close();
+        }
+    } 
+    // === Khusus keuangan ===
+    elseif ($tableName === 'keuangan') {
         $anggotaId = getAnggotaIdFromUserId($conn, $_SESSION['user_id']);
         if ($anggotaId) {
             $data['dicatat_oleh_id'] = $anggotaId;
         } else {
             $data['dicatat_oleh_id'] = $_SESSION['user_id'];
         }
-    } elseif ($tableName === 'users') {
+    } 
+    // === Khusus users ===
+    elseif ($tableName === 'users') {
         if (isset($data['password'])) {
             $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
         }
     }
-    
+
+    // Query insert umum
     $columns = implode(", ", array_keys($data));
     $placeholders = implode(", ", array_fill(0, count($data), "?"));
     $sql = "INSERT INTO `$tableName` ($columns) VALUES ($placeholders)";
     $stmt = $conn->prepare($sql);
-    
+
     if (!$stmt) {
         error_log("Prepare failed: (" . $conn->errno . ") " . $conn->error);
         return false;
     }
-    
+
     $types = getParamTypes($data);
     $params = array_values($data);
-    
+
     try {
         $stmt->bind_param($types, ...$params);
         $result = $stmt->execute();
     } catch (mysqli_sql_exception $e) {
-        // Tangkap pengecualian duplikat
         if ($e->getCode() === 1062) {
             return 'duplicate_entry';
         }
-        // Tangkap pengecualian lainnya
         error_log("Execution failed: (" . $e->getCode() . ") " . $e->getMessage());
         return false;
     }
-    
+
     return $result;
 }
+
 function handleEdit($conn, $tableName, $id, $data) {
     // Komentar: Menambahkan logika untuk tabel 'iuran17'.
     // Jika 'tanggal_bayar' ada, salin ke 'periode'.

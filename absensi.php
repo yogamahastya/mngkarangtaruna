@@ -109,12 +109,97 @@
         }
     }
 
-    // Mengubah array PHP ke JSON untuk digunakan di JavaScript
-    $hadirDataJson = json_encode($hadirData);
-    $tidakHadirDataJson = json_encode($tidakHadirData);
-    $labelsJson = json_encode($labels);
+        // Mengubah array PHP ke JSON untuk digunakan di JavaScript
+        $hadirDataJson = json_encode($hadirData);
+        $tidakHadirDataJson = json_encode($tidakHadirData);
+        $labelsJson = json_encode($labels);
+
+        // ============================
+        // Top 3 Absen Tercepat Bulan Ini & Bulan Lalu
+        // ============================
+        $topThisMonth = [];
+        $topLastMonth = [];
+
+        // Bulan ini
+        $stmt = $conn->prepare("
+            SELECT a.anggota_id, an.nama_lengkap, MIN(a.tanggal_absen) AS waktu_absen
+            FROM absensi a
+            JOIN anggota an ON a.anggota_id = an.id
+            WHERE MONTH(a.tanggal_absen) = MONTH(CURDATE()) 
+            AND YEAR(a.tanggal_absen) = YEAR(CURDATE())
+            GROUP BY a.anggota_id
+            ORDER BY waktu_absen ASC
+            LIMIT 5
+        ");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $topThisMonth[] = $row;
+        }
+        $stmt->close();
+
+        // Bulan lalu
+        $stmt = $conn->prepare("
+            SELECT a.anggota_id, an.nama_lengkap, MIN(a.tanggal_absen) AS waktu_absen
+            FROM absensi a
+            JOIN anggota an ON a.anggota_id = an.id
+            WHERE MONTH(a.tanggal_absen) = MONTH(CURDATE() - INTERVAL 1 MONTH) 
+            AND YEAR(a.tanggal_absen) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+            GROUP BY a.anggota_id
+            ORDER BY waktu_absen ASC
+            LIMIT 5
+        ");
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $topLastMonth[] = $row;
+        }
+        $stmt->close();
     ?>
 
+    <!-- ============================ -->
+    <!-- TAMPILAN TOP 5 ABSEN -->
+    <!-- ============================ -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white fw-bold">
+                    <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Ini
+                </div>
+                <ul class="list-group list-group-flush">
+                    <?php if (!empty($topThisMonth)): ?>
+                        <?php foreach ($topThisMonth as $i => $row): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><strong>#<?= $i+1 ?></strong> <?= htmlspecialchars($row['nama_lengkap']) ?></span>
+                                <span class="badge bg-success"><?= date('d M H:i', strtotime($row['waktu_absen'])) ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="list-group-item text-center text-muted">Belum ada data bulan ini.</li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Lalu
+                </div>
+                <ul class="list-group list-group-flush">
+                    <?php if (!empty($topLastMonth)): ?>
+                        <?php foreach ($topLastMonth as $i => $row): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><strong>#<?= $i+1 ?></strong> <?= htmlspecialchars($row['nama_lengkap']) ?></span>
+                                <span class="badge bg-primary"><?= date('d M H:i', strtotime($row['waktu_absen'])) ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <li class="list-group-item text-center text-muted">Belum ada data bulan lalu.</li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Progres Kehadiran Bulanan (1 Tahun Terakhir)</h5>
@@ -171,7 +256,8 @@
                 foreach ($anggota as $row): 
                     // Memeriksa status absensi hari ini
                     // Pastikan $conn sudah terdefinisi di file yang sama atau di-include
-                    $stmt = $conn->prepare("SELECT COUNT(*) FROM absensi WHERE anggota_id = ? AND DATE(tanggal_absen) = CURDATE()");
+                    // RESET SETIAP HARI $stmt = $conn->prepare("SELECT COUNT(*) FROM absensi WHERE anggota_id = ? AND DATE(tanggal_absen) = CURDATE()");
+                    $stmt = $conn->prepare("SELECT COUNT(*) FROM absensi WHERE anggota_id = ? AND MONTH(tanggal_absen) = MONTH(CURDATE()) AND YEAR(tanggal_absen) = YEAR(CURDATE())");
                     if (!$stmt) {
                         // Jika ada error pada prepare statement
                         // Anda bisa menambahkan logging atau pesan error di sini

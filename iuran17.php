@@ -142,81 +142,209 @@
                 font-size: 1.25rem; /* Kurangi lagi agar muat di layar ekstra kecil */
             }
         }
+        .hidden-scroll {
+            max-height: 210px;   /* kira-kira muat 5 item */
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .hidden-scroll::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 </head>
     <h2 class="mb-4 text-primary"><i class="fa-solid fa-receipt me-2"></i>Rekapitulasi iuran17</h2>
     <?php
-// Pastikan $conn sudah terdefinisi dan terhubung ke database.
+    // Pastikan $conn sudah terdefinisi dan terhubung ke database.
 
-// Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
-$selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
+    // Mengambil tahun yang dipilih dari URL atau menggunakan tahun saat ini sebagai default
+    $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');
 
-// Mengambil total iuran keseluruhan untuk tahun yang dipilih
-$stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran17 WHERE YEAR(tanggal_bayar) = ?");
-$stmt->bind_param("s", $selectedYear);
-$stmt->execute();
-$stmt->bind_result($totalIuran17);
-$stmt->fetch();
-$stmt->close();
-
-// === PERBAIKAN DI SINI ===
-$totalIuran17 = $totalIuran17 ?? 0;
-
-// Mengambil data pemasukan iuran bulanan untuk tahun yang dipilih
-$pemasukanData = [];
-$labels = [];
-
-// Loop dari Januari hingga Desember di tahun yang dipilih
-for ($i = 1; $i <= 12; $i++) {
-    $date = new DateTime("$selectedYear-$i-01");
-    $month = $date->format('m');
-    $monthName = $date->format('M Y'); // Contoh: Jan 2024
-
-    // Kueri untuk menghitung total pemasukan iuran per bulan
-    $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran17 WHERE MONTH(tanggal_bayar) = ? AND YEAR(tanggal_bayar) = ?");
-    $stmt->bind_param("ss", $month, $selectedYear);
+    // Mengambil total iuran17 keseluruhan untuk tahun yang dipilih
+    $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran17 WHERE YEAR(tanggal_bayar) = ?");
+    $stmt->bind_param("s", $selectedYear);
     $stmt->execute();
-    $stmt->bind_result($monthlyPemasukan);
+    $stmt->bind_result($totalIuran17);
     $stmt->fetch();
     $stmt->close();
 
-    $monthlyPemasukan = $monthlyPemasukan ?? 0;
+    // === PERBAIKAN DI SINI ===
+    $totalIuran17 = $totalIuran17 ?? 0;
 
-    // HANYA TAMBAHKAN DATA JIKA ADA PEMASUKAN DI BULAN TERSEBUT
-    if ($monthlyPemasukan > 0) {
-        $pemasukanData[] = $monthlyPemasukan;
-        $labels[] = $monthName;
+    // Mengambil data pemasukan iuran bulanan untuk tahun yang dipilih
+    $pemasukanData = [];
+    $labels = [];
+
+    // Loop dari Januari hingga Desember di tahun yang dipilih
+    for ($i = 1; $i <= 12; $i++) {
+        $date = new DateTime("$selectedYear-$i-01");
+        $month = $date->format('m');
+        $monthName = $date->format('M Y'); // Contoh: Jan 2024
+
+        // Kueri untuk menghitung total pemasukan iuran17 per bulan
+        $stmt = $conn->prepare("SELECT SUM(jumlah_bayar) FROM iuran17 WHERE MONTH(tanggal_bayar) = ? AND YEAR(tanggal_bayar) = ?");
+        $stmt->bind_param("ss", $month, $selectedYear);
+        $stmt->execute();
+        $stmt->bind_result($monthlyPemasukan);
+        $stmt->fetch();
+        $stmt->close();
+
+        $monthlyPemasukan = $monthlyPemasukan ?? 0;
+
+        if ($monthlyPemasukan > 0) {
+            $pemasukanData[] = $monthlyPemasukan;
+            $labels[] = $monthName;
+        }
     }
-}
 
-// Mengubah array PHP ke JSON untuk digunakan di JavaScript
-$pemasukanDataJson = json_encode($pemasukanData);
-$labelsJson = json_encode($labels);
-?>
+    // Mengubah array PHP ke JSON untuk digunakan di JavaScript
+    $pemasukanDataJson = json_encode($pemasukanData);
+    $labelsJson = json_encode($labels);
 
-<div class="row mb-4 g-3 d-flex align-items-stretch">
-    <div class="col-12 col-sm-4">
-        <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
-            <div class="card-body d-flex align-items-center">
-                <i class="bi bi-cash-stack fs-1 me-3 flex-shrink-0"></i>
-                <div class="flex-grow-1 overflow-hidden">
-                    <h6 class="card-title mb-1 text-truncate">Total Pemasukan</h6>
-                    <p class="card-text fs-4 fw-bold responsive-amount">
-                        Rp<?= number_format($totalIuran17, 0, ',', '.') ?>
-                    </p>
+    // Ambil bulan & tahun saat ini
+    $currentMonth = date('m');
+    $currentYear  = date('Y');
+
+    // =========================
+    // Top Iuran17 Bulan Ini
+    // =========================
+    $topIuran17Query = "
+        SELECT 
+            a.nama_lengkap, 
+            SUM(i.jumlah_bayar) AS total_bayar
+        FROM 
+            anggota a
+        INNER JOIN 
+            iuran17 i ON a.id = i.anggota_id
+        WHERE 
+            MONTH(i.tanggal_bayar) = ? 
+            AND YEAR(i.tanggal_bayar) = ?
+        GROUP BY 
+            a.id
+        ORDER BY 
+            total_bayar DESC
+    ";
+    $stmtTopIuran17 = $conn->prepare($topIuran17Query);
+    $topIuran17 = [];
+    if ($stmtTopIuran17) {
+        $stmtTopIuran17->bind_param("ii", $currentMonth, $currentYear);
+        $stmtTopIuran17->execute();
+        $resultTopIuran17 = $stmtTopIuran17->get_result();
+        $topIuran17 = $resultTopIuran17->fetch_all(MYSQLI_ASSOC);
+        $stmtTopIuran17->close();
+    }
+
+    // =========================
+    // Anggota Belum Bayar Iuran17 Bulan Ini
+    // =========================
+    $lossIuran17Query = "
+        SELECT 
+            a.id,
+            a.nama_lengkap,
+            COALESCE(SUM(i.jumlah_bayar), 0) AS total_bayar
+        FROM 
+            anggota a
+        LEFT JOIN 
+            iuran17 i 
+            ON a.id = i.anggota_id
+            AND MONTH(i.tanggal_bayar) = ? 
+            AND YEAR(i.tanggal_bayar) = ?
+        GROUP BY 
+            a.id, a.nama_lengkap
+        HAVING 
+            total_bayar = 0
+        ORDER BY 
+            a.nama_lengkap ASC
+    ";
+    $stmtLossIuran17 = $conn->prepare($lossIuran17Query);
+    $lossIuran17 = [];
+    if ($stmtLossIuran17) {
+        $stmtLossIuran17->bind_param("ii", $currentMonth, $currentYear);
+        $stmtLossIuran17->execute();
+        $resultLossIuran17 = $stmtLossIuran17->get_result();
+        $lossIuran17 = $resultLossIuran17->fetch_all(MYSQLI_ASSOC);
+        $stmtLossIuran17->close();
+    }
+    ?>
+
+    <div class="row mb-4 g-3 d-flex align-items-stretch">
+        <div class="col-12 col-sm-4">
+            <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
+                <div class="card-body d-flex align-items-center">
+                    <i class="bi bi-cash-stack fs-1 me-3 flex-shrink-0"></i>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <h6 class="card-title mb-1 text-truncate">Total Pemasukan</h6>
+                        <p class="card-text fs-4 fw-bold responsive-amount">
+                            Rp<?= number_format($totalIuran17, 0, ',', '.') ?>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div>
+    <div class="card mb-4 shadow rounded-4">
+        <div class="card-header bg-primary text-white fw-bold">
+            Progres pemasukan Iuran 17 - Bulanan (Tahun <?= $selectedYear ?>)
+        </div>
+        <div class="card-body">
+            <canvas id="pemasukan17BarChart" style="height:350px; width:100%;"></canvas>
+        </div>
+    </div>
+    <div class="row">
+        <!-- Top Iuran17 -->
+        <div class="col-md-6">
+            <div class="card mb-4 shadow rounded-4">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fa-solid fa-coins me-2"></i>Top Iuran17 Bulan Ini
+                </div>
+                <div class="list-group list-group-flush hidden-scroll">
+                    <?php if (!empty($topIuran17)): ?>
+                        <?php foreach ($topIuran17 as $index => $row): ?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-primary rounded-pill me-2"><?= $index + 1 ?></span>
+                                    <?= htmlspecialchars($row['nama_lengkap']) ?>
+                                </div>
+                                <span class="text-muted">
+                                    Rp<?= number_format($row['total_bayar'], 0, ',', '.') ?>
+                                </span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="list-group-item text-center text-muted">
+                            Belum ada pembayaran iuran17 bulan ini.
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Belum Bayar Iuran17 -->
+        <div class="col-md-6">
+            <div class="card mb-4 shadow rounded-4">
+                <div class="card-header bg-danger text-white fw-bold">
+                    <i class="fa-solid fa-user-xmark me-2"></i>Belum Bayar Iuran17 Bulan Ini
+                </div>
+                <div class="list-group list-group-flush hidden-scroll">
+                    <?php if (!empty($lossIuran17)): ?>
+                        <?php foreach ($lossIuran17 as $index => $row): ?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-danger rounded-pill me-2"><?= $index + 1 ?></span>
+                                    <?= htmlspecialchars($row['nama_lengkap']) ?>
+                                </div>
+                                <span class="text-muted">Rp0</span>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="list-group-item text-center text-muted">
+                            Semua anggota sudah bayar iuran17. Mantap!
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
-<div>
-<div class="card mb-4 shadow rounded-4">
-    <div class="card-header bg-primary text-white fw-bold">
-        Progres pemasukan Iuran 17 - Bulanan (Tahun <?= $selectedYear ?>)
-    </div>
-    <div class="card-body">
-        <canvas id="pemasukan17BarChart" style="height:350px; width:100%;"></canvas>
-    </div>
-</div>
     <div class="row mb-3 gy-2 align-items-center">
         <div class="col-12 col-md-6">
             <form action="" method="GET" class="d-flex align-items-center w-100">
