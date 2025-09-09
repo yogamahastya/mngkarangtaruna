@@ -19,32 +19,9 @@ $active_tab = $_GET['tab'] ?? 'anggota';
 $selectedYear = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
 $searchTerm = trim($_GET['search'] ?? '');
 $limit = 12;
-$page = isset($_GET['page']) ? max(1, intval($page)) : 1;
-$start = ($page - 1) * $limit;
 
-// Inisialisasi array data
-$anggota = [];
-$kegiatan = [];
-$keuangan = [];
-$iuran = [];
-$iuran17 = [];
-
-// Inisialisasi variabel total untuk semua tab
-$total_anggota = 0;
-$total_anggota_absensi = 0;
-$total_kegiatan = 0;
-$total_keuangan = 0;
-$total_iuran = 0;
-$total_iuran17 = 0;
-
-// =================================================================
-// Inisialisasi variabel dan pengambilan parameter
-// =================================================================
-$active_tab = $_GET['tab'] ?? 'anggota';
-$selectedYear = isset($_GET['year']) ? intval($_GET['year']) : date('Y');
-$searchTerm = trim($_GET['search'] ?? '');
-$limit = 10;
-$page = isset($_GET['page']) ? max(1, intval($page)) : 1;
+// Corrected line: Get the value from the URL and then assign it to $page.
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
 $start = ($page - 1) * $limit;
 
 // Inisialisasi array data
