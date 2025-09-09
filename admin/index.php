@@ -142,13 +142,7 @@ require_once 'process_data.php';
             }
         ?>
 
-        <footer class="text-center mt-5">
-            <div class="copyright-box">
-                <p class="copyright-text" style="font-size: 0.8rem;">
-                    &copy; <?= date('Y') ?> <a href="http://nuxera.my.id" target="_blank" style="color: inherit; text-decoration: none;">nuxera.my.id</a>
-                </p>
-            </div>
-        </footer>   
+        <?php require_once '../footer.php'; ?>
     </div>
 </div>
 
