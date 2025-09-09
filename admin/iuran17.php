@@ -240,29 +240,7 @@ $labelsJson = json_encode($labels);
             </div>
         </tbody>
     </table>
-    <?php if ($total_pages > 1): ?>
-    <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
-        <ul class="pagination justify-content-center">
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="?tab=iuran17&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
-            </ul>
-    </nav>
-<?php endif; ?>
 </div>
-<?php if ($total_pages > 1): ?>
-    <nav aria-label="Page navigation example" class="mt-4 d-md-none">
-        <ul class="pagination justify-content-center">
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="?tab=iuran17&year=<?= $selectedYear ?>&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
-            </ul>
-    </nav>
-<?php endif; ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {

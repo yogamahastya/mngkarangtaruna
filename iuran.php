@@ -142,16 +142,6 @@
                 font-size: 1.25rem; /* Kurangi lagi agar muat di layar ekstra kecil */
             }
         }
-         /* Scrollbar tetap berfungsi tapi tidak kelihatan */
-            .hidden-scroll {
-                max-height: 210px;
-                overflow-y: auto;
-                scrollbar-width: none;   /* Firefox */
-                -ms-overflow-style: none; /* IE & Edge lama */
-            }
-            .hidden-scroll::-webkit-scrollbar {
-                display: none; /* Chrome, Safari, Opera */
-            }
     </style>
 </head>
     <h2 class="mb-4 text-primary"><i class="fa-solid fa-receipt me-2"></i>Rekapitulasi Iuran</h2>
@@ -203,101 +193,10 @@
     // Mengubah array PHP ke JSON untuk digunakan di JavaScript
     $pemasukanDataJson = json_encode($pemasukanData);
     $labelsJson = json_encode($labels);
-
-    // Mengambil 5 anggota dengan total pembayaran iuran tertinggi untuk bulan ini
-    // Ambil bulan & tahun saat ini
-    $currentMonth = date('m');
-    $currentYear  = date('Y');
-
-    // =========================
-    // Top 5 Iuran Paling Disiplin Bulan Ini
-    // =========================
-    $topIuranQuery = "
-        SELECT 
-            a.nama_lengkap, 
-            SUM(i.jumlah_bayar) AS total_bayar
-        FROM 
-            anggota a
-        INNER JOIN 
-            iuran i ON a.id = i.anggota_id
-        WHERE 
-            MONTH(i.tanggal_bayar) = ? 
-            AND YEAR(i.tanggal_bayar) = ?
-        GROUP BY 
-            a.id
-        ORDER BY 
-            total_bayar DESC
-    ";
-    $stmtTopIuran = $conn->prepare($topIuranQuery);
-    $topIuran = [];
-    if ($stmtTopIuran) {
-        $stmtTopIuran->bind_param("ii", $currentMonth, $currentYear);
-        $stmtTopIuran->execute();
-        $resultTopIuran = $stmtTopIuran->get_result();
-        $topIuran = $resultTopIuran->fetch_all(MYSQLI_ASSOC);
-        $stmtTopIuran->close();
-    }
-
-    // =========================
-    // Anggota Belum Pernah Bayar Iuran (pagination)
-    // =========================
-    $page = isset($_GET['page_loss']) ? (int)$_GET['page_loss'] : 1;
-    $recordsPerPage = 5;
-    $offset = ($page - 1) * $recordsPerPage;
-
-    // Hitung total records
-    $totalLossRecordsQuery = "
-        SELECT 
-            COUNT(*) as total
-        FROM (
-            SELECT a.id
-            FROM anggota a
-            LEFT JOIN iuran i ON a.id = i.anggota_id
-            GROUP BY a.id
-            HAVING SUM(i.jumlah_bayar) IS NULL OR SUM(i.jumlah_bayar) = 0
-        ) AS sub
-    ";
-    $totalLossRecordsResult = $conn->query($totalLossRecordsQuery);
-    $totalLossRecordsRow = $totalLossRecordsResult->fetch_assoc();
-    $totalLossRecords = $totalLossRecordsRow['total'] ?? 0;
-    $totalLossPages = ceil($totalLossRecords / $recordsPerPage);
-
-    // Ambil data anggota belum bayar (per page)
-    // =========================
-    // Ambil semua anggota yang bulan ini belum bayar
-    // =========================
-    $allLossQuery = "
-        SELECT 
-            a.id,
-            a.nama_lengkap,
-            COALESCE(SUM(i.jumlah_bayar), 0) AS total_bayar
-        FROM 
-            anggota a
-        LEFT JOIN 
-            iuran i 
-            ON a.id = i.anggota_id
-            AND MONTH(i.tanggal_bayar) = ? 
-            AND YEAR(i.tanggal_bayar) = ?
-        GROUP BY 
-            a.id, a.nama_lengkap
-        HAVING 
-            total_bayar = 0
-        ORDER BY 
-            a.nama_lengkap ASC
-    ";
-
-    $stmtAllLoss = $conn->prepare($allLossQuery);
-    $allLoss = [];
-    if ($stmtAllLoss) {
-        $stmtAllLoss->bind_param("ii", $currentMonth, $currentYear);
-        $stmtAllLoss->execute();
-        $resultAllLoss = $stmtAllLoss->get_result();
-        $allLoss = $resultAllLoss->fetch_all(MYSQLI_ASSOC);
-        $stmtAllLoss->close();
-    }
+    
     ?>
-
-    <div class="row mb-4 g-3 d-flex align-items-stretch">
+    <div class="row">
+        <div class="row mb-4 g-3 d-flex align-items-stretch">
         <div class="col-12 col-sm-4">
             <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
                 <div class="card-body d-flex align-items-center">
@@ -318,63 +217,6 @@
         </div>
         <div class="card-body">
             <canvas id="pemasukanBarChart" style="height:350px; width:100%;"></canvas>
-        </div>
-    </div>
-    <!-- ========================= -->
-    <!-- Bagian Tampilan Bootstrap -->
-    <!-- ========================= -->
-    <div class="row">
-        <!-- Top 5 Iuran Bulan Ini -->
-        <div class="col-md-6">
-            <div class="card mb-4 shadow rounded-4">
-                <div class="card-header bg-success text-white fw-bold">
-                    <i class="fa-solid fa-coins me-2"></i>Top Iuran Paling Disiplin Bulan Ini
-                </div>
-                <div class="list-group list-group-flush hidden-scroll">
-                    <?php if (!empty($topIuran)): ?>
-                        <?php foreach ($topIuran as $index => $anggotaIuran): ?>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-success rounded-pill me-2"><?= $index + 1 ?></span>
-                                    <?= htmlspecialchars($anggotaIuran['nama_lengkap']) ?>
-                                </div>
-                                <span class="text-muted" style="font-size: 0.9em;">
-                                    Rp<?= number_format($anggotaIuran['total_bayar'], 0, ',', '.') ?>
-                                </span>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="list-group-item text-center text-muted">
-                            Belum ada data iuran bulan ini.
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card mb-4 shadow rounded-4">
-                <div class="card-header bg-danger text-white fw-bold">
-                    <i class="fa-solid fa-user-xmark me-2"></i>Belum Bayar Iuran Bulan Ini
-                </div>
-                <div class="list-group list-group-flush hidden-scroll">
-                    <?php if (!empty($allLoss)): ?>
-                        <?php foreach ($allLoss as $index => $anggotaIuran): ?>
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-danger rounded-pill me-2"><?= $index + 1 ?></span>
-                                    <?= htmlspecialchars($anggotaIuran['nama_lengkap']) ?>
-                                </div>
-                                <span class="text-muted" style="font-size: 0.9em;">Rp0</span>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="list-group-item text-center text-muted">
-                            Semua anggota sudah bayar iuran bulan ini. Keren!
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
         </div>
     </div>
     <div class="row mb-3 gy-2 align-items-center">
