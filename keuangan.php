@@ -112,46 +112,7 @@
     $pengeluaranDataJson = json_encode($pengeluaranData);
     $labelsJson = json_encode($labels);
 ?>
-<div class="row mb-3 gy-2 align-items-center">
-    <div class="col-12 col-md-6">
-        <form action="" method="GET" class="d-flex align-items-center w-100">
-            <input type="hidden" name="tab" value="keuangan">
-            <label for="year-keuangan" class="form-label mb-0 me-2 fw-bold">Pilih Tahun:</label>
-            <select class="form-select w-auto" id="year-keuangan" name="year" onchange="this.form.submit()">
-                <?php
-                $currentYear = date('Y');
-                $resultYears = $conn->query("SELECT DISTINCT YEAR(tanggal_transaksi) AS year FROM keuangan ORDER BY year DESC");
-                $years = [];
-                if ($resultYears) {
-                    while ($row = $resultYears->fetch_assoc()) {
-                        $years[] = $row['year'];
-                    }
-                }
-                if (!in_array($currentYear, $years)) {
-                    $years[] = $currentYear;
-                    rsort($years);
-                }
-                foreach ($years as $year):
-                ?>
-                    <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>><?= $year ?></option>
-                <?php endforeach; ?>
-            </select>
-        </form>
-    </div>
-    <div class="col-12 col-md-6">
-        <form action="" method="GET" class="d-flex w-100 justify-content-end">
-            <input type="hidden" name="tab" value="keuangan">
-            <input type="hidden" name="year" value="<?= $selectedYear ?>">
-            <div class="input-group">
-                <input type="text" id="searchInputKeuangan" class="form-control" placeholder="Cari deskripsi..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
-                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
-                <?php if (!empty($searchTerm)): ?>
-                    <a href="?tab=keuangan&year=<?= $selectedYear ?>" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
-                <?php endif; ?>
-            </div>
-        </form>
-    </div>
-</div>
+
 <!-- Card Statistik -->
 <div class="row mb-4 g-3 d-flex align-items-stretch">
     <div class="col-12 col-sm-4">

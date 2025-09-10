@@ -95,6 +95,29 @@ $pemasukanDataJson = json_encode($pemasukanData);
 $labelsJson = json_encode($labels);
 ?>
 
+<div class="row mb-4 g-3 d-flex align-items-stretch">
+    <div class="col-12 col-sm-4">
+        <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
+            <div class="card-body d-flex align-items-center">
+                <i class="bi bi-cash-stack fs-1 me-3 flex-shrink-0"></i>
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="card-title mb-1 text-truncate">Total Pemasukan</h6>
+                    <p class="card-text fs-4 fw-bold responsive-amount">
+                        Rp<?= number_format($totalIuran, 0, ',', '.') ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div>
+<div class="card mb-4 shadow rounded-4">
+    <div class="card-header bg-primary text-white fw-bold">
+        Progres pemasukan Iuran - Bulanan (Tahun <?= $selectedYear ?>)
+    </div>
+    <div class="card-body">
+        <canvas id="pemasukanBarChart" style="height:350px; width:100%;"></canvas>
+    </div>
+</div>
 <div class="row mb-3 gy-2 align-items-center">
     <div class="col-12 col-md-6">
         <div class="input-group">
@@ -127,30 +150,6 @@ $labelsJson = json_encode($labels);
                 <?php endif; ?>
             </div>
         </form>
-    </div>
-</div>
-
-<div class="row mb-4 g-3 d-flex align-items-stretch">
-    <div class="col-12 col-sm-4">
-        <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
-            <div class="card-body d-flex align-items-center">
-                <i class="bi bi-cash-stack fs-1 me-3 flex-shrink-0"></i>
-                <div class="flex-grow-1 overflow-hidden">
-                    <h6 class="card-title mb-1 text-truncate">Total Pemasukan</h6>
-                    <p class="card-text fs-4 fw-bold responsive-amount">
-                        Rp<?= number_format($totalIuran, 0, ',', '.') ?>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-<div>
-<div class="card mb-4 shadow rounded-4">
-    <div class="card-header bg-primary text-white fw-bold">
-        Progres pemasukan Iuran - Bulanan (Tahun <?= $selectedYear ?>)
-    </div>
-    <div class="card-body">
-        <canvas id="pemasukanBarChart" style="height:350px; width:100%;"></canvas>
     </div>
 </div>
 
@@ -188,37 +187,39 @@ $labelsJson = json_encode($labels);
                         <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
                             <div class="card h-100 shadow-sm">
                                 <div class="card-body">
-                                    <div class="dropdown float-end">
-                                        <a class="text-muted dropdown-toggle font-size-16" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
-                                            <i class="bx bx-dots-horizontal-rounded"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item edit-btn" href="#" data-bs-toggle="modal" data-bs-target="#editIuranModal" data-id="<?= $row['id'] ?>" data-anggota-id="<?= $row['anggota_id'] ?>" data-tanggal="<?= $row['tanggal_bayar'] ?>" data-jumlah="<?= $row['jumlah_bayar'] ?>" data-keterangan="<?= $row['keterangan'] ?>">
-                                                <i class="bx bx-edit me-1"></i> Edit
-                                            </a>
-                                            <form action="" method="POST" class="d-inline">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="tab" value="iuran">
-                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                                    <i class="bx bx-trash me-1"></i> Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-md">
-                                            <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
-                                                <i class="bx bxs-wallet"></i>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-md flex-shrink-0">
+                                                <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
+                                                    <i class="bx bxs-wallet"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h5 class="font-size-16 mb-1">
+                                                    <a href="?tab=iuran&member_id=<?= htmlspecialchars($row['anggota_id']) ?>" class="text-dark">
+                                                        <?= htmlspecialchars($anggotaName) ?>
+                                                    </a>
+                                                </h5>
+                                                <span class="badge <?= $badgeClass ?> mb-0"><?= $status ?></span>
                                             </div>
                                         </div>
-                                        <div class="flex-1 ms-3">
-                                            <h5 class="font-size-16 mb-1">
-                                                <a href="?tab=iuran&member_id=<?= htmlspecialchars($row['anggota_id']) ?>" class="text-dark">
-                                                    <?= htmlspecialchars($anggotaName) ?>
+                                        <div class="dropdown flex-shrink-0 ms-2">
+                                            <a class="text-muted dropdown-toggle font-size-16" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="bx bx-dots-horizontal-rounded"></i>
+                                            </a>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <a class="dropdown-item edit-btn" href="#" data-bs-toggle="modal" data-bs-target="#editIuranModal" data-id="<?= $row['id'] ?>" data-anggota-id="<?= $row['anggota_id'] ?>" data-tanggal="<?= $row['tanggal_bayar'] ?>" data-jumlah="<?= $row['jumlah_bayar'] ?>" data-keterangan="<?= $row['keterangan'] ?>">
+                                                    <i class="bx bx-edit me-1"></i> Edit
                                                 </a>
-                                            </h5>
-                                            <span class="badge <?= $badgeClass ?> mb-0"><?= $status ?></span>
+                                                <form action="" method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="tab" value="iuran">
+                                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                    <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                                        <i class="bx bx-trash me-1"></i> Hapus
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
 

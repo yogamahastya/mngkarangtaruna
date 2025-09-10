@@ -207,7 +207,7 @@ $labelsJson = json_encode($labels);
                 </div>
             </div>
         </div>
-    </div>
+</div>
 <div>
 <div class="card mb-4 shadow rounded-4">
     <div class="card-header bg-primary text-white fw-bold">
@@ -265,13 +265,17 @@ $labelsJson = json_encode($labels);
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-md">
+                                    <div class="avatar-md flex-shrink-0">
                                         <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
                                             <i class="bx bxs-wallet"></i>
                                         </div>
                                     </div>
-                                    <div class="flex-1 ms-3">
-                                        <h5 class="font-size-16 mb-1"><a href="?tab=iuran17&member_id=<?= htmlspecialchars($row['anggota_id']) ?>&year=<?= $selectedYear ?>" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a></h5>
+                                    <div class="flex-grow-1 ms-3" style="min-width: 0;">
+                                        <h5 class="font-size-16 mb-1 text-truncate">
+                                            <a href="?tab=iuran17&member_id=<?= htmlspecialchars($row['anggota_id']) ?>&year=<?= $selectedYear ?>" class="text-dark">
+                                                <?= htmlspecialchars($row['nama_lengkap']) ?>
+                                            </a>
+                                        </h5>
                                         <?php 
                                             // Logika perhitungan status
                                             $monthlyFee = DUES_MONTHLY_FEE17;

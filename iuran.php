@@ -195,8 +195,7 @@
     $labelsJson = json_encode($labels);
     
     ?>
-    <div class="row">
-        <div class="row mb-4 g-3 d-flex align-items-stretch">
+    <div class="row mb-4 g-3 d-flex align-items-stretch">
         <div class="col-12 col-sm-4">
             <div class="card text-white shadow-lg rounded-4 bg-success-gradient stat-card h-100">
                 <div class="card-body d-flex align-items-center">
@@ -267,13 +266,17 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-md">
+                                    <div class="avatar-md flex-shrink-0">
                                         <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
                                             <i class="bx bxs-wallet"></i>
                                         </div>
                                     </div>
-                                    <div class="flex-1 ms-3">
-                                        <h5 class="font-size-16 mb-1"><a href="?tab=iuran&member_id=<?= htmlspecialchars($row['anggota_id']) ?>&year=<?= $selectedYear ?>" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a></h5>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="font-size-16 mb-1">
+                                            <a href="?tab=iuran&member_id=<?= htmlspecialchars($row['anggota_id']) ?>&year=<?= $selectedYear ?>" class="text-dark">
+                                                <?= htmlspecialchars($row['nama_lengkap']) ?>
+                                            </a>
+                                        </h5>
                                         <?php 
                                             // Logika perhitungan status
                                             $monthlyFee = DUES_MONTHLY_FEE;
