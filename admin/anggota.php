@@ -77,11 +77,13 @@
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <div>
+                                    <div class="flex-shrink-0">
                                         <img src="<?= $profile_image ?>" alt="<?= htmlspecialchars($row['nama_lengkap']) ?>" class="avatar-md rounded-circle img-thumbnail" />
                                     </div>
-                                    <div class="flex-1 ms-3">
-                                        <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a></h5>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="font-size-16 mb-1">
+                                            <a href="#" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a>
+                                        </h5>
                                         <span class="<?= $badge_class ?> mb-0"><?= $jabatan ?></span>
                                     </div>
                                 </div>

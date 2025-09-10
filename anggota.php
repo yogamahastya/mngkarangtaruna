@@ -58,16 +58,22 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div><img src="<?= $profile_image ?>" alt="<?= htmlspecialchars($row['nama_lengkap']) ?>" class="avatar-md rounded-circle img-thumbnail" /></div>
-                            <div class="flex-1 ms-3">
-                                <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a></h5>
+                            <div class="flex-shrink-0">
+                                <img src="<?= $profile_image ?>" alt="<?= htmlspecialchars($row['nama_lengkap']) ?>" class="avatar-md rounded-circle img-thumbnail" />
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="font-size-16 mb-1">
+                                    <a href="#" class="text-dark"><?= htmlspecialchars($row['nama_lengkap']) ?></a>
+                                </h5>
                                 <span class="<?= $badge_class ?> mb-0"><?= $jabatan ?></span>
                             </div>
                         </div>
                         <div class="mt-3 pt-1">
-                            <p class="text-muted mb-0"><i class="mdi mdi-calendar font-size-15 align-middle pe-2 text-primary"></i> Bergabung: <?= htmlspecialchars($row['bergabung_sejak']) ?></p>
-                            </div>
+                            <p class="text-muted mb-0">
+                                <i class="mdi mdi-calendar font-size-15 align-middle pe-2 text-primary"></i> Bergabung: <?= htmlspecialchars($row['bergabung_sejak']) ?>
+                            </p>
                         </div>
+                    </div>
                 </div>
             </div>
         <?php endforeach; ?>
