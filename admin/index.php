@@ -66,6 +66,11 @@ require_once 'process_data.php';
                     <i class="fa-solid fa-receipt"></i> <span>Iuran</span>
                 </a>
             </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link <?= ($active_tab == 'users') ? 'active' : '' ?>" href="?tab=users<?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>">
+                    <i class="fa-solid fa-user-circle me-2"></i> <span>Users & Lokasi</span>
+                </a>
+            </li>
         </ul>
 
         <div class="modal fade" id="iuranModal" tabindex="-1" aria-labelledby="iuranModalLabel" aria-hidden="true">
