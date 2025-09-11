@@ -273,7 +273,7 @@
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <div>
+                                    <div class="flex-shrink-0">
                                         <img src="<?= htmlspecialchars($profile_image) ?>" alt="Profil Anggota" class="avatar-md rounded-circle img-thumbnail" />
                                     </div>
                                     <div class="flex-1 ms-3">

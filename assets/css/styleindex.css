@@ -17,14 +17,15 @@ body {
     color: var(--dark-text);
     line-height: 1.6;
 }
-
 .container {
     max-width: 1200px;        
 }
-
 .py-5 {
     padding-top: 1.5rem!important;
     padding-bottom: 1.5rem!important;
+}
+a {
+    text-decoration: none !important;
 }
 
 /* ============================================================= */
@@ -99,8 +100,10 @@ body {
     text-align: center;
     margin: 0.25rem;
 }
-.nav-pills-custom .nav-link.active {
-    background-color: var(--primary-color);
+.nav-pills-custom .nav-link.active,
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: #3b76e1;
     color: #fff;
     box-shadow: 0 2px 8px rgba(13, 110, 253, 0.4);
     transform: translateY(-3px);
@@ -150,14 +153,38 @@ body {
 /* ============================================================= */
 /* Badge & Detail Card */
 .badge {
-    font-size: 0.8em;
+    display: inline-block;
+    font-size: 0.6em;
     font-weight: 600;
     padding: 0.5rem 0.75rem;
     border-radius: 1rem;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
 }
 .detail-card {
     background-color: #f8f9fa;
     border-left: 5px solid var(--primary-color);
+}
+.ketua { background: #e74c3c; }
+.wakilketua { background: #23bbcf; }
+.sekretaris { background: #2980b9; }
+.bendahara { background: #27ae60; }
+.anggota { background: #da7272; }
+.humas { background: #caae10; }
+
+.badge-soft-danger {
+    color: #f56e6e !important;
+    background-color: rgba(245,110,110,.1);
+}
+.badge-soft-success {
+    color: #63ad6f !important;
+    background-color: rgba(99,173,111,.1);
+}
+.badge-soft-warning {
+    color: #f7b84b !important;
+    background-color: rgba(247,184,75,.1);
 }
 
 /* ============================================================= */
@@ -183,110 +210,243 @@ body {
 .btn-action:hover {
     transform: scale(1.1);
 }
+.btn-soft-primary {
+    color: #3b76e1;
+    background-color: rgba(59,118,225,.1);
+}
+.btn-soft-primary:hover {
+    color: #fff;
+    background-color: #3b76e1;
+}
+
+/* ============================================================= */
+/* Card */
+.card {
+    margin-bottom: 24px;
+    box-shadow: 0 2px 3px #e4e8f0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: #fff;
+    background-clip: border-box;
+    border: 1px solid #eff0f2;
+    border-radius: 1rem;
+}
+.card-hover {
+    transition: all 0.2s ease-in-out;
+}
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ============================================================= */
+/* Avatar */
+.avatar-md {
+    height: 4rem;
+    width: 4rem;
+}
+.rounded-circle {
+    border-radius: 50% !important;
+}
+.img-thumbnail {
+    padding: 0.25rem;
+    background-color: #f1f3f7;
+    border: 1px solid #eff0f2;
+    border-radius: 0.75rem;
+}
+.avatar-title {
+    align-items: center;
+    background-color: #3b40e1;
+    color: #fff;
+    display: flex;
+    font-weight: 500;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+}
+.bg-soft-primary {
+    background-color: rgba(59,118,225,.25) !important;
+}
+
+/* ============================================================= */
+/* Utilities */
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.map-container {
+    height: 250px;
+    width: 100%;
+    margin-bottom: 15px;
+}
 
 /* ============================================================= */
 /* Responsive (Mobile) */
 @media (max-width: 768px) {
-    .container {
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }
-    .hero-section {
-        padding: 4rem 1rem;
-    }
-    .hero-section h1 {
-        font-size: 1.75rem;
-    }
-    .nav-pills-custom .nav-link {
-        padding: 0.75rem 1rem;
-        font-size: 0.9rem;
-    }
-    .content-card {
-        padding: 1.5rem;
-    }
+  /* Pengaturan padding container agar tidak terlalu mepet */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .fs-5 {
+    font-size: 1rem !important;
+}
+/* Navigasi phill */
 
-    /* Mengubah tabel menjadi format kartu */
-    .table-responsive .table {
-        border: 0;
-    }
-    .table-responsive .table thead {
-        display: none;
-    }
-    .table-responsive .table tr {
-        display: block;
-        margin-bottom: 1rem;
-        border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-    .table-responsive .table td {
-        display: block;
-        text-align: right;
-        border-bottom: 1px solid #dee2e6;
-        padding: 0.75rem;
-        position: relative;
-    }
-    .table-responsive .table td:last-child {
-        border-bottom: 0;
-    }
-    .table-responsive .table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 0.75rem;
-        font-weight: 600;
-        color: #6c757d;
-    }
-    /* Perbaikan untuk baris terakhir di tabel Iuran */
-    .table-responsive .table.iuran-table td:last-child {
-        text-align: right;
-    }
+.nav-pills-custom {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  height: 65px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 25px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 100;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.nav-pills-custom .nav-link.active i {
+  position: relative;
 }
 
-/* ============================================================= */
-/* Card View Alternative (opsional, uncomment kalau perlu) */
-/*
-@media (max-width: 767.98px) {
-    .table-responsive .table {
-        display: none;
-    }
-    .card-item {
-        background: #fff;
-        border: 1px solid #dee2e6;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-        padding: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .card-item div {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-    }
-    .card-item div:not(:last-child) {
-        border-bottom: 1px solid #eee;
-    }
-    .card-item .label {
-        font-weight: 600;
-        color: #6c757d;
-        flex-basis: 40%;
-    }
-    .card-item .value {
-        flex-basis: 60%;
-        text-align: right;
-    }
-    .card-item .btn-group {
-        width: 100%;
-        display: flex;
-        justify-content: flex-end;
-        padding-top: 1rem;
-    }
-    .card-item .btn-action {
-        margin-left: 0.5rem;
-    }
-    .table-responsive {
-        overflow-x: hidden;
-    }
+.nav-pills-custom .nav-link.active i::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(13, 110, 253, 0.2);
+  box-shadow: 0 0 15px rgba(13, 110, 253, 0.6);
+  animation: pulseGlow 1.5s infinite;
 }
-*/
+
+@keyframes pulseGlow {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.2; }
+  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+}
+
+
+/* Saat disembunyikan */
+.nav-pills-custom.hide {
+  transform: translateY(100%); /* turun keluar layar */
+}
+.nav-pills-custom .nav-link {
+  flex: 1;
+  display: flex;                 
+  align-items: center;           /* horizontal + vertical center */
+  justify-content: center;       
+  text-align: center;
+  font-size: 1.4rem;
+  color: #000;
+  height: 100%;                  /* isi penuh nav bar */
+  padding: 0 !important;         /* hapus padding bawaan */
+}
+
+.nav-pills-custom .nav-link span {
+    display: none;
+}
+
+.nav-pills-custom .nav-link.active {
+    color: #0d6efd;
+    background: none !important;
+    box-shadow: 0 2px 8px rgb(255, 255, 255);
+}
+
+.nav-pills-custom .nav-link i {
+  font-size: 1.1rem; /* sebelumnya 1.4rem */
+  margin: 0;
+  position: relative;              /* fix icon biar pas tengah */
+}
+  /* Pengaturan navigasi pills */
+  .nav-pills-custom .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  /* Pengaturan ulang ukuran font untuk heading */
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1.5rem; }
+  h4 { font-size: 1.25rem; }
+  h5 { font-size: 1rem; }
+  
+  /* Pengaturan font untuk paragraf */
+  p { font-size: 0.9rem; }
+  
+  /* Pengaturan ulang ukuran avatar */
+  .avatar-md {
+    height: 3rem;
+    width: 3rem;
+  }
+
+  /* Pengaturan hero section */
+  .hero-section {
+    padding: 3rem 1rem;
+  }
+  .hero-section h1 {
+    font-size: 1.75rem;
+  }
+
+  /* Pengaturan card konten */
+  .content-card {
+    padding: 1.1rem;
+  }
+  
+  /* Mengubah tabel menjadi format kartu */
+  .table-responsive .table {
+    border: 0;
+  }
+  .table-responsive .table thead {
+    display: none;
+  }
+  .table-responsive .table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  .table-responsive .table td {
+    display: block;
+    text-align: right;
+    border-bottom: 1px solid #dee2e6;
+    padding: 0.75rem;
+    position: relative;
+    font-size: 0.9rem; /* Ukuran font di dalam sel tabel */
+  }
+  .table-responsive .table td:last-child {
+    border-bottom: 0;
+  }
+  .table-responsive .table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+  }
+  
+  /* Perbaikan untuk baris terakhir di tabel Iuran */
+  .table-responsive .table.iuran-table td:last-child {
+    text-align: right;
+  }
+}

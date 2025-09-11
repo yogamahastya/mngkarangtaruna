@@ -2,7 +2,7 @@
     <div class="copyright-box">
         <p class="copyright-text" style="font-size: 0.8rem;">
             &copy; <?= date('Y') ?> 
-            <a href="http://nuxera.my.id" target="_blank" style="color: inherit; text-decoration: none;">nuxera.my.id</a>
+            <a href="http://nuxera.my.id" target="_blank" style="color: inherit; text-decoration: none;">nuxera</a>
             <a href="https://www.linkedin.com/in/yogamahastya" target="_blank">
                 <i class="fab fa-linkedin" style="color: #0077B5; margin-left: 5px;"></i>
             </a>
