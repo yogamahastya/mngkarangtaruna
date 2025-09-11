@@ -303,79 +303,91 @@ a {
 }
 /* Navigasi phill */
 
-.nav-pills-custom {
-  position: fixed;
-  bottom: 15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  height: 65px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  border-radius: 25px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  z-index: 100;
-  transition: transform 0.35s ease, opacity 0.35s ease;
-}
-.nav-pills-custom .nav-link.active i {
-  position: relative;
-}
+/* Navigasi bawah */
+  .nav-pills-custom {
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.9); /* transparan + blur */
+    backdrop-filter: blur(12px);
+    border-radius: 25px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 100;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+  }
 
-.nav-pills-custom .nav-link.active i::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(13, 110, 253, 0.2);
-  box-shadow: 0 0 15px rgba(13, 110, 253, 0.6);
-  animation: pulseGlow 1.5s infinite;
-}
+  /* Saat disembunyikan */
+  .nav-pills-custom.hide {
+    transform: translate(-50%, 150%); /* geser ke bawah keluar layar */
+    opacity: 0;
+  }
 
-@keyframes pulseGlow {
-  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
-  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.2; }
-  100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
-}
+  /* Nav link normal */
+  .nav-pills-custom .nav-link {
+    flex: 1;
+    display: flex;
+    align-items: center;   
+    justify-content: center;
+    text-align: center;
+    font-size: 1.6rem;               /* icon lebih besar */
+    color: #000;
+    height: 100%;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: relative;
+  }
 
+  /* Nav link active */
+  .nav-pills-custom .nav-link.active {
+    color: #0d6efd !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 
-/* Saat disembunyikan */
-.nav-pills-custom.hide {
-  transform: translateY(100%); /* turun keluar layar */
-}
-.nav-pills-custom .nav-link {
-  flex: 1;
-  display: flex;                 
-  align-items: center;           /* horizontal + vertical center */
-  justify-content: center;       
-  text-align: center;
-  font-size: 1.4rem;
-  color: #000;
-  height: 100%;                  /* isi penuh nav bar */
-  padding: 0 !important;         /* hapus padding bawaan */
-}
+  /* Efek glow di icon aktif */
+  .nav-pills-custom .nav-link.active i::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(13, 110, 253, 0.15);
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+    animation: pulseGlow 1.5s infinite;
+    z-index: -1; /* biar glow di belakang icon */
+  }
 
-.nav-pills-custom .nav-link span {
+  /* Animasi glow */
+  @keyframes pulseGlow {
+    0%   { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+    50%  { transform: translate(-50%, -50%) scale(1.2); opacity: 0.3; }
+    100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+  }
+
+  /* Hilangkan teks label */
+  .nav-pills-custom .nav-link span {
     display: none;
-}
+  }
 
-.nav-pills-custom .nav-link.active {
-    color: #0d6efd;
-    background: none !important;
-    box-shadow: 0 2px 8px rgb(255, 255, 255);
-}
-
-.nav-pills-custom .nav-link i {
-  font-size: 1.1rem; /* sebelumnya 1.4rem */
-  margin: 0;
-  position: relative;              /* fix icon biar pas tengah */
-}
+  /* Icon */
+  .nav-pills-custom .nav-link i {
+    font-size: 1.1rem;
+    margin: 0;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
   /* Pengaturan navigasi pills */
   .nav-pills-custom .nav-link {
     padding: 0.75rem 1rem;
