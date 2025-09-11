@@ -1,4 +1,4 @@
-<footer class="text-center mt-5">
+<footer class="text-center">
     <div class="copyright-box">
         <p class="copyright-text" style="font-size: 0.8rem;">
             &copy; <?= date('Y') ?> 
