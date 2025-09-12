@@ -1,24 +1,33 @@
-<h2 class="mb-4 text-primary"><i class="fa-solid fa-user-group me-2"></i>Kelola Data Anggota</h2>
-<div class="row mb-3 gy-2 align-items-center">
-    <div class="col-12 col-md-4">
-        <p class="fs-5 mb-0">Total Anggota: <span class="badge bg-primary"><?= $totalAnggota ?></span></p>
-    </div>
-    <div class="col-12 col-md-4">
-        <form action="" method="GET" class="d-flex w-100">
-            <input type="hidden" name="tab" value="anggota">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Cari anggota..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
-                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
-                <?php if (!empty($searchTerm)): ?>
-                    <a href="?tab=anggota" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
-                <?php endif; ?>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+            <div class="d-flex align-items-center mb-3 mb-md-0 me-md-4">
+                <i class="fa-solid fa-user-group fa-3x text-primary me-3"></i>
+                <div>
+                    <p class="text-muted mb-0">Total Anggota</p>
+                    <h4 class="fw-bold mb-0" id="total-members-count"><?= $totalAnggota ?></h4>
+                </div>
             </div>
-        </form>
-    </div>
-    <div class="col-12 col-md-4 text-md-end">
-        <button type="button" class="btn btn-primary w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#addAnggotaModal">
-            <i class="fa-solid fa-plus-circle me-2"></i> Tambah Anggota
-        </button>
+
+            <form action="" method="GET" class="d-flex w-100 w-md-auto position-relative mb-3 mb-md-0 me-md-4">
+                <input type="hidden" name="tab" value="anggota">
+                <input type="text" id="search-input" placeholder="Cari anggota..." name="search" value="<?= htmlspecialchars($searchTerm) ?>" class="form-control rounded-pill pe-5">
+                
+                <?php if (!empty($searchTerm)): ?>
+                    <a href="?tab=anggota" class="btn btn-sm btn-link text-muted position-absolute end-0 top-50 translate-middle-y me-1" title="Hapus Pencarian" style="text-decoration: none;">
+                        <i class="fas fa-times"></i>
+                    </a>
+                <?php else: ?>
+                    <i class="fas fa-search text-muted position-absolute end-0 top-50 translate-middle-y me-3"></i>
+                <?php endif; ?>
+            </form>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-end align-items-center w-100">
+                <button type="button" class="btn btn-primary w-100 w-sm-auto" data-bs-toggle="modal" data-bs-target="#addAnggotaModal">
+                    <i class="fa-solid fa-plus-circle me-2"></i> Tambah Anggota
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 <div class="">
@@ -101,18 +110,7 @@
             </div>
         <?php endif; ?>
         </tbody>
-    </table>
-    <?php if ($total_pages > 1): ?>
-    <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
-        <ul class="pagination justify-content-center">
-            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="?tab=anggota&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
-            </ul>
-    </nav>
-    <?php endif; ?>        
+    </table>      
 </div>
 <?php if ($total_pages > 1): ?>
     <nav aria-label="Page navigation example" class="mt-4 d-md-none">

@@ -1,29 +1,29 @@
-<h2 class="mb-4 text-primary"><i class="fa-solid fa-user-group me-2"></i>Data Anggota</h2>
-<div class="row mb-3 align-items-center gy-2">
-    <div class="col-12 col-md-4">
-        <p class="fs-5 mb-0">Total Anggota: <span class="badge bg-primary"><?= $total_anggota ?></span></p>
-    </div>
-    <div class="col-12 col-md-8 text-md-end">
-        <form action="" method="GET" class="d-flex justify-content-start justify-content-md-end">
-            <input type="hidden" name="tab" value="anggota">
-            <div class="input-group search-input-desktop">
-                <input type="text" class="form-control" placeholder="Cari anggota..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
-                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
-                <?php if (!empty($searchTerm)): ?>
-                    <a href="?tab=anggota" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
-                <?php endif; ?>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
+                <div class="d-flex align-items-center mb-3 mb-md-0 me-md-4">
+                    <i class="fa-solid fa-user-group fa-3x text-primary me-3"></i>
+                    <div>
+                        <p class="text-muted mb-0">Total Anggota</p>
+                        <h4 class="fw-bold mb-0" id="total-members-count"><?= $total_anggota ?></h4>
+                    </div>
+                </div>
+                <form action="" method="GET" class="d-flex w-100 w-md-auto position-relative">
+                    <input type="hidden" name="tab" value="anggota">
+                    <input type="text" id="search-input" placeholder="Cari anggota..." name="search" value="<?= htmlspecialchars($searchTerm) ?>" class="form-control rounded-pill pe-5">
+                    
+                    <?php if (!empty($searchTerm)): ?>
+                        <a href="?tab=anggota" class="btn btn-sm btn-link text-muted position-absolute end-0 top-50 translate-middle-y me-1" title="Hapus Pencarian" style="text-decoration: none;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    <?php else: ?>
+                        <i class="fas fa-search text-muted position-absolute end-0 top-50 translate-middle-y me-3"></i>
+                    <?php endif; ?>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
-</div>
-<style>
-    /* CSS Kustom untuk mengontrol lebar di desktop */
-    @media (min-width: 768px) {
-        .search-input-desktop {
-            max-width: 300px;
-        }
-    }
-</style>
+
 <div class="">
     <table class="table table-hover table-striped" id="anggotaTable">
     <?php if (count($anggota) > 0): ?>

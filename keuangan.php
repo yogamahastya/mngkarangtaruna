@@ -112,7 +112,39 @@
     $pengeluaranDataJson = json_encode($pengeluaranData);
     $labelsJson = json_encode($labels);
 ?>
-
+<div class="row mb-3 gy-2 align-items-center">
+    <div class="col-12 col-md-6">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-calendar-alt"></i></span>
+            <select class="form-select" onchange="window.location.href = '?tab=keuangan&year=' + this.value + '<?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>'">
+                <?php
+                $minYearQuery = "SELECT MIN(YEAR(tanggal_transaksi)) AS min_year FROM keuangan";
+                $minYearResult = $conn->query($minYearQuery);
+                $minYearRow = $minYearResult->fetch_assoc();
+                $minYear = $minYearRow['min_year'] ? $minYearRow['min_year'] : date('Y');
+                for ($year = date('Y'); $year >= $minYear; $year--):
+                ?>
+                    <option value="<?= $year ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
+                        <?= $year ?>
+                    </option>
+                <?php endfor; ?>
+            </select>
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <form action="" method="GET" class="d-flex w-100">
+            <input type="hidden" name="tab" value="keuangan">
+            <input type="hidden" name="year" value="<?= $selectedYear ?>">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Cari transaksi..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
+                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
+                <?php if (!empty($searchTerm)): ?>
+                    <a href="?tab=keuangan&year=<?= $selectedYear ?>" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+</div>
 <!-- Card Statistik -->
 <div class="row mb-4 g-3 d-flex align-items-stretch">
     <div class="col-12 col-sm-4">
