@@ -146,5 +146,6 @@ window.addEventListener("scroll", function() {
   lastScrollTop = st <= 0 ? 0 : st; // biar gak negatif
 }, false);
 </script>
+<script>(function(s){s.dataset.zone='9879015',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 </body>
 </html>
