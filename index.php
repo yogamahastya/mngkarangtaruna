@@ -36,7 +36,7 @@ require_once 'process_data.php';
 
                     $current_time = time();
                     foreach ($online_users as $session => $last_time) {
-                        if ($current_time - $last_time > 300) {
+                        if ($current_time - $last_time > 10) {
                             unset($online_users[$session]);
                         }
                     }
