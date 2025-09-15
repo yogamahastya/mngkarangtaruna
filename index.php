@@ -19,10 +19,40 @@ require_once 'process_data.php';
 <body>
 
 <div class="container py-5">
-<header class="hero-section">
-    <h1 class="display-4"><i class="fa-solid fa-people-group me-3"></i><?= ORGANIZATION_NAME ?></h1>
-    <p class="fs-5 mt-3">Satu visi, satu aksi, untuk kemajuan bersama.</p>
-</header>
+    <header class="hero-section text-center py-5 bg-light">
+        <h1 class="display-4 mb-3">
+            <i class="fa-solid fa-people-group me-3"></i><?= ORGANIZATION_NAME ?>
+        </h1>
+        <p class="fs-5 mb-4">Satu visi, satu aksi, untuk kemajuan bersama.</p>
+        
+        <div class="d-inline-flex align-items-center px-3 py-2 bg-primary text-white rounded shadow-sm">
+            <i class="fa-solid fa-user-clock me-2"></i>
+            <span class="me-2">online:</span>
+            <span class="badge bg-warning text-dark" style="font-size: 0.8rem;">
+                <?php
+                    $file = "online_users.txt";
+
+                    $online_users = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+
+                    $current_time = time();
+                    foreach ($online_users as $session => $last_time) {
+                        if ($current_time - $last_time > 300) {
+                            unset($online_users[$session]);
+                        }
+                    }
+
+                    if(!session_id()) session_start();
+                    $session_id = session_id();
+                    $online_users[$session_id] = $current_time;
+
+                    file_put_contents($file, json_encode($online_users));
+
+                    echo count($online_users);
+                ?>
+            </span>
+        </div>
+    </header>
+
     <div class="mb-5">
         <ul class="nav nav-pills nav-justified nav-pills-custom" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
