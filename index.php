@@ -51,7 +51,11 @@ require_once 'process_data.php';
             </span>
         </div>
     </header>
-
+    <!--ADS-->
+    <script async="async" data-cfasync="false" src="//pl27652864.revenuecpmgate.com/1ca6f331b08ea102af96aa9eaf912d7e/invoke.js"></script>
+    <div id="container-1ca6f331b08ea102af96aa9eaf912d7e">
+        
+    </div>
     <div class="mb-5">
         <ul class="nav nav-pills nav-justified nav-pills-custom" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
