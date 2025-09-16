@@ -52,15 +52,6 @@ require_once 'process_data.php';
         </div>
     </header>
     <!--ADS-->
-    <script type="text/javascript">
-	atOptions = {
-		'key' : '11101be1f7cc04a774b7e08ac9bad0ad',
-		'format' : 'iframe',
-		'height' : 50,
-		'width' : 320,
-		'params' : {}
-	};
-</script>
 <script type="text/javascript" src="//www.highperformanceformat.com/11101be1f7cc04a774b7e08ac9bad0ad/invoke.js"></script>
     <script async="async" data-cfasync="false" src="//pl27652864.revenuecpmgate.com/1ca6f331b08ea102af96aa9eaf912d7e/invoke.js"></script>
     <div id="container-1ca6f331b08ea102af96aa9eaf912d7e"></div>
