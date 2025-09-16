@@ -24,6 +24,21 @@ require_once 'process_data.php';
         <i class="fa-solid fa-sign-out-alt me-2"></i> Logout
         </a>
     </header>
+    <!--ADS-->
+    <div style="text-align: center;">
+    <script type="text/javascript">
+        atOptions = {
+            'key' : '11101be1f7cc04a774b7e08ac9bad0ad',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/11101be1f7cc04a774b7e08ac9bad0ad/invoke.js"></script>
+</div>
+
+<script type="text/javascript" src="//www.highperformanceformat.com/11101be1f7cc04a774b7e08ac9bad0ad/invoke.js"></script>
     <?php if ($isUpdateAvailable): ?>
         <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>
