@@ -79,10 +79,9 @@
                                             data-nama="<?= htmlspecialchars($row['nama_lengkap']) ?>" 
                                             data-jabatan="<?= htmlspecialchars($row['jabatan']) ?>" 
                                             data-sejak="<?= htmlspecialchars($row['bergabung_sejak']) ?>"
-                                            data-nohp="<?= htmlspecialchars($row['no_hp']) ?>">
+                                            data-nohp="<?= htmlspecialchars($row['no_hp'] ?? '') ?>">
                                             Edit
-                                            </a>
-
+                                        </a>
 
                                         <form action="" method="POST" class="d-inline">
                                             <input type="hidden" name="action" value="delete">

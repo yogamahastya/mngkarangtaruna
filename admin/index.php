@@ -237,7 +237,7 @@ require_once 'process_data.php';
 
                     <div class="mb-3">
                         <label for="edit-nohp" class="form-label">No HP</label>
-                        <input type="text" class="form-control" id="edit-nohp" name="data[no_hp]" required>
+                        <input type="text" class="form-control" id="edit-nohp" name="data[no_hp]">
                     </div>
 
                     <div class="mb-3">
