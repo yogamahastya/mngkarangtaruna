@@ -300,6 +300,15 @@
     <?php endif; ?>
 </div>
 <?php if ($total_pages > 1): ?>
+    <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
+        <ul class="pagination justify-content-center">
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="?tab=anggota&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
     <nav aria-label="Page navigation example" class="mt-4 d-md-none">
         <ul class="pagination justify-content-center">
             <?php for ($i = 1; $i <= $total_pages; $i++): ?>

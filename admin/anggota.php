@@ -106,7 +106,15 @@
                                     </div>
                                 </div>
                                 <div class="mt-3 pt-1">
-                                    <p class="text-muted mb-0"><i class="mdi mdi-calendar font-size-15 align-middle pe-2 text-primary"></i> Bergabung: <?= htmlspecialchars($row['bergabung_sejak']) ?></p>
+                                    <p class="text-muted mb-0">
+                                        <i class="mdi mdi-calendar font-size-15 align-middle pe-2 text-primary"></i> 
+                                        Bergabung: <?= htmlspecialchars($row['bergabung_sejak']) ?>
+                                    </p>
+                                    <p class="text-muted mb-0">
+                                        <i class="mdi mdi-phone font-size-15 align-middle pe-2 text-primary"></i> 
+                                        Nomor HP: <?= htmlspecialchars($row['no_hp'] ?? 'Belum ada') ?>
+                                    </p>
+
                                 </div>
                             </div>
                         </div>
@@ -122,6 +130,15 @@
     </table>      
 </div>
 <?php if ($total_pages > 1): ?>
+    <nav aria-label="Page navigation example" class="mt-4 d-none d-md-block">
+        <ul class="pagination justify-content-center">
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="?tab=anggota&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
     <nav aria-label="Page navigation example" class="mt-4 d-md-none">
         <ul class="pagination justify-content-center">
             <?php for ($i = 1; $i <= $total_pages; $i++): ?>
