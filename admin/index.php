@@ -26,16 +26,6 @@ require_once 'process_data.php';
     </header>
     <!--ADS-->
     <div style="text-align: center;">
-    <script type="text/javascript">
-        atOptions = {
-            'key' : '11101be1f7cc04a774b7e08ac9bad0ad',
-            'format' : 'iframe',
-            'height' : 50,
-            'width' : 320,
-            'params' : {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/11101be1f7cc04a774b7e08ac9bad0ad/invoke.js"></script>
 </div>
 
     <?php if ($isUpdateAvailable): ?>
