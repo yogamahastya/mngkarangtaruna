@@ -38,7 +38,6 @@ require_once 'process_data.php';
     <script type="text/javascript" src="//www.highperformanceformat.com/11101be1f7cc04a774b7e08ac9bad0ad/invoke.js"></script>
 </div>
 
-<script type="text/javascript" src="//www.highperformanceformat.com/11101be1f7cc04a774b7e08ac9bad0ad/invoke.js"></script>
     <?php if ($isUpdateAvailable): ?>
         <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
             <i class="fas fa-exclamation-triangle me-2"></i>
