@@ -118,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.querySelector('#edit-anggota-id').value = button.getAttribute('data-id');
             this.querySelector('#edit-nama-lengkap').value = button.getAttribute('data-nama');
             this.querySelector('#edit-jabatan').value = button.getAttribute('data-jabatan');
+            this.querySelector('#edit-nohp').value = button.getAttribute('data-nohp');
             this.querySelector('#edit-bergabung-sejak').value = button.getAttribute('data-sejak');
         });
     }

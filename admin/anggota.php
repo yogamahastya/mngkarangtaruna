@@ -72,9 +72,18 @@
                                 <div class="dropdown float-end">
                                     <a class="text-muted dropdown-toggle font-size-16" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true"><i class="bx bx-dots-horizontal-rounded"></i></a>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a class="dropdown-item edit-btn" href="#" data-bs-toggle="modal" data-bs-target="#editAnggotaModal" data-id="<?= $row['id'] ?>" data-nama="<?= htmlspecialchars($row['nama_lengkap']) ?>" data-jabatan="<?= htmlspecialchars($row['jabatan']) ?>" data-sejak="<?= htmlspecialchars($row['bergabung_sejak']) ?>">
-                                            <i class="bx bx-edit me-1"></i> Edit
-                                        </a>
+                                        <a class="dropdown-item edit-btn" href="#" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editAnggotaModal" 
+                                            data-id="<?= $row['id'] ?>" 
+                                            data-nama="<?= htmlspecialchars($row['nama_lengkap']) ?>" 
+                                            data-jabatan="<?= htmlspecialchars($row['jabatan']) ?>" 
+                                            data-sejak="<?= htmlspecialchars($row['bergabung_sejak']) ?>"
+                                            data-nohp="<?= htmlspecialchars($row['no_hp']) ?>">
+                                            Edit
+                                            </a>
+
+
                                         <form action="" method="POST" class="d-inline">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="tab" value="anggota">

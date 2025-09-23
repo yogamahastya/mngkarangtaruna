@@ -190,6 +190,10 @@ require_once 'process_data.php';
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label for="add-no-hp" class="form-label">No hp</label>
+                        <input type="text" class="form-control" id="add-no-hp" name="data[no_hp]" required>
+                    </div>
+                    <div class="mb-3">
                         <label for="add-bergabung-sejak" class="form-label">Bergabung Sejak</label>
                         <input type="date" class="form-control" id="add-bergabung-sejak" name="data[bergabung_sejak]" required>
                     </div>
@@ -215,29 +219,32 @@ require_once 'process_data.php';
                     <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="tab" value="anggota">
                     <input type="hidden" name="id" id="edit-anggota-id">
+
                     <div class="mb-3">
                         <label for="edit-nama-lengkap" class="form-label">Nama Lengkap</label>
                         <input type="text" class="form-control" id="edit-nama-lengkap" name="data[nama_lengkap]" required>
                     </div>
-                    <?php 
-                    $jabatan_anggota = isset($anggota['jabatan']) ? $anggota['jabatan'] : '';
-                    ?>
+
                     <div class="mb-3">
                         <label for="edit-jabatan" class="form-label">Jabatan</label>
                         <select class="form-control" id="edit-jabatan" name="data[jabatan]" required>
                             <option value="">-- Pilih Jabatan --</option>
                             <?php foreach (JABATAN_OPTIONS as $jabatan): ?>
-                                <option value="<?= htmlspecialchars($jabatan) ?>" 
-                                    <?= ($jabatan_anggota === $jabatan) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($jabatan) ?>
-                                </option>
+                                <option value="<?= htmlspecialchars($jabatan) ?>"><?= htmlspecialchars($jabatan) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="edit-nohp" class="form-label">No HP</label>
+                        <input type="text" class="form-control" id="edit-nohp" name="data[no_hp]" required>
+                    </div>
+
                     <div class="mb-3">
                         <label for="edit-bergabung-sejak" class="form-label">Bergabung Sejak</label>
                         <input type="date" class="form-control" id="edit-bergabung-sejak" name="data[bergabung_sejak]" required>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
