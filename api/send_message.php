@@ -10,6 +10,9 @@ $waha_endpoint      = 'https://waha.nuxera.my.id/api/sendText';
 $waha_session_name  = 'default';
 $waha_api_key       = $_ENV['API_TOKEN'];
 
+// Set header JSON agar output rapi
+header('Content-Type: application/json');
+
 try {
     $monthly_fee = DUES_MONTHLY_FEE;
 
@@ -19,7 +22,10 @@ try {
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
-        echo "Tidak ada iuran yang perlu dikirim notifikasi.";
+        echo json_encode([
+            'status'  => 'ok',
+            'message' => 'Tidak ada iuran yang perlu dikirim notifikasi.'
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
         $stmt->close();
         $conn->close();
         exit;
@@ -56,7 +62,6 @@ try {
 
         $status = $row['total_bayar'] == 0 ? 'Belum Bayar' : 'Kurang';
 
-        // Bedakan tampilan Belum Bayar & Kurang
         if ($status === 'Belum Bayar') {
             $text_status = "➡️ " . date('F', strtotime($row['periode'])) . ": *$status*";
         } else {
@@ -69,23 +74,25 @@ try {
         $anggota_messages[$anggota_id]['total_kurang_global'] += $kurang;
     }
 
+    $results = [];
+
     // Kirim pesan
     foreach ($anggota_messages as $anggota_id => $anggota) {
         $no_hp = $anggota['no_hp'];
         $nama  = $anggota['nama'];
 
-        // --- Base URL otomatis (tanpa /api dan tanpa /iuran.php) ---
+        // Base URL
         $protocol  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
         $host      = $_SERVER['HTTP_HOST'];
         $base_url  = $protocol . "://" . $host;
 
-        // Ambil tahun terakhir yang ada di data
+        // Tahun terakhir
         $tahun_terakhir = max(array_keys($anggota['pesan_per_tahun']));
 
-        // Buat link detail iuran per member (format baru)
+        // Link detail
         $link_web = $base_url . "/?tab=iuran&member_id=" . $anggota_id . "&year=" . $tahun_terakhir;
 
-        // --- Format pesan dengan emoji ---
+        // Format pesan
         $message_body  = "🏠 *" . ORGANIZATION_NAME . "* 🏠\n";
         $message_body .= "━━━━━━━━━━━━━━━━━━━━━━━\n\n";
         $message_body .= "👋 Halo *$nama*,\n";
@@ -106,20 +113,20 @@ try {
         $message_body .= "🙏 Mohon segera diselesaikan.\n";
         $message_body .= "Terima kasih ✨";
 
-        // --- Format nomor WAHA ---
+        // Format nomor WAHA
         if (substr($no_hp, 0, 1) === '0') {
             $no_hp = '62' . substr($no_hp, 1);
         }
         $waha_chat_id = $no_hp . '@c.us';
 
-        // Payload untuk WAHA
+        // Payload
         $waha_payload = [
             'session' => $waha_session_name,
             'chatId'  => $waha_chat_id,
             'text'    => $message_body
         ];
 
-        // Header WAHA
+        // Headers
         $headers = [
             'Content-Type: application/json',
             'X-Api-Key: ' . $waha_api_key
@@ -137,19 +144,26 @@ try {
         curl_close($ch);
         sleep(1);
 
-        $api_response = json_decode($response, true);
-        if (isset($api_response['result']) && $api_response['result'] === 'success') {
-            echo "✅ Pesan berhasil dikirim ke $nama ($no_hp)\n";
-        } else {
-            echo "❌ Pesan gagal dikirim ke $nama. Respon API: $response\n";
-        }
+        // Simpan hasil sederhana: hanya nama & body
+        $results[] = [
+            'nama' => $nama,
+            'body' => $message_body
+        ];
     }
 
+    echo json_encode([
+        'status'  => 'done',
+        'results' => $results
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
 } catch (mysqli_sql_exception $e) {
-    echo "⚠️ Terjadi kesalahan database: " . $e->getMessage();
+    echo json_encode([
+        'status'  => 'error',
+        'message' => 'Terjadi kesalahan database',
+        'error'   => $e->getMessage()
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 }
 
 if (isset($conn) && $conn) {
     $conn->close();
 }
-?>
