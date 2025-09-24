@@ -1,4 +1,19 @@
 <?php
+include_once __DIR__ . '/../dotenv_loader.php';
+
+loadEnv(__DIR__ . '/../.env');
+
+$UPDATE_TOKEN = getenv('UPDATE_TOKEN'); // Ambil dari .env
+
+// Cek header Authorization
+$headers = getallheaders();
+if (!isset($headers['Authorization']) || $headers['Authorization'] !== "Bearer " . $UPDATE_TOKEN) {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized']);
+    exit;
+}
+
+
 // Fungsi pembantu untuk mengirim respons JSON
 function sendResponse($status, $message, $log = null, $localVersion = null, $remoteVersion = null) {
     $response = [
