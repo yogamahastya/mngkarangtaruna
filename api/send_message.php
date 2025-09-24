@@ -34,7 +34,6 @@ try {
 
         // Hitung kekurangan
         $kurang = $monthly_fee - $row['total_bayar'];
-
         if ($kurang <= 0) {
             continue;
         }
@@ -75,13 +74,16 @@ try {
         $no_hp = $anggota['no_hp'];
         $nama  = $anggota['nama'];
 
-        // --- Base URL otomatis (tanpa /api) ---
+        // --- Base URL otomatis (tanpa /api dan tanpa /iuran.php) ---
         $protocol  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
         $host      = $_SERVER['HTTP_HOST'];
         $base_url  = $protocol . "://" . $host;
 
-        // Buat link detail iuran per member
-        $link_web = $base_url . "/iuran.php?tab=iuran&member_id=" . $anggota_id;
+        // Ambil tahun terakhir yang ada di data
+        $tahun_terakhir = max(array_keys($anggota['pesan_per_tahun']));
+
+        // Buat link detail iuran per member (format baru)
+        $link_web = $base_url . "/?tab=iuran&member_id=" . $anggota_id . "&year=" . $tahun_terakhir;
 
         // --- Format pesan dengan emoji ---
         $message_body  = "🏠 *" . ORGANIZATION_NAME . "* 🏠\n";
