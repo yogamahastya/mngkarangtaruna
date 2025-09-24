@@ -6,9 +6,9 @@ include_once __DIR__ . '/../dotenv_loader.php';
 loadEnv(__DIR__ . '/../.env');
 
 // --- PENGATURAN WAHA ---
-$waha_endpoint = 'https://waha.nuxera.my.id/api/sendText'; 
-$waha_session_name = 'default'; 
-$waha_api_key = $_ENV['API_TOKEN'];
+$waha_endpoint      = 'https://waha.nuxera.my.id/api/sendText';
+$waha_session_name  = 'default';
+$waha_api_key       = $_ENV['API_TOKEN'];
 
 try {
     $monthly_fee = DUES_MONTHLY_FEE;
@@ -28,10 +28,10 @@ try {
     $anggota_messages = [];
     while ($row = $result->fetch_assoc()) {
         $anggota_id = $row['anggota_id'];
-        $nama = $row['nama_lengkap'];
-        $no_hp = $row['no_hp'];
-        $tahun = $row['tahun'];
-        
+        $nama       = $row['nama_lengkap'];
+        $no_hp      = $row['no_hp'];
+        $tahun      = $row['tahun'];
+
         // Hitung kekurangan
         $kurang = $monthly_fee - $row['total_bayar'];
 
@@ -41,16 +41,16 @@ try {
 
         if (!isset($anggota_messages[$anggota_id])) {
             $anggota_messages[$anggota_id] = [
-                'nama' => $nama,
-                'no_hp' => $no_hp,
-                'pesan_per_tahun' => [],
-                'total_kurang_global' => 0
+                'nama'               => $nama,
+                'no_hp'              => $no_hp,
+                'pesan_per_tahun'    => [],
+                'total_kurang_global'=> 0
             ];
         }
 
         if (!isset($anggota_messages[$anggota_id]['pesan_per_tahun'][$tahun])) {
             $anggota_messages[$anggota_id]['pesan_per_tahun'][$tahun] = [
-                'list_bulan' => [],
+                'list_bulan'         => [],
                 'total_kurang_tahun' => 0
             ];
         }
@@ -61,7 +61,8 @@ try {
         if ($status === 'Belum Bayar') {
             $text_status = "➡️ " . date('F', strtotime($row['periode'])) . ": *$status*";
         } else {
-            $text_status = "➡️ " . date('F', strtotime($row['periode'])) . ": *$status* (Kurang Rp " . number_format($kurang, 0, ',', '.') . ")";
+            $text_status = "➡️ " . date('F', strtotime($row['periode'])) . ": *$status* (Kurang Rp " .
+                           number_format($kurang, 0, ',', '.') . ")";
         }
 
         $anggota_messages[$anggota_id]['pesan_per_tahun'][$tahun]['list_bulan'][] = $text_status;
@@ -72,19 +73,18 @@ try {
     // Kirim pesan
     foreach ($anggota_messages as $anggota_id => $anggota) {
         $no_hp = $anggota['no_hp'];
-        $nama = $anggota['nama'];
+        $nama  = $anggota['nama'];
 
-        // --- Base URL otomatis ---
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
-        $host = $_SERVER['HTTP_HOST'];
-        $script_dir = dirname($_SERVER['SCRIPT_NAME']);
-        $base_url = $protocol . "://" . $host . $script_dir;
+        // --- Base URL otomatis (tanpa /api) ---
+        $protocol  = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+        $host      = $_SERVER['HTTP_HOST'];
+        $base_url  = $protocol . "://" . $host;
 
         // Buat link detail iuran per member
         $link_web = $base_url . "/iuran.php?tab=iuran&member_id=" . $anggota_id;
 
-        // --- Format pesan ---
-        $message_body = "🏠 *" . ORGANIZATION_NAME . "* 🏠\n";
+        // --- Format pesan dengan emoji ---
+        $message_body  = "🏠 *" . ORGANIZATION_NAME . "* 🏠\n";
         $message_body .= "━━━━━━━━━━━━━━━━━━━━━━━\n\n";
         $message_body .= "👋 Halo *$nama*,\n";
         $message_body .= "Berikut detail iuran Anda yang masih tertunggak:\n\n";
@@ -93,13 +93,14 @@ try {
             $message_body .= "📅 *Tahun $tahun*\n";
             $message_body .= "──────────────────\n";
             $message_body .= implode("\n", $data['list_bulan']) . "\n\n";
-            $message_body .= "💰 Total Kurang Tahun $tahun: *Rp " . number_format($data['total_kurang_tahun'], 0, ',', '.') . "*\n\n";
+            $message_body .= "💰 Total Kurang Tahun $tahun: *Rp " .
+                             number_format($data['total_kurang_tahun'], 0, ',', '.') . "*\n\n";
         }
 
-        $message_body .= "📊 Total Kekurangan Keseluruhan: *Rp " . number_format($anggota['total_kurang_global'], 0, ',', '.') . "*\n";
+        $message_body .= "📊 Total Kekurangan Keseluruhan: *Rp " .
+                         number_format($anggota['total_kurang_global'], 0, ',', '.') . "*\n";
         $message_body .= "━━━━━━━━━━━━━━━━━━━━━━━\n\n";
-        $message_body .= "🌐 Lihat detail lengkap di web:\n";
-        $message_body .= $link_web . "\n\n";
+        $message_body .= "🌐 Lihat detail lengkap di web:\n" . $link_web . "\n\n";
         $message_body .= "🙏 Mohon segera diselesaikan.\n";
         $message_body .= "Terima kasih ✨";
 
@@ -112,8 +113,8 @@ try {
         // Payload untuk WAHA
         $waha_payload = [
             'session' => $waha_session_name,
-            'chatId' => $waha_chat_id,
-            'text' => $message_body
+            'chatId'  => $waha_chat_id,
+            'text'    => $message_body
         ];
 
         // Header WAHA
