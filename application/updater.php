@@ -16,7 +16,7 @@ function sendResponse($status, $message, $log = null, $localVersion = null, $rem
 $settingsFile = __DIR__ . '/auto_update_status.json';
 $logFile = __DIR__ . '/git_log.txt';
 $repoPath = realpath(__DIR__ . '/..'); 
-$remoteUrl = 'https://raw.githubusercontent.com/your-username/your-repo/main/version.json';
+$remoteUrl = 'https://raw.githubusercontent.com/yogamahastya/mngkarangtaruna/main/application/version.json';
 $localVersionFile = $repoPath . '/version.json';
 
 // === CEK STATUS AUTO UPDATE ===
