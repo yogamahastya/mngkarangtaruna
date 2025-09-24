@@ -8,23 +8,16 @@ function sendResponse($status, $message, $log = null, $localVersion = null, $rem
         "current_version" => $localVersion,
         "latest_version" => $remoteVersion
     ];
-    echo json_encode($response);
+    echo json_encode($response, JSON_PRETTY_PRINT);
     exit;
 }
 
 // === LOKASI FILE & REPOSITORY ===
-// Lokasi file untuk menyimpan status auto update
 $settingsFile = __DIR__ . '/auto_update_status.json';
-// Lokasi log
 $logFile = __DIR__ . '/git_log.txt';
-// Lokasi repository Git
-// Path ini harus satu level di atas folder 'application'
 $repoPath = realpath(__DIR__ . '/..'); 
-// URL file versi di GitHub
 $remoteUrl = 'https://raw.githubusercontent.com/your-username/your-repo/main/version.json';
-// Lokasi file versi lokal
 $localVersionFile = $repoPath . '/version.json';
-
 
 // === CEK STATUS AUTO UPDATE ===
 $isAutoUpdateEnabled = false;
@@ -35,16 +28,18 @@ if (file_exists($settingsFile)) {
     }
 }
 
-// Hentikan proses jika auto update tidak diaktifkan
 if (!$isAutoUpdateEnabled) {
-    sendResponse("info", "Auto update dinonaktifkan. Tidak ada pembaruan yang dijalankan.");
-    exit;
+    sendResponse("info", "Auto update dinonaktifkan.");
 }
 
-// === VALIDASI DIREKTORI PROYEK ===
+// === VALIDASI DIREKTORI REPO ===
 if (!$repoPath || !is_dir($repoPath)) {
     http_response_code(500);
-    sendResponse("error", "Direktori proyek tidak ditemukan.");
+    sendResponse("error", "Direktori proyek tidak ditemukan: $repoPath");
+}
+if (!is_dir($repoPath . '/.git')) {
+    http_response_code(500);
+    sendResponse("error", "Folder ini bukan repository git: $repoPath");
 }
 
 // === CEK VERSI LOKAL VS. REMOTE ===
@@ -57,65 +52,72 @@ if (file_exists($localVersionFile)) {
 $remoteData = @file_get_contents($remoteUrl);
 if ($remoteData === false) {
     http_response_code(500);
-    sendResponse("error", "Gagal mengambil version.json dari GitHub.");
+    sendResponse("error", "Gagal mengambil version.json dari GitHub: $remoteUrl");
 }
 $remoteData = json_decode($remoteData, true);
 $remoteVersion = $remoteData['version'] ?? null;
 
 if ($localVersion === $remoteVersion) {
-    sendResponse("info", "Sudah versi terbaru.", null, $localVersion);
+    sendResponse("info", "Sudah versi terbaru.", null, $localVersion, $remoteVersion);
 }
 
-// === EKSEKUSI PEMBARUAN GIT ===
+// === EKSEKUSI GIT UPDATE ===
 $full_output = '';
 try {
-    // 1. Pindah ke direktori repository.
     chdir($repoPath);
 
-    // 2. Lakukan git stash untuk menyimpan perubahan lokal.
+    // Info tambahan untuk debug
+    $whoami = shell_exec("whoami 2>&1");
+    $pwd = shell_exec("pwd 2>&1");
+    $branch = shell_exec("git rev-parse --abbrev-ref HEAD 2>&1");
+    $remote = shell_exec("git remote -v 2>&1");
+
+    $full_output .= "=== DEBUG INFO ===\n";
+    $full_output .= "User: " . trim($whoami) . "\n";
+    $full_output .= "Current dir: " . trim($pwd) . "\n";
+    $full_output .= "Active branch: " . trim($branch) . "\n";
+    $full_output .= "Remote:\n" . $remote . "\n";
+    $full_output .= "Repo Path: $repoPath\n";
+    $full_output .= "Local Version: $localVersion\n";
+    $full_output .= "Remote Version: $remoteVersion\n";
+    $full_output .= "==================\n\n";
+
+    // Git stash
     $output_stash = shell_exec("git stash 2>&1");
     $full_output .= "Git Stash:\n" . ($output_stash ?? 'null') . "\n\n";
 
-    // 3. Lakukan git pull.
+    // Git pull
     $output_pull = shell_exec("git pull 2>&1");
     $full_output .= "Git Pull:\n" . ($output_pull ?? 'null') . "\n\n";
 
-    // 4. Terapkan kembali perubahan yang di-stash jika ada.
+    // Git stash pop
     if (strpos($output_stash, 'No local changes to save') === false) {
         $output_pop = shell_exec("git stash pop 2>&1");
-        $full_output .= "Git Stash Pop:\n" . ($output_pop ?? 'null');
+        $full_output .= "Git Stash Pop:\n" . ($output_pop ?? 'null') . "\n\n";
     }
 
-    // === SIMPAN LOG KE FILE ===
+    // Simpan log
     file_put_contents(
         $logFile,
         "[" . date("Y-m-d H:i:s") . "]\n" . $full_output . "\n\n",
         FILE_APPEND
     );
 
-    // === RESPON AKHIR BERDASARKAN HASIL PULL ===
-    if (strpos($output_pull, "Already up to date.") !== false || strpos($output_pull, "Updating") !== false) {
-        sendResponse(
-            "success",
-            "Pembaruan berhasil.",
-            $full_output,
-            $localVersion,
-            $remoteVersion
-        );
+    // Cek hasil pull
+    if (
+        strpos($output_pull, "Already up to date.") !== false ||
+        strpos($output_pull, "Updating") !== false ||
+        strpos($output_pull, "Fast-forward") !== false ||
+        strpos($output_pull, "Merge made by") !== false
+    ) {
+        sendResponse("success", "Pembaruan berhasil.", $full_output, $localVersion, $remoteVersion);
     } else {
         http_response_code(500);
-        sendResponse(
-            "error",
-            "Pembaruan gagal. Silakan periksa log.",
-            $full_output
-        );
+        sendResponse("error", "Pembaruan gagal. Periksa log.", $full_output, $localVersion, $remoteVersion);
     }
+
 } catch (Exception $e) {
     http_response_code(500);
-    sendResponse(
-        "error",
-        "Terjadi kesalahan saat menjalankan perintah Git: " . $e->getMessage(),
-        $full_output
-    );
+    sendResponse("error", "Error saat menjalankan Git: " . $e->getMessage(), $full_output);
 }
 ?>
