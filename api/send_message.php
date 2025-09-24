@@ -142,13 +142,16 @@ try {
 
         $response = curl_exec($ch);
         curl_close($ch);
-        sleep(1);
 
-        // Simpan hasil sederhana: hanya nama & body
+        // Simpan hasil sederhana: hanya nama, body, timestamp
         $results[] = [
-            'nama' => $nama,
-            'body' => $message_body
+            'nama'      => $nama,
+            'body'      => $message_body,
+            'timestamp' => date('Y-m-d H:i:s')
         ];
+
+        // Jeda random 10 - 15 detik sebelum kirim pesan berikutnya
+        sleep(rand(10, 20));
     }
 
     echo json_encode([
