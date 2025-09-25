@@ -1,5 +1,5 @@
 <?php
-// === CEK MODE EKSEKUSI: hanya boleh CLI (cron job) ===
+// === CEK MODE EKSEKUSI: hanya boleh CLI (cron job) ====
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
     echo json_encode([
