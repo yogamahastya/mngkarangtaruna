@@ -9,17 +9,6 @@ if (php_sapi_name() !== 'cli') {
     exit;
 }
 
-// (Opsional) Batasi hanya user tertentu yang bisa eksekusi script
-$allowedUsers = ['root', 'www-data' , 'www', 'desktop-ordme65\\devnet']; // sesuaikan dengan user cron/daemon kamu
-$currentUser = trim(shell_exec("whoami"));
-if (!in_array($currentUser, $allowedUsers)) {
-    echo json_encode([
-        "status" => "forbidden",
-        "message" => "User '$currentUser' tidak diizinkan menjalankan script update ini."
-    ], JSON_PRETTY_PRINT);
-    exit;
-}
-
 include_once __DIR__ . '/../database.php';
 include_once __DIR__ . '/../config.php';
 include_once __DIR__ . '/../dotenv_loader.php';
