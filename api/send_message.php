@@ -1,4 +1,25 @@
 <?php
+// === CEK MODE EKSEKUSI: hanya boleh CLI (cron job) ===
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    echo json_encode([
+        "status" => "forbidden",
+        "message" => "AKSES DENIED."
+    ], JSON_PRETTY_PRINT);
+    exit;
+}
+
+// (Opsional) Batasi hanya user tertentu yang bisa eksekusi script
+$allowedUsers = ['root', 'www-data' , 'www', 'desktop-ordme65\\devnet']; // sesuaikan dengan user cron/daemon kamu
+$currentUser = trim(shell_exec("whoami"));
+if (!in_array($currentUser, $allowedUsers)) {
+    echo json_encode([
+        "status" => "forbidden",
+        "message" => "User '$currentUser' tidak diizinkan menjalankan script update ini."
+    ], JSON_PRETTY_PRINT);
+    exit;
+}
+
 include_once __DIR__ . '/../database.php';
 include_once __DIR__ . '/../config.php';
 include_once __DIR__ . '/../dotenv_loader.php';
@@ -96,7 +117,7 @@ try {
         $message_body  = "🏠 *" . ORGANIZATION_NAME . "* 🏠\n";
         $message_body .= "━━━━━━━━━━━━━━━━━━━━━━━\n\n";
         $message_body .= "👋 Halo *$nama*,\n";
-        $message_body .= "Berikut detail iuran Anda yang masih tertunggak:\n\n";
+        $message_body .= "Berikut detail iuran Anda yang masih belum lunas:\n\n";
 
         foreach ($anggota['pesan_per_tahun'] as $tahun => $data) {
             $message_body .= "📅 *Tahun $tahun*\n";

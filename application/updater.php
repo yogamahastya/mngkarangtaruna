@@ -10,7 +10,7 @@ if (php_sapi_name() !== 'cli') {
 }
 
 // (Opsional) Batasi hanya user tertentu yang bisa eksekusi script
-$allowedUsers = ['root', 'www-data']; // sesuaikan dengan user cron/daemon kamu
+$allowedUsers = ['root', 'www-data' , 'www', 'desktop-ordme65\\devnet']; // sesuaikan dengan user cron/daemon kamu
 $currentUser = trim(shell_exec("whoami"));
 if (!in_array($currentUser, $allowedUsers)) {
     echo json_encode([
