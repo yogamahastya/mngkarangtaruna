@@ -1,4 +1,14 @@
-<h2 class="mb-4 text-primary"><i class="fa-solid fa-user-circle me-2"></i>Kelola Data Users</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0 text-primary"><i class="fa-solid fa-user-circle me-2"></i>Kelola Data Users</h2>
+    <div class="form-check form-switch d-flex align-items-center">
+        <input class="form-check-input" type="checkbox" id="autoUpdateCheckbox">
+        <label class="form-check-label ms-2" for="autoUpdateCheckbox">
+            <span id="autoUpdateText">Auto Update</span> <span id="updateSuccessBadge" class="badge rounded-pill bg-success ms-2 d-none"> Berhasil
+            </span>
+        </label>
+    </div>
+</div>
+
 <div class="row mb-3 gy-2 align-items-center">
     <div class="col-12 col-md-6">
         <form action="" method="GET" class="d-flex w-100">
@@ -13,16 +23,6 @@
         </form>
     </div>
     <div class="col-12 col-md-6 text-md-end d-flex flex-column flex-md-row justify-content-md-end">
-        <div class="form-check form-switch d-flex align-items-center me-md-4 mb-2 mb-md-0 justify-content-center justify-content-md-start">
-            <input class="form-check-input" type="checkbox" id="autoUpdateCheckbox">
-            <label class="form-check-label ms-2" for="autoUpdateCheckbox">
-                Auto Update
-                <span id="update-badge" class="badge rounded-pill bg-success ms-2 d-none">
-                    Berhasil
-                </span>
-            </label>
-        </div>
-
         <button type="button" class="btn btn-primary w-100 w-md-auto mb-2 mb-md-0 me-md-2" data-bs-toggle="modal" data-bs-target="#addUsersModal">
             <i class="fa-solid fa-plus-circle me-2"></i> Tambah User
         </button>
@@ -98,26 +98,38 @@
         </tbody>
     </table>
 </div>
-<script> 
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const checkbox = document.getElementById('autoUpdateCheckbox');
-    const updateBadge = document.getElementById('update-badge');
+    const autoUpdateText = document.getElementById('autoUpdateText');
+    const updateSuccessBadge = document.getElementById('updateSuccessBadge');
 
-    // Fungsi untuk menampilkan badge
-    function showBadge(message, type) {
-        updateBadge.textContent = message;
-        updateBadge.classList.remove('d-none', 'bg-success', 'bg-danger');
-        updateBadge.classList.add(`bg-${type}`);
-        
-        // Sembunyikan badge setelah 3 detik
-        setTimeout(() => {
-            updateBadge.classList.add('d-none');
-        }, 3000);
+    let timeoutId; // Untuk menyimpan ID timeout agar bisa dibersihkan
+
+    // Fungsi untuk menampilkan badge dan mengelola visibilitas teks "Auto Update"
+    function showStatusFeedback(message, type, duration = 3000) {
+        // Hentikan timeout sebelumnya jika ada
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        // 1. Sembunyikan teks "Auto Update"
+        autoUpdateText.classList.add('d-none');
+
+        // 2. Tampilkan badge dengan pesan dan tipe yang sesuai
+        updateSuccessBadge.textContent = message;
+        updateSuccessBadge.classList.remove('d-none', 'bg-success', 'bg-danger');
+        updateSuccessBadge.classList.add(`bg-${type}`);
+
+        // 3. Set timeout untuk menyembunyikan badge dan menampilkan kembali teks "Auto Update"
+        timeoutId = setTimeout(() => {
+            updateSuccessBadge.classList.add('d-none'); // Sembunyikan badge
+            autoUpdateText.classList.remove('d-none'); // Tampilkan kembali teks "Auto Update"
+        }, duration);
     }
 
-    // Fungsi untuk mengirim status ke server
+    // Fungsi untuk memperbarui status di server
     function updateServerStatus(status) {
-        // Path disesuaikan: "../application/update_settings.php"
         fetch('../application/update_settings.php', {
             method: 'POST',
             headers: {
@@ -129,40 +141,56 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Server response:', data);
             if (data.status === 'success') {
-                // Tampilkan badge sukses
-                showBadge('Berhasil', 'success');
+                showStatusFeedback('Berhasil', 'success');
             } else {
-                // Tampilkan badge gagal
-                showBadge('Gagal', 'danger');
+                showStatusFeedback('Gagal', 'danger');
+                // Jika gagal, kembalikan status checkbox ke nilai sebelumnya
+                checkbox.checked = !status;
+                // Dan langsung tampilkan teks "Auto Update" jika gagal, tidak menunggu timeout
+                autoUpdateText.classList.remove('d-none');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            // Tampilkan badge error
-            showBadge('Error', 'danger');
+            showStatusFeedback('Error', 'danger');
+            // Jika error, kembalikan status checkbox ke nilai sebelumnya
+            checkbox.checked = !status;
+            // Dan langsung tampilkan teks "Auto Update" jika error, tidak menunggu timeout
+            autoUpdateText.classList.remove('d-none');
         });
+    }
+
+    // Fungsi untuk mengatur tampilan awal berdasarkan status checkbox dari server
+    function setInitialDisplay(isChecked) {
+        if (isChecked) {
+            autoUpdateText.classList.remove('d-none'); // Selalu tampilkan teks jika aktif
+            updateSuccessBadge.classList.add('d-none'); // Badge tersembunyi
+        } else {
+            autoUpdateText.classList.remove('d-none'); // Selalu tampilkan teks jika tidak aktif
+            updateSuccessBadge.classList.add('d-none'); // Badge tersembunyi
+        }
     }
 
     // Ambil status dari server saat halaman dimuat
     fetch('../application/auto_update_status.json')
         .then(response => response.json())
         .then(data => {
-            if (data && data.auto_update) {
-                checkbox.checked = true;
-            }
+            const isAutoUpdateActive = (data && data.auto_update) ? true : false;
+            checkbox.checked = isAutoUpdateActive;
+            setInitialDisplay(isAutoUpdateActive); // Panggil setelah mendapatkan status awal
         })
         .catch(error => {
             console.error('Gagal memuat pengaturan awal:', error);
-            checkbox.checked = false;
+            checkbox.checked = false; // Default ke false jika gagal
+            setInitialDisplay(false); // Atur tampilan awal ke non-aktif
         });
 
     // Mendengarkan perubahan pada checkbox
     checkbox.addEventListener('change', function() {
-        if (this.checked) {
-            updateServerStatus(true);
-        } else {
-            updateServerStatus(false);
-        }
+        // Panggil updateServerStatus untuk mengirim perubahan ke server
+        updateServerStatus(this.checked);
+        // Teks "Auto Update" akan disembunyikan oleh showStatusFeedback()
+        // dan muncul kembali setelah badge hilang
     });
 });
 </script>
