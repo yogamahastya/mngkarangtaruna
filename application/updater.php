@@ -1,5 +1,26 @@
 <?php
-// Fungsi pembantu untuk mengirim respons JSON
+// === CEK MODE EKSEKUSI: hanya boleh CLI (cron job) ===
+if (php_sapi_name() !== 'cli') {
+    http_response_code(403);
+    echo json_encode([
+        "status" => "forbidden",
+        "message" => "AKSES DENIED."
+    ], JSON_PRETTY_PRINT);
+    exit;
+}
+
+// (Opsional) Batasi hanya user tertentu yang bisa eksekusi script
+$allowedUsers = ['root', 'www-data']; // sesuaikan dengan user cron/daemon kamu
+$currentUser = trim(shell_exec("whoami"));
+if (!in_array($currentUser, $allowedUsers)) {
+    echo json_encode([
+        "status" => "forbidden",
+        "message" => "User '$currentUser' tidak diizinkan menjalankan script update ini."
+    ], JSON_PRETTY_PRINT);
+    exit;
+}
+
+// === Fungsi pembantu untuk mengirim respons JSON ===
 function sendResponse($status, $message, $log = null, $localVersion = null, $remoteVersion = null) {
     $response = [
         "status" => $status,
@@ -27,18 +48,15 @@ if (file_exists($settingsFile)) {
         $isAutoUpdateEnabled = $settingsData['auto_update'];
     }
 }
-
 if (!$isAutoUpdateEnabled) {
     sendResponse("info", "Auto update dinonaktifkan.");
 }
 
 // === VALIDASI DIREKTORI REPO ===
 if (!$repoPath || !is_dir($repoPath)) {
-    http_response_code(500);
     sendResponse("error", "Direktori proyek tidak ditemukan: $repoPath");
 }
 if (!is_dir($repoPath . '/.git')) {
-    http_response_code(500);
     sendResponse("error", "Folder ini bukan repository git: $repoPath");
 }
 
@@ -51,7 +69,6 @@ if (file_exists($localVersionFile)) {
 
 $remoteData = @file_get_contents($remoteUrl);
 if ($remoteData === false) {
-    http_response_code(500);
     sendResponse("error", "Gagal mengambil version.json dari GitHub: $remoteUrl");
 }
 $remoteData = json_decode($remoteData, true);
@@ -90,7 +107,7 @@ try {
     $output_pull = shell_exec("git pull 2>&1");
     $full_output .= "Git Pull:\n" . ($output_pull ?? 'null') . "\n\n";
 
-    // Git stash pop
+    // Git stash pop (kalau ada perubahan yang di-stash)
     if (strpos($output_stash, 'No local changes to save') === false) {
         $output_pop = shell_exec("git stash pop 2>&1");
         $full_output .= "Git Stash Pop:\n" . ($output_pop ?? 'null') . "\n\n";
@@ -112,12 +129,9 @@ try {
     ) {
         sendResponse("success", "Pembaruan berhasil.", $full_output, $localVersion, $remoteVersion);
     } else {
-        http_response_code(500);
         sendResponse("error", "Pembaruan gagal. Periksa log.", $full_output, $localVersion, $remoteVersion);
     }
 
 } catch (Exception $e) {
-    http_response_code(500);
     sendResponse("error", "Error saat menjalankan Git: " . $e->getMessage(), $full_output);
 }
-?>
