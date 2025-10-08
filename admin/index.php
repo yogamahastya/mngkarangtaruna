@@ -1,131 +1,265 @@
 <?php
 require_once 'process_data.php';
+
+// Logika tab & tahun aktif
+$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'anggota';
+$selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
+
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard <?= htmlspecialchars(ORGANIZATION_NAME) ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css" integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" referrerpolicy="no-referrer" />  
-    <link rel="stylesheet" href="../assets/css/styleindex.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - <?= htmlspecialchars(ORGANIZATION_NAME) ?></title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f0f9ff;
+    }
+
+    /* === HEADER === */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 0.9rem 1rem;
+        margin-bottom: 1.2rem;
+    }
+    .logo-icon {
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: white;
+        width: 2.8rem;
+        height: 2.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1rem;
+        flex-shrink: 0;
+    }
+    .header-title h1 {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    .header-title p {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin: 0;
+    }
+    .admin-badge {
+        background: #f0f9ff;
+        padding: 0.4rem 0.8rem;
+        border-radius: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        border: 1px solid #0ea5e9;
+        color: #0369a1;
+    }
+    .menu-toggle {
+        border: none;
+        background: none;
+        font-size: 1.3rem;
+        color: #0ea5e9;
+    }
+
+    /* === SIDEBAR / OFFCANVAS === */
+    @media (max-width: 991.98px) {
+        .sidebar-desktop {
+            display: none;
+        }
+    }
+    @media (min-width: 992px) {
+        .offcanvas {
+            display: none !important;
+        }
+    }
+    .nav-pills-custom .nav-link {
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .nav-pills-custom .nav-link.active {
+        background-color: #0369a1 !important;
+        color: white !important;
+        font-weight: 600;
+    }
+    .nav-pills-custom .nav-link:hover {
+        background-color: #e0f2fe;
+        color: #0c4a6e;
+    }
+
+    /* === KONTEN === */
+    .content-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
+
+    /* === STATISTIK BOX === */
+    .stat-card {
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 1.2rem;
+        box-shadow: 0 6px 15px rgba(14,165,233,0.25);
+    }
+    .stat-card h3 {
+        font-size: 1.6rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    .stat-card p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* === LOGOUT BTN === */
+    .logout-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.75rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .logout-btn:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239,68,68,0.3);
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 575.98px) {
+        header {
+            padding: 0.75rem;
+            border-radius: 0.8rem;
+        }
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 0.9rem;
+        }
+        .header-title h1 {
+            font-size: 1rem;
+        }
+        .admin-badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+        }
+    }
+
+    /* === ICON CIRCLE === */
+    .icon-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .bg-primary-subtle {
+        background-color: #dbeafe !important;
+    }
+    .bg-danger-subtle {
+        background-color: #fee2e2 !important;
+    }
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+    }
+</style>
 </head>
-<body>
+<body class="p-3">
 
-<div class="container py-5">
-    <header class="hero-section">
-        <h1 class="display-5"><i class="fa-solid fa-tachometer-alt me-3"></i>Admin Dashboard <?= htmlspecialchars(ORGANIZATION_NAME) ?></h1>
-        <p class="fs-6 mt-2">Kelola data <?= htmlspecialchars(ORGANIZATION_NAME) ?></p>
-	    <a href="../logout.php" class="btn btn-danger mt-3" style="border-radius: 0.75rem; padding: 0.75rem 1.5rem;">
-        <i class="fa-solid fa-sign-out-alt me-2"></i> Logout
-        </a>
-    </header>
-    <!--ADS-->
-    <div style="text-align: center;">
-</div>
-
-    <?php if ($isUpdateAvailable): ?>
-        <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <div>
-                Versi terbaru tersedia! (<?= htmlspecialchars($remoteVersion) ?>)  
-                <button id="update-button" class="btn btn-primary btn-sm">Perbarui</button>
-            </div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- HEADER -->
+<header class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+        <div class="logo-icon">AD</div>
+        <div class="header-title">
+            <h1>Admin Dashboard - <?= htmlspecialchars(ORGANIZATION_NAME) ?></h1>
+            <p class="d-none d-sm-block">Kelola data organisasi Anda dengan mudah</p>
         </div>
-    <?php endif; ?>
-
-    <?php if (isset($message)): ?>
-    <div class="alert alert-<?= $success ? 'success' : 'danger' ?> alert-dismissible fade show" role="alert">
-        <?= htmlspecialchars($message) ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <?php endif; ?>
+    <div class="d-flex align-items-center gap-2">
+        <div class="admin-badge d-none d-md-flex">
+            <i class="fa-solid fa-user-shield"></i>
+            <span><strong>Admin Mode</strong></span>
+        </div>
+        <button class="menu-toggle d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+</header>
 
-    <div class="mb-5">
-        <ul class="nav nav-pills nav-justified nav-pills-custom" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'anggota') ? 'active' : '' ?>" href="?tab=anggota&year=<?= $selectedYear ?>">
-                    <i class="fa-solid fa-users icon"></i> <span>Anggota</span>
-                </a>
-            </li>
-            
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'kegiatan') ? 'active' : '' ?>" href="?tab=kegiatan&year=<?= $selectedYear ?>">
-                    <i class="fa-solid fa-calendar-alt"></i> <span>Kegiatan</span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'keuangan') ? 'active' : '' ?>" href="?tab=keuangan&year=<?= $selectedYear ?>">
-                    <i class="fa-solid fa-wallet"></i> <span>Keuangan</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" 
-                    href="#" data-bs-toggle="modal" data-bs-target="#iuranModal">
-                    <i class="fa-solid fa-receipt"></i> <span>Iuran</span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'users') ? 'active' : '' ?>" href="?tab=users<?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>">
-                    <i class="fa-solid fa-user-circle me-2"></i> <span>Users & Lokasi</span>
-                </a>
-            </li>
-        </ul>
+<!-- NOTIFIKASI UPDATE -->
+<?php if ($isUpdateAvailable): ?>
+    <div class="alert alert-warning d-flex align-items-center mb-4 rounded-4" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <div>
+            Versi terbaru tersedia! (<?= htmlspecialchars($remoteVersion) ?>)  
+            <button id="update-button" class="btn btn-primary btn-sm ms-2">Perbarui</button>
+        </div>
+        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<?php endif; ?>
 
-        <div class="modal fade" id="iuranModal" tabindex="-1" aria-labelledby="iuranModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-md">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
-                        <h4 class="modal-title fw-bolder text-dark" id="iuranModalLabel">Pilih Jenis Iuran Anda</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body p-4">
-                        <p class="text-muted mb-4">Silakan pilih kategori iuran yang ingin Anda kelola atau lihat.</p>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <a href="?tab=iuran" 
-                                class="card card-hover h-100 text-decoration-none border-0 shadow-sm rounded-3 p-3 d-flex flex-column justify-content-between">
-                                    <div class="card-body">
-                                        <div class="icon-circle bg-primary-subtle text-primary mb-3">
-                                            <i class="fa-solid fa-coins fa-2x"></i>
-                                        </div>
-                                        <h5 class="card-title text-dark fw-bold mb-1">Iuran Kas</h5>
-                                        <p class="card-text text-muted small">Kelola iuran rutin kas bulanan.</p>
-                                    </div>
-                                    <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
-                                        <small class="text-primary fw-bold">Pilih <i class="fa-solid fa-arrow-right ms-1"></i></small>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="?tab=iuran17" 
-                                class="card card-hover h-100 text-decoration-none border-0 shadow-sm rounded-3 p-3 d-flex flex-column justify-content-between">
-                                    <div class="card-body">
-                                        <div class="icon-circle bg-danger-subtle text-danger mb-3">
-                                            <i class="fa-solid fa-star fa-2x"></i>
-                                        </div>
-                                        <h5 class="card-title text-dark fw-bold mb-1">Iuran Kemerdekaan 17-an</h5>
-                                        <p class="card-text text-muted small">Lihat detail dan kontribusi untuk acara 17 Agustus.</p>
-                                    </div>
-                                    <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
-                                        <small class="text-danger fw-bold">Pilih <i class="fa-solid fa-arrow-right ms-1"></i></small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+<!-- NOTIFIKASI MESSAGE -->
+<?php if (isset($message)): ?>
+<div class="alert alert-<?= $success ? 'success' : 'danger' ?> alert-dismissible fade show rounded-4" role="alert">
+    <?= htmlspecialchars($message) ?>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+<?php endif; ?>
+
+<div class="row g-4">
+    <!-- SIDEBAR DESKTOP -->
+    <aside class="col-lg-3 sidebar-desktop">
+        <div class="bg-white p-4 rounded-4 shadow-sm">
+            <nav>
+                <ul class="nav flex-column gap-2 nav-pills-custom">
+                    <li><a class="nav-link <?= ($active_tab == 'anggota') ? 'active' : '' ?>" href="?tab=anggota&year=<?= $selectedYear ?>"><i class="fa-solid fa-users me-2"></i> Anggota</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'kegiatan') ? 'active' : '' ?>" href="?tab=kegiatan&year=<?= $selectedYear ?>"><i class="fa-solid fa-calendar-alt me-2"></i> Kegiatan</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'keuangan') ? 'active' : '' ?>" href="?tab=keuangan&year=<?= $selectedYear ?>"><i class="fa-solid fa-wallet me-2"></i> Keuangan</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal"><i class="fa-solid fa-receipt me-2"></i> Iuran</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'users') ? 'active' : '' ?>" href="?tab=users<?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>"><i class="fa-solid fa-user-circle me-2"></i> Users & Lokasi</a></li>
+                    <a href="../logout.php" class="logout-btn w-100 justify-content-center mt-3">
+                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                    </a>
+                </ul>
+            </nav>
+            <div class="mt-4 pt-4 border-top">
+                <div class="stat-card text-center">
+                    <h3><?= $total_anggota ?></h3>
+                    <p>Total Anggota Aktif <?= date('Y') ?></p>
                 </div>
             </div>
         </div>
-    </div>
+    </aside>
 
-    <div class="content-card">
-        <?php
+    <!-- KONTEN -->
+    <section class="col-lg-9">
+        <div class="content-card">
+            <?php
             // Define the tab file mapping
             $tab_files = [
                 'anggota' => 'anggota.php',
@@ -145,11 +279,78 @@ require_once 'process_data.php';
             } else {
                 echo "<p>Error: Content file not found.</p>";
             }
-        ?>
-
+            ?>
+             
+        </div>
         <?php require_once '../footer.php'; ?>
+    </section>
+    
+</div>
+
+<!-- OFFCANVAS MENU MOBILE -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fw-bold"><i class="fa-solid fa-bars me-2"></i>Menu Admin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column gap-2 nav-pills-custom mb-4">
+            <li><a class="nav-link <?= ($active_tab == 'anggota') ? 'active' : '' ?>" href="?tab=anggota&year=<?= $selectedYear ?>"><i class="fa-solid fa-users me-2"></i> Anggota</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'kegiatan') ? 'active' : '' ?>" href="?tab=kegiatan&year=<?= $selectedYear ?>"><i class="fa-solid fa-calendar-alt me-2"></i> Kegiatan</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'keuangan') ? 'active' : '' ?>" href="?tab=keuangan&year=<?= $selectedYear ?>"><i class="fa-solid fa-wallet me-2"></i> Keuangan</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal"><i class="fa-solid fa-receipt me-2"></i> Iuran</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'users') ? 'active' : '' ?>" href="?tab=users<?= !empty($searchTerm) ? '&search=' . urlencode($searchTerm) : '' ?>"><i class="fa-solid fa-user-circle me-2"></i> Users & Lokasi</a></li>
+            <a href="../logout.php" class="logout-btn w-100 justify-content-center mt-3">
+                <i class="fa-solid fa-sign-out-alt"></i> Logout
+            </a>
+        </ul>
+        <div class="stat-card text-center">
+            <h3><?= $total_anggota ?></h3>
+            <p>Total Anggota Aktif <?= date('Y') ?></p>
+        </div>
+        
     </div>
 </div>
+
+<!-- MODAL IURAN -->
+<div class="modal fade" id="iuranModal" tabindex="-1" aria-labelledby="iuranModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                <h4 class="modal-title fw-bolder text-dark" id="iuranModalLabel">Pilih Jenis Iuran Anda</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted mb-4">Silakan pilih kategori iuran yang ingin Anda kelola atau lihat.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="?tab=iuran" class="card card-hover h-100 border-0 shadow-sm rounded-4 p-3 text-decoration-none">
+                            <div class="card-body">
+                                <div class="icon-circle bg-primary-subtle text-primary mb-3">
+                                    <i class="fa-solid fa-coins fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold mb-1">Iuran Kas</h6>
+                                <p class="small text-muted mb-0">Kelola iuran rutin kas bulanan.</p>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="?tab=iuran17" class="card card-hover h-100 border-0 shadow-sm rounded-4 p-3 text-decoration-none">
+                            <div class="card-body">
+                                <div class="icon-circle bg-danger-subtle text-danger mb-3">
+                                    <i class="fa-solid fa-star fa-2x"></i>
+                                </div>
+                                <h6 class="fw-bold mb-1">Iuran 17-an</h6>
+                                <p class="small text-muted mb-0">Lihat kontribusi acara 17 Agustus.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
 

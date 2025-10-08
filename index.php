@@ -1,179 +1,276 @@
 <?php
-// Memuat semua logika dan variabel yang diperlukan
 require_once 'process_data.php';
+
+// Logika tab & tahun aktif
+$active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'anggota';
+$selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
+
+// Logika user online
+$file = "online_users.txt";
+$online_users = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+$current_time = time();
+$user_ip = $_SERVER['REMOTE_ADDR'];
+foreach ($online_users as $key => $last_time) {
+    if ($current_time - $last_time > 10) unset($online_users[$key]);
+}
+$online_users[$user_ip] = $current_time;
+file_put_contents($file, json_encode($online_users));
+$online_count = count($online_users);
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= ORGANIZATION_NAME ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css" integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" referrerpolicy="no-referrer" />  
-    <link rel="stylesheet" href="assets/css/styleindex.css"> 
-    </head>
-<body>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><?= ORGANIZATION_NAME ?></title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f0f9ff;
+    }
 
-<div class="container py-5">
-    <header class="hero-section text-center py-5 bg-light">
-        <h1 class="display-4 mb-3">
-            <i class="fa-solid fa-people-group me-3"></i><?= ORGANIZATION_NAME ?>
-        </h1>
-        <p class="fs-5 mb-4">Satu visi, satu aksi, untuk kemajuan bersama.</p>
-        
-        <div class="d-inline-flex align-items-center px-3 py-2 bg-primary text-white rounded shadow-sm">
-            <i class="fa-solid fa-user-clock me-2"></i>
-            <span class="me-2">online:</span>
-            <span class="badge bg-warning text-dark" style="font-size: 0.8rem;">
-                <?php
-                    $file = "online_users.txt";
+    /* === HEADER === */
+    header {
+        position: sticky;
+        top: 0;
+        z-index: 1030;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 0.9rem 1rem;
+        margin-bottom: 1.2rem;
+    }
+    .logo-icon {
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: white;
+        width: 2.8rem;
+        height: 2.8rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 1rem;
+        flex-shrink: 0;
+    }
+    .header-title h1 {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+    .header-title p {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin: 0;
+    }
+    .online-status {
+        background: #f9fafb;
+        padding: 0.4rem 0.8rem;
+        border-radius: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        border: 1px solid #e5e7eb;
+    }
+    .menu-toggle {
+        border: none;
+        background: none;
+        font-size: 1.3rem;
+        color: #0ea5e9;
+    }
 
-                    $online_users = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
+    /* === SIDEBAR / OFFCANVAS === */
+    @media (max-width: 991.98px) {
+        .sidebar-desktop {
+            display: none;
+        }
+    }
+    @media (min-width: 992px) {
+        .offcanvas {
+            display: none !important;
+        }
+    }
+    .nav-pills-custom .nav-link {
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    .nav-pills-custom .nav-link.active {
+        background-color: #0369a1 !important;
+        color: white !important;
+        font-weight: 600;
+    }
+    .nav-pills-custom .nav-link:hover {
+        background-color: #e0f2fe;
+        color: #0c4a6e;
+    }
 
-                    $current_time = time();
-                    foreach ($online_users as $session => $last_time) {
-                        if ($current_time - $last_time > 10) {
-                            unset($online_users[$session]);
-                        }
-                    }
+    /* === KONTEN === */
+    .content-card {
+        background: white;
+        padding: 1rem;
+        border-radius: 1rem;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+    }
 
-                    if(!session_id()) session_start();
-                    $session_id = session_id();
-                    $online_users[$session_id] = $current_time;
+    /* === STATISTIK BOX === */
+    .stat-card {
+        background: linear-gradient(135deg, #0ea5e9, #10b981);
+        color: white;
+        padding: 1.2rem;
+        border-radius: 1.2rem;
+        box-shadow: 0 6px 15px rgba(14,165,233,0.25);
+    }
+    .stat-card h3 {
+        font-size: 1.6rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    .stat-card p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
 
-                    file_put_contents($file, json_encode($online_users));
+    /* === RESPONSIVE === */
+    @media (max-width: 575.98px) {
+        header {
+            padding: 0.75rem;
+            border-radius: 0.8rem;
+        }
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 0.9rem;
+        }
+        .header-title h1 {
+            font-size: 1rem;
+        }
+        .online-status {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.6rem;
+        }
+    }
+</style>
+</head>
+<body class="p-3">
 
-                    echo count($online_users);
-                ?>
-            </span>
+<!-- HEADER -->
+<header class="d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+        <div class="logo-icon">KT</div>
+        <div class="header-title">
+            <h1><?= ORGANIZATION_NAME ?></h1>
+            <p class="d-none d-sm-block">Satu visi, satu aksi, untuk kemajuan bersama</p>
         </div>
-    </header>
-    <div id="container-1ca6f331b08ea102af96aa9eaf912d7e"></div>
-    <div class="mb-5">
-        <ul class="nav nav-pills nav-justified nav-pills-custom" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'anggota') ? 'active' : '' ?>" href="?tab=anggota&year=<?= $selectedYear ?>">
-                    <i class="fa-solid fa-users icon"></i> <span>Anggota</span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'absensi') ? 'active' : '' ?>" href="?tab=absensi">
-                    <i class="fa-solid fa-user-check"></i> <span>Absensi</span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'kegiatan') ? 'active' : '' ?>" href="?tab=kegiatan&year=<?= $selectedYear ?>">
-                    <i class="fa-solid fa-calendar-alt"></i> <span>Kegiatan</span>
-                </a>
-            </li>
-            <li class="nav-item" role="presentation">
-                <a class="nav-link <?= ($active_tab == 'keuangan') ? 'active' : '' ?>" href="?tab=keuangan&year=<?= $selectedYear ?>">
-                    <i class="fa-solid fa-wallet"></i> <span>Keuangan</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" 
-                    href="#" data-bs-toggle="modal" data-bs-target="#iuranModal">
-                    <i class="fa-solid fa-receipt"></i> <span>Iuran</span>
-                </a>
-            </li>
-        </ul>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <div class="online-status">
+            <i class="fa-solid fa-user-check text-primary"></i>
+            <span>Online: <strong class="text-primary"><?= $online_count ?></strong></span>
+        </div>
+        <button class="menu-toggle d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+</header>
 
-        <div class="modal fade" id="iuranModal" tabindex="-1" aria-labelledby="iuranModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-md">
-                <div class="modal-content border-0 shadow-lg rounded-4">
-                    <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
-                        <h4 class="modal-title fw-bolder text-dark" id="iuranModalLabel">Pilih Jenis Iuran Anda</h4>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="row g-4">
+    <!-- SIDEBAR DESKTOP -->
+    <aside class="col-lg-3 sidebar-desktop">
+        <div class="bg-white p-4 rounded-4 shadow-sm">
+            <nav>
+                <ul class="nav flex-column gap-2 nav-pills-custom">
+                    <li><a class="nav-link <?= ($active_tab == 'anggota') ? 'active' : '' ?>" href="?tab=anggota&year=<?= $selectedYear ?>"><i class="fa-solid fa-users me-2"></i> Anggota</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'absensi') ? 'active' : '' ?>" href="?tab=absensi"><i class="fa-solid fa-calendar-check me-2"></i> Absensi</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'kegiatan') ? 'active' : '' ?>" href="?tab=kegiatan&year=<?= $selectedYear ?>"><i class="fa-solid fa-calendar-alt me-2"></i> Kegiatan</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'keuangan') ? 'active' : '' ?>" href="?tab=keuangan&year=<?= $selectedYear ?>"><i class="fa-solid fa-wallet me-2"></i> Keuangan</a></li>
+                    <li><a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal"><i class="fa-solid fa-receipt me-2"></i> Iuran</a></li>
+                </ul>
+            </nav>
+            <div class="mt-4 pt-4 border-top">
+                <div class="stat-card text-center">
+                    <h3><?= $total_anggota ?></h3>
+                    <p>Total Anggota Aktif <?= date('Y') ?></p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- KONTEN -->
+    <section class="col-lg-9">
+        <div class="content-card">
+            <?php
+            switch ($active_tab) {
+                case 'anggota': include 'anggota.php'; break;
+                case 'absensi': include 'absensi.php'; break;
+                case 'kegiatan': include 'kegiatan.php'; break;
+                case 'keuangan': include 'keuangan.php'; break;
+                case 'iuran': include 'iuran.php'; break;
+                case 'iuran17': include 'iuran17.php'; break;
+            }
+            ?>
+             
+        </div>
+        <?php require_once 'footer.php'; ?>
+    </section>
+    
+</div>
+
+<!-- OFFCANVAS MENU MOBILE -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fw-bold"><i class="fa-solid fa-bars me-2"></i>Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column gap-2 nav-pills-custom mb-4">
+            <li><a class="nav-link <?= ($active_tab == 'anggota') ? 'active' : '' ?>" href="?tab=anggota&year=<?= $selectedYear ?>"><i class="fa-solid fa-users me-2"></i> Anggota</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'absensi') ? 'active' : '' ?>" href="?tab=absensi"><i class="fa-solid fa-calendar-check me-2"></i> Absensi</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'kegiatan') ? 'active' : '' ?>" href="?tab=kegiatan&year=<?= $selectedYear ?>"><i class="fa-solid fa-calendar-alt me-2"></i> Kegiatan</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'keuangan') ? 'active' : '' ?>" href="?tab=keuangan&year=<?= $selectedYear ?>"><i class="fa-solid fa-wallet me-2"></i> Keuangan</a></li>
+            <li><a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal"><i class="fa-solid fa-receipt me-2"></i> Iuran</a></li>
+        </ul>
+        <div class="stat-card text-center">
+            <h3><?= $total_anggota ?></h3>
+            <p>Total Anggota Aktif <?= date('Y') ?></p>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL IURAN -->
+<div class="modal fade" id="iuranModal" tabindex="-1" aria-labelledby="iuranModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pt-4 px-4 pb-0">
+                <h4 class="modal-title fw-bolder text-dark" id="iuranModalLabel">Pilih Jenis Iuran Anda</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted mb-4">Silakan pilih kategori iuran yang ingin Anda kelola atau lihat.</p>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <a href="?tab=iuran" class="card border-0 shadow-sm rounded-4 p-3 text-decoration-none">
+                            <div class="icon-box text-primary mb-3"><i class="fa-solid fa-coins fa-2x"></i></div>
+                            <h6 class="fw-bold mb-1">Iuran Kas</h6>
+                            <p class="small text-muted mb-0">Kelola iuran rutin kas bulanan.</p>
+                        </a>
                     </div>
-                    <div class="modal-body p-4">
-                        <p class="text-muted mb-4">Silakan pilih kategori iuran yang ingin Anda kelola atau lihat.</p>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <a href="?tab=iuran" 
-                                class="card card-hover h-100 text-decoration-none border-0 shadow-sm rounded-3 p-3 d-flex flex-column justify-content-between">
-                                    <div class="card-body">
-                                        <div class="icon-circle bg-primary-subtle text-primary mb-3">
-                                            <i class="fa-solid fa-coins fa-2x"></i>
-                                        </div>
-                                        <h5 class="card-title text-dark fw-bold mb-1">Iuran Kas</h5>
-                                        <p class="card-text text-muted small">Kelola iuran rutin kas bulanan.</p>
-                                    </div>
-                                    <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
-                                        <small class="text-primary fw-bold">Pilih <i class="fa-solid fa-arrow-right ms-1"></i></small>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="col-md-6">
-                                <a href="?tab=iuran17" 
-                                class="card card-hover h-100 text-decoration-none border-0 shadow-sm rounded-3 p-3 d-flex flex-column justify-content-between">
-                                    <div class="card-body">
-                                        <div class="icon-circle bg-danger-subtle text-danger mb-3">
-                                            <i class="fa-solid fa-star fa-2x"></i>
-                                        </div>
-                                        <h5 class="card-title text-dark fw-bold mb-1">Iuran Kemerdekaan 17-an</h5>
-                                        <p class="card-text text-muted small">Lihat detail dan kontribusi untuk acara 17 Agustus.</p>
-                                    </div>
-                                    <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
-                                        <small class="text-danger fw-bold">Pilih <i class="fa-solid fa-arrow-right ms-1"></i></small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <a href="?tab=iuran17" class="card border-0 shadow-sm rounded-4 p-3 text-decoration-none">
+                            <div class="icon-box text-danger mb-3"><i class="fa-solid fa-star fa-2x"></i></div>
+                            <h6 class="fw-bold mb-1">Iuran 17-an</h6>
+                            <p class="small text-muted mb-0">Lihat kontribusi acara 17 Agustus.</p>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="content-card">
-        <?php
-        switch ($active_tab) {
-            case 'anggota':
-                include 'anggota.php';
-                break;
-            case 'absensi':
-                include 'absensi.php';
-                break;
-            case 'kegiatan':
-                include 'kegiatan.php';
-                break;
-            case 'keuangan':
-                include 'keuangan.php';
-                break;
-            case 'iuran':
-                include 'iuran.php';
-                break;
-            case 'iuran17':
-                include 'iuran17.php';
-                break;
-            default:
-                include 'anggota.php'; // Default tab
-                break;
-        }
-        ?>
-        <?php require_once 'footer.php'; ?>
-    </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script> // Script deteksi scroll
-let lastScrollTop = 0;
-window.addEventListener("scroll", function() {
-  let st = window.pageYOffset || document.documentElement.scrollTop;
-  const nav = document.querySelector(".nav-pills-custom");
 
-  if (st > lastScrollTop) {
-    // scroll ke bawah → sembunyikan
-    nav.classList.add("hide");
-  } else {
-    // scroll ke atas → tampilkan
-    nav.classList.remove("hide");
-  }
-  lastScrollTop = st <= 0 ? 0 : st; // biar gak negatif
-}, false);
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

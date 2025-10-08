@@ -1,102 +1,541 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0 text-primary"><i class="fa-solid fa-user-circle me-2"></i>Kelola Data Users</h2>
-    <div class="form-check form-switch d-flex align-items-center">
-        <input class="form-check-input" type="checkbox" id="autoUpdateCheckbox">
-        <label class="form-check-label ms-2" for="autoUpdateCheckbox">
-            <span id="autoUpdateText">Auto Update</span> <span id="updateSuccessBadge" class="badge rounded-pill bg-success ms-2 d-none"> Berhasil
-            </span>
-        </label>
-    </div>
-</div>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .bg-success-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .bg-danger-gradient {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .bg-primary-gradient {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .bg-info-gradient {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .stat-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .responsive-amount {
+            font-size: 2.2rem;
+            font-weight: 700;
+            white-space: nowrap;
+            letter-spacing: -0.5px;
+        }
 
-<div class="row mb-3 gy-2 align-items-center">
-    <div class="col-12 col-md-6">
-        <form action="" method="GET" class="d-flex w-100">
-            <input type="hidden" name="tab" value="users">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Cari user..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
-                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
-                <?php if (!empty($searchTerm)): ?>
-                    <a href="?tab=users" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
-                <?php endif; ?>
+        @media (max-width: 767.98px) {
+            .responsive-amount {
+                font-size: 1.6rem;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            .responsive-amount {
+                font-size: 1.3rem;
+            }
+        }
+
+        .card-modern {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+        
+        .card-modern:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header-modern {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .card-header-modern::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.3) 100%);
+        }
+        
+        .user-card {
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .user-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #667eea, #764ba2);
+            transition: left 0.5s ease;
+        }
+        
+        .user-card:hover::before {
+            left: 100%;
+        }
+        
+        .user-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+        
+        .avatar-modern {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .badge-modern {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .badge-admin {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .badge-user {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .info-box:hover {
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transform: scale(1.02);
+        }
+        
+        .btn-modern {
+            border-radius: 50px;
+            padding: 0.6rem 1.5rem;
+            font-weight: 600;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-edit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+        
+        .btn-edit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: transparent;
+            color: #f5576c;
+            border: 2px solid #f5576c;
+        }
+        
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+        }
+        
+        .search-box {
+            border-radius: 50px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .search-box:focus-within {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 20px;
+            color: white;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            transition: 0.4s;
+            border-radius: 50px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        
+        .empty-state i {
+            font-size: 5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0.3;
+        }
+        
+        .pagination-modern .page-link {
+            border: none;
+            border-radius: 10px;
+            margin: 0 5px;
+            color: #667eea;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination-modern .page-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pagination-modern .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+    </style>
+</head>
+
+<div style="min-height: calc(100vh - 200px);">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2 class="mb-2 fw-bold">
+                    <i class="fa-solid fa-user-circle me-3"></i>Kelola Data Users
+                </h2>
+                <p class="mb-0 opacity-75">Manajemen pengguna sistem dan hak akses</p>
             </div>
-        </form>
+            <div class="d-flex align-items-center gap-3">
+                <label class="toggle-switch mb-0">
+                    <input type="checkbox" id="autoUpdateCheckbox">
+                    <span class="toggle-slider"></span>
+                </label>
+                <div>
+                    <span id="autoUpdateText" class="fw-semibold">Auto Update</span>
+                    <span id="updateSuccessBadge" class="badge bg-success rounded-pill ms-2 d-none">
+                        <i class="fas fa-check me-1"></i> Berhasil
+                    </span>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-12 col-md-6 text-md-end d-flex flex-column flex-md-row justify-content-md-end">
-        <button type="button" class="btn btn-primary w-100 w-md-auto mb-2 mb-md-0 me-md-2" data-bs-toggle="modal" data-bs-target="#addUsersModal">
-            <i class="fa-solid fa-plus-circle me-2"></i> Tambah User
-        </button>
-        <button type="button" class="btn btn-primary w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#addLokasiModal">
-            <i class="fa-solid fa-map-marker-alt me-2"></i> Atur Lokasi Absensi
-        </button>
+    
+    <!-- Search and Actions -->
+    <div class="card card-modern shadow-lg mb-4">
+        <div class="card-body p-4">
+            <div class="row gy-3 align-items-center">
+                
+                <!-- Search Bar -->
+                <div class="col-12 col-lg-6">
+                    <form action="" method="GET">
+                        <input type="hidden" name="tab" value="users">
+                        <div class="input-group search-box">
+                            <span class="input-group-text bg-transparent border-0 ps-4">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-0 ps-0" 
+                                   placeholder="Cari username atau anggota..." 
+                                   name="search" 
+                                   value="<?= htmlspecialchars($searchTerm ?? '') ?>">
+                            <button class="btn btn-edit px-4" type="submit">
+                                Cari
+                            </button>
+                            <?php if (!empty($searchTerm)): ?>
+                                <a href="?tab=users" class="btn btn-delete px-3">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
+    
+                <!-- Action Buttons -->
+                <div class="col-12 col-lg-6">
+                    <div class="d-flex gap-2 justify-content-lg-end flex-wrap">
+                        <button type="button" class="btn btn-modern btn-edit" data-bs-toggle="modal" data-bs-target="#addUsersModal">
+                            <i class="fa-solid fa-plus-circle me-2"></i> Tambah User
+                        </button>
+                        <button type="button" class="btn btn-modern btn-edit" data-bs-toggle="modal" data-bs-target="#addLokasiModal">
+                            <i class="fa-solid fa-map-marker-alt me-2"></i> Lokasi Absensi
+                        </button>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
     </div>
-</div>
-<div class="">
-    <table class="table table-hover table-striped d-none d-md-table">
-        <tbody>
-            <div class="row">
-                <?php if (count($users) > 0): ?>
-                    <?php foreach ($users as $row): ?>
-                        <?php
-                            $anggotaName = 'Tidak Terkait';
-                            if ($row['anggota_id'] !== NULL) {
-                                foreach ($anggotaList as $member) {
-                                    if ($member['id'] == $row['anggota_id']) {
-                                        $anggotaName = $member['nama_lengkap'];
-                                        break;
-                                    }
-                                }
-                            }
-                        ?>
-                        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-md">
-                                            <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
-                                                <i class="bx bx-user"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1 ms-3">
-                                            <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($row['username']) ?></a></h5>
-                                            <span class="badge bg-info mb-0"><?= htmlspecialchars(ucfirst($row['role'])) ?></span>
-                                        </div>
-                                        <div class="ms-auto">
-                                            <div class="dropdown">
-                                                <a class="text-muted dropdown-toggle font-size-16" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
-                                                    <i class="bx bx-dots-horizontal-rounded"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a class="dropdown-item edit-btn" href="#" data-bs-toggle="modal" data-bs-target="#editUsersModal" data-id="<?= $row['id'] ?>" data-username="<?= $row['username'] ?>" data-role="<?= $row['role'] ?>" data-anggota-id="<?= $row['anggota_id'] ?>">
-                                                        <i class="bx bx-edit me-1"></i> Edit
-                                                    </a>
-                                                    <form action="" method="POST" class="d-inline">
-                                                        <input type="hidden" name="action" value="delete">
-                                                        <input type="hidden" name="tab" value="users">
-                                                        <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                                        <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                                            <i class="bx bx-trash me-1"></i> Hapus
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
+    
+    <!-- User Cards -->
+    <div class="row g-4">
+        <?php if (count($users) > 0): ?>
+            <?php foreach ($users as $index => $row): ?>
+                <?php
+                $anggotaName = 'Tidak Terkait';
+                if ($row['anggota_id'] !== NULL) {
+                    foreach ($anggotaList as $member) {
+                        if ($member['id'] == $row['anggota_id']) {
+                            $anggotaName = $member['nama_lengkap'];
+                            break;
+                        }
+                    }
+                }
+                
+                $badgeClass = ($row['role'] == 'admin') ? 'badge-admin' : 'badge-user';
+                ?>
+                <div class="col-lg-4 col-md-6 col-sm-12 animate-card" style="animation-delay: <?= $index * 0.1 ?>s">
+                    <div class="card user-card h-100 card-modern">
+                        <div class="card-body p-4">
+                            <!-- User Header -->
+                            <div class="d-flex align-items-start justify-content-between mb-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-modern">
+                                        <i class="bx bx-user"></i>
                                     </div>
-                                    <div class="mt-3 pt-1">
-                                        <p class="text-muted mb-0 mt-2"><i class="mdi mdi-account-card-details font-size-15 align-middle pe-2 text-primary"></i> Anggota Terkait: <span class="float-end"><?= htmlspecialchars($anggotaName) ?></span></p>
+                                    <div>
+                                        <h5 class="mb-1 fw-bold text-dark">
+                                            <?= htmlspecialchars($row['username']) ?>
+                                        </h5>
+                                        <span class="badge badge-modern <?= $badgeClass ?>">
+                                            <?= htmlspecialchars(ucfirst($row['role'])) ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
+                            
+                            <!-- User Info -->
+                            <div class="info-box">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="mdi mdi-account-card-details text-primary" style="font-size: 1.3rem;"></i>
+                                        <span class="text-muted small fw-semibold">ANGGOTA</span>
+                                    </div>
+                                    <span class="fw-bold text-dark small"><?= htmlspecialchars($anggotaName) ?></span>
+                                </div>
+                            </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="col-12 text-center text-muted">
-                        <p>Tidak ada data user.</p>
+                        
+                        <!-- Action Footer -->
+                        <div class="card-footer bg-transparent border-0 p-4 pt-0">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-modern btn-edit flex-fill edit-btn"
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#editUsersModal" 
+                                        data-id="<?= $row['id'] ?>" 
+                                        data-username="<?= $row['username'] ?>" 
+                                        data-role="<?= $row['role'] ?>" 
+                                        data-anggota-id="<?= $row['anggota_id'] ?>">
+                                    <i class="bx bx-edit"></i> Edit
+                                </button>
+                                <form action="" method="POST" class="flex-fill">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="tab" value="users">
+                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                    <button type="submit" 
+                                            class="btn btn-modern btn-delete w-100" 
+                                            onclick="return confirm('Yakin ingin menghapus user ini?')">
+                                        <i class="bx bx-trash"></i> Hapus
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
-                <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="col-12">
+                <div class="empty-state">
+                    <i class="fa-solid fa-users-slash d-block mb-4"></i>
+                    <h4 class="text-muted fw-bold mb-2">Tidak Ada Data User</h4>
+                    <p class="text-muted">Belum ada user yang terdaftar dalam sistem</p>
+                    <button class="btn btn-modern btn-edit mt-3" data-bs-toggle="modal" data-bs-target="#addUsersModal">
+                        <i class="fa-solid fa-plus-circle me-2"></i> Tambah User Pertama
+                    </button>
+                </div>
             </div>
-        </tbody>
-    </table>
+        <?php endif; ?>
+    </div>
+    
+    <!-- Pagination -->
+    <?php if (count($users) > 0): ?>
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination pagination-modern justify-content-center flex-wrap">
+            <?php 
+            $total_pages = $total_pages ?? 1;
+            $current_page = $page ?? 1;
+            
+            $show_pages = [];
+            
+            if ($total_pages <= 7) {
+                for ($i = 1; $i <= $total_pages; $i++) {
+                    $show_pages[] = $i;
+                }
+            } else {
+                $show_pages[] = 1;
+                
+                if ($current_page > 3) {
+                    $show_pages[] = '...';
+                }
+                
+                for ($i = max(2, $current_page - 1); $i <= min($total_pages - 1, $current_page + 1); $i++) {
+                    $show_pages[] = $i;
+                }
+                
+                if ($current_page < $total_pages - 2) {
+                    $show_pages[] = '...';
+                }
+                
+                if ($total_pages > 1) {
+                    $show_pages[] = $total_pages;
+                }
+            }
+            
+            foreach ($show_pages as $page_num): 
+                if ($page_num === '...'): ?>
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                <?php else: ?>
+                    <li class="page-item <?= ($current_page == $page_num) ? 'active' : '' ?>">
+                        <a class="page-link" href="?tab=users&page=<?= htmlspecialchars($page_num) ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">
+                            <?= htmlspecialchars($page_num) ?>
+                        </a>
+                    </li>
+                <?php endif;
+            endforeach; ?>
+        </ul>
+    </nav>
+    <?php endif; ?>
+    
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

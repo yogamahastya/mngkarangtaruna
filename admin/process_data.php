@@ -217,5 +217,16 @@ if ($remoteData !== false) {
         $isUpdateAvailable = true;
     }
 }
+
+// Inisialisasi variabel total untuk semua tab
+$total_anggota = 0;
+
+switch ($active_tab) {
+    case 'anggota':
+        $anggota = fetchDataWithPagination($conn, 'anggota', $start, $limit, $searchTerm);
+        $total_anggota = $total_rows;
+        break;
+}
+
 $profile_image = 'https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg?semt=ais_hybrid&w=740'; // Ganti dengan URL gambar default yang sesuai
 ?>

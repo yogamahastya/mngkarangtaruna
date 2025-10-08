@@ -1,66 +1,290 @@
-<h2 class="mb-4 text-primary"><i class="fa-solid fa-calendar-alt me-2"></i>Daftar Kegiatan</h2>
-<div class="row mb-3 gy-2 align-items-center">
-    <div class="col-12 col-md-6">
-        <p class="fs-5 mb-0">Total Kegiatan: <span class="badge bg-primary"><?= $total_kegiatan ?></span></p>
-    </div>
-    <div class="col-12 col-md-6">
-        <form action="" method="GET" class="d-flex w-100 justify-content-end">
-            <input type="hidden" name="tab" value="kegiatan">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Cari kegiatan..." name="search" value="<?= htmlspecialchars($searchTerm) ?>">
-                <button class="btn btn-outline-primary" type="submit"><i class="fas fa-search"></i></button>
-                <?php if (!empty($searchTerm)): ?>
-                    <a href="?tab=kegiatan" class="btn btn-outline-secondary" title="Hapus Pencarian"><i class="fas fa-times"></i></a>
-                <?php endif; ?>
+<?php
+// =================== LOGIKA ===================
+if (!function_exists('getKegiatanStatusBadge')) {
+    function getKegiatanStatusBadge($status) {
+        $statusText = 'Aktif';
+        $statusClass = 'badge-soft-success'; 
+        if (isset($status)) {
+            $statusLower = strtolower($status);
+            if ($statusLower == 'selesai' || $statusLower == 'nonaktif') {
+                $statusClass = 'bg-secondary text-white';
+                $statusText = 'Selesai';
+            } elseif ($statusLower == 'tertunda' || $statusLower == 'pending') {
+                $statusClass = 'bg-warning text-dark';
+                $statusText = 'Tertunda';
+            }
+        }
+        return ['class' => $statusClass, 'text' => $statusText];
+    }
+}
+
+$currentTab = $_GET['tab'] ?? 'kegiatan';
+$action     = $_GET['action'] ?? '';
+$searchTerm = $_GET['search'] ?? '';
+$page       = $_GET['page'] ?? 1;
+$limit      = 6;
+$offset     = ($page - 1) * $limit;
+
+$kegiatan = [];
+$kegiatanDetail = null;
+$total_kegiatan = 0;
+$total_pages = 1;
+
+// === QUERY LIST DATA ===
+$where = "";
+if (!empty($searchTerm)) {
+    $searchTermDB = mysqli_real_escape_string($conn, $searchTerm);
+    $where = "WHERE nama_kegiatan LIKE '%$searchTermDB%' OR lokasi LIKE '%$searchTermDB%' OR deskripsi LIKE '%$searchTermDB%'";
+}
+
+$sqlCount = "SELECT COUNT(*) as total FROM kegiatan $where";
+$resCount = mysqli_query($conn, $sqlCount);
+if ($resCount && $rowCount = mysqli_fetch_assoc($resCount)) {
+    $total_kegiatan = $rowCount['total'];
+}
+
+$total_pages = ceil($total_kegiatan / $limit);
+
+$sqlList = "SELECT * FROM kegiatan $where ORDER BY tanggal_mulai DESC LIMIT $limit OFFSET $offset";
+$resList = mysqli_query($conn, $sqlList);
+if ($resList) {
+    while ($row = mysqli_fetch_assoc($resList)) {
+        $kegiatan[] = $row;
+    }
+}
+
+// === QUERY DETAIL ===
+if ($action === 'detail' && isset($_GET['id'])) {
+    $id = intval($_GET['id']);
+    $sqlDetail = "SELECT * FROM kegiatan WHERE id = $id";
+    $resDetail = mysqli_query($conn, $sqlDetail);
+    if ($resDetail && $rowDetail = mysqli_fetch_assoc($resDetail)) {
+        $kegiatanDetail = $rowDetail;
+    }
+}
+?>
+    <style>
+        body { background-color: #f0f2f5; }
+        .-custom { padding-top: 0px; padding-bottom: 0px; }
+
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 1rem;
+            height: 100%;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15) !important;
+        }
+        .shadow-lg-custom { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important; }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #0d6efd 0%, #3a8ef6 100%);
+        }
+        .card-header {
+            border: none;
+        }
+        .card-footer {
+            background-color: #f8f9fa !important;
+        }
+
+        .text-truncate-multiline-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .badge-soft-success { 
+            color: var(--bs-success-text); 
+            background-color: var(--bs-success-bg-subtle); 
+        }
+        .notulen-box {
+            background-color: #f7f9fc; 
+            border-left: 5px solid var(--bs-info);
+            border-radius: 0.5rem;
+        }
+    </style>
+
+<div class=" -custom">
+
+<?php if ($action === 'detail' && isset($_GET['id'])): ?>
+
+    <?php if (!empty($kegiatanDetail)):
+        $badge = getKegiatanStatusBadge($kegiatanDetail['status'] ?? 'Aktif');
+    ?>
+    <!-- Tampilan DETAIL 
+    <h2 class="mb-4 text-dark fw-"><i class="fa-solid fa-file-invoice me-2 text-primary"></i>Detail Kegiatan</h2>-->
+    <a href="?tab=kegiatan" class="btn btn-outline-primary mb-4 rounded-pill fw-medium shadow-sm">
+        <i class="fa-solid fa-arrow-left me-2"></i> Kembali ke Daftar
+    </a>
+
+    <div class="row g-4">
+        <div class="col-lg-5 col-md-12">
+            <div class="card shadow-lg-custom h-100 rounded-4 border-start-5 border-primary">
+                <div class="card-header bg-primary text-white border-0 pt-3 pb-3 rounded-top-4">
+                    <h5 class="card-title fw- mb-0"><i class="fa-solid fa-info-circle me-2"></i>Ringkasan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-dashed">
+                        <span class="text-muted fw-medium fs-6">Status</span>
+                        <span class="badge <?= $badge['class'] ?> fs-6 fw- p-2 rounded-pill shadow-sm"><?= $badge['text'] ?></span>
+                    </div>
+                    <div class="detail-info">
+                        <p><i class="fa-solid fa-tag fa-fw me-3 text-primary"></i><span class="fw-medium">Nama:</span> <?= htmlspecialchars($kegiatanDetail['nama_kegiatan'] ?? 'N/A') ?></p>
+                        <p><i class="fa-solid fa-calendar-day fa-fw me-3 text-primary"></i><span class="fw-medium">Tanggal:</span> <?= htmlspecialchars($kegiatanDetail['tanggal_mulai'] ?? 'N/A') ?></p>
+                        <p><i class="fa-solid fa-map-marker-alt fa-fw me-3 text-primary"></i><span class="fw-medium">Lokasi:</span> <?= htmlspecialchars($kegiatanDetail['lokasi'] ?? 'N/A') ?></p>
+                        <p><i class="fa-solid fa-user-edit fa-fw me-3 text-primary"></i><span class="fw-medium">Dibuat Oleh:</span> <?= htmlspecialchars($kegiatanDetail['dibuat_oleh'] ?? 'N/A') ?></p>
+                    </div>
+                </div>
             </div>
-        </form>
+        </div>
+        <div class="col-lg-7 col-md-12">
+            <div class="card shadow-lg-custom h-100 rounded-4 border-start-5 border-info">
+                <div class="card-header bg-info text-white border-0 pt-3 pb-3 rounded-top-4">
+                    <h5 class="card-title fw- mb-0"><i class="fa-solid fa-book-open me-2"></i>Deskripsi & Notulen</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw- text-dark mb-2 border-bottom pb-1"><i class="fa-solid fa-circle-info me-2 text-info"></i> Deskripsi</h6>
+                    <div class="alert notulen-box p-3 mb-4 text-dark border-info">
+                        <pre style="white-space: pre-wrap;"><?= htmlspecialchars($kegiatanDetail['deskripsi'] ?? '-') ?></pre>
+                    </div>
+                    <h6 class="fw- text-dark mb-2 border-bottom pb-1"><i class="fa-solid fa-file-alt me-2 text-info"></i> Notulen</h6>
+                    <div class="alert notulen-box p-3 mb-0 text-dark border-info">
+                        <pre style="white-space: pre-wrap;"><?= nl2br(htmlspecialchars($kegiatanDetail['notulen'] ?? '-')) ?></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <?php else: ?>
+        <div class="alert alert-danger text-center rounded-4 shadow-lg-custom py-5">
+            <h4 class="alert-heading display-5"><i class="fa-solid fa-triangle-exclamation me-3"></i>Data Tidak Ditemukan!</h4>
+            <a href="?tab=kegiatan" class="btn btn-danger mt-3 px-4 py-2 fw- rounded-pill"><i class="fa-solid fa-arrow-left me-2"></i>Kembali</a>
+        </div>
+    <?php endif; ?>
+
+<?php else: ?>
+
+    <!-- Tampilan LIST 
+    <h2 class="mb-4 text-primary fw-"><i class="fa-solid fa-calendar-alt me-3"></i>Daftar Kegiatan</h2>-->
+
+    <!-- Container utama dengan shadow dan border penekanan (Indigo/Primary) -->
+<div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
+    <div class="card-body py-3">
+    <!-- Menggunakan d-flex untuk menata form pencarian dan tombol clear (jika ada) -->
+        <div class="d-flex align-items-center">
+            <!-- Form Pencarian kegiatan -->
+            <form action="" method="GET" class="w-100 me-2">
+                <input type="hidden" name="tab" value="kegiatan">
+                
+                <div class="input-group">
+                    <!-- Ikon Prefix (mengadopsi style card contoh) -->
+                    <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
+                        <i class="fas fa-search text-primary"></i>
+                    </span>
+                    
+                    <!-- Input Field (mengadopsi style card contoh: border-0 shadow-sm) -->
+                    <input type="text" 
+                        id="search-input" 
+                        name="search" 
+                        value="<?= htmlspecialchars($searchTerm) ?>" 
+                        placeholder="Cari kegiatan..." 
+                        class="form-control border-0 shadow-sm px-3 py-2">
+                    
+                    <!-- Tombol Submit (mengadopsi style pill dan shadow) -->
+                    <button class="btn btn-primary px-4 shadow-sm rounded-end-pill" type="submit">
+                        Cari
+                    </button>
+                </div>
+            </form>
+            
+            <?php 
+            // Tambahkan tombol untuk menghapus pencarian jika $searchTerm tidak kosong.
+            // Ini mengadopsi pola UX dari contoh desain.
+            if (!empty($searchTerm)): ?>
+                <!-- Tombol Hapus Pencarian -->
+                <a href="?tab=kegiatan" 
+                class="btn btn-outline-danger rounded-pill flex-shrink-0 d-flex align-items-center justify-content-center p-0"
+                style="width: 42px; height: 42px;"
+                title="Hapus Pencarian">
+                <i class="fas fa-times"></i>
+                </a>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
-<div class="">
-    <table class="table table-hover table-striped" id="kegiatanTable">
-        <tbody>
-            <?php if (count($kegiatan) > 0): ?>
-                <div class="row">
-                    <?php foreach ($kegiatan as $row): ?>
-                        <div class="col-lg-4 col-md-6 col-sm-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-md">
-                                            <div class="avatar-title bg-soft-primary text-primary display-6 m-0 rounded-circle">
-                                                <i class="bx bx-calendar-event"></i>
-                                            </div>
-                                        </div>
-                                        <div class="flex-1 ms-3">
-                                            <h5 class="font-size-16 mb-1"><a href="#" class="text-dark"><?= htmlspecialchars($row['nama_kegiatan']) ?></a></h5>
-                                            <span class="badge badge-soft-success mb-0">Aktif</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 pt-1">
-                                        <p class="text-muted mb-2"><i class="mdi mdi-map-marker-outline font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['lokasi'] ?? '') ?></p>
-                                        <p class="text-muted mb-2"><i class="mdi mdi-text-long font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['deskripsi'] ?? '') ?></p>               
-                                        <p class="text-muted mb-2"><i class="mdi mdi-file-document-outline font-size-15 align-middle pe-2 text-primary"></i> Notulen: <?= nl2br(htmlspecialchars($row['notulen'] ?? '')) ?></p>                                    
-                                        <p class="text-muted mb-0"><i class="mdi mdi-calendar-range font-size-15 align-middle pe-2 text-primary"></i> <?= htmlspecialchars($row['tanggal_mulai'] ?? '') ?></p>
-                                    </div>
-                                </div>
+
+    <div class="mt-4">
+        <?php if (count($kegiatan) > 0): ?>
+            <div class="row g-4">
+                <?php foreach ($kegiatan as $row): ?>
+                    <?php $badge_info = getKegiatanStatusBadge($row['status'] ?? 'Aktif'); ?>
+                    <div class="col-lg-4 col-md-6 col-sm-12">
+                        <div class="card h-100 shadow-lg-custom border-0 rounded-4 overflow-hidden">
+                            <!-- Header -->
+                            <div class="card-header bg-gradient-primary text-white py-3 d-flex justify-content-between align-items-center">
+                                <span class="fw- text-truncate">
+                                    <i class="fa-solid fa-calendar-check me-2"></i>
+                                    <?= htmlspecialchars($row['nama_kegiatan'] ?? 'Kegiatan Tanpa Nama') ?>
+                                </span>
+                                <span class="badge <?= $badge_info['class'] ?> px-3 py-2 fw-semi rounded-pill" style="color: green;">
+                                    <?= $badge_info['text'] ?>
+                                </span>
+
+                            </div>
+
+                            <!-- Body -->
+                            <div class="card-body small text-muted">
+                                <p class="mb-3">
+                                    <i class="fa-solid fa-map-marker-alt me-2 text-danger"></i>
+                                    <?= htmlspecialchars($row['lokasi'] ?? '-') ?>
+                                </p>
+                                <p class="mb-3 text-truncate-multiline-3">
+                                    <i class="fa-solid fa-circle-info me-2 text-info"></i>
+                                    <?= htmlspecialchars($row['deskripsi'] ?? '-') ?>
+                                </p>
+                                <p class="mb-0 fw-semi text-dark">
+                                    <i class="fa-solid fa-calendar-day me-2 text-primary"></i>
+                                    <?= htmlspecialchars($row['tanggal_mulai'] ?? '-') ?>
+                                </p>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="card-footer bg-light border-0">
+                                <a href="?tab=kegiatan&action=detail&id=<?= htmlspecialchars($row['id'] ?? '') ?>"
+                                   class="btn btn-outline-primary w-100 rounded-pill fw-medium">
+                                    <i class="fa-solid fa-eye me-1"></i> Lihat Rincian
+                                </a>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="col-12 text-center text-muted mt-5">
-                    <p>Tidak ada data kegiatan.</p>
-                </div>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="text-center alert alert-info py-5 rounded-4 shadow-lg-custom mt-4">
+                <i class="fas fa-box-open fa-3x mb-3 text-info"></i>
+                <h4 class="fw-">Tidak Ada Kegiatan</h4>
+                <?php if (!empty($searchTerm)): ?>
+                    <a href="?tab=kegiatan" class="btn btn-outline-info mt-3 rounded-pill"><i class="fas fa-sync-alt me-2"></i>Tampilkan Semua</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <nav aria-label="Page navigation example" class="mt-5">
+        <ul class="pagination justify-content-center">
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($page == $i) ? 'active shadow-sm' : '' ?>">
+                    <a class="page-link <?= ($page == $i) ? 'fw-' : '' ?>" href="?tab=kegiatan&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
+<?php endif; ?>
+
 </div>
-<nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-            <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                <a class="page-link" href="?tab=kegiatan&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>"><?= $i ?></a>
-            </li>
-        <?php endfor; ?>
-    </ul>
-</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
