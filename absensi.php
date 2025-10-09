@@ -341,46 +341,60 @@ function getAvatarColorClasses($id) {
     <!-- Container utama dengan border menonjol untuk fokus pada fitur penting -->
 <div class="card shadow-lg border-0 border-start border-5 border-info mb-4 rounded-4">
     <div class="card-body py-3">
-        <div class="row gy-3 align-items-center">
+        <div class="row g-3 align-items-stretch">
 
-            <!-- Instruksi Absensi (Info Box yang ditingkatkan) -->
-            <div class="col-12 col-md-6">
-                <!-- Styling dengan warna biru muda (info) yang menonjolkan pesan GPS -->
-                <div class="d-flex align-items-center p-3 rounded-4 h-100 shadow-sm" style="background-color: #f0f8ff; border: 1px solid #b3e5fc;">
-                    <i class="fa-solid fa-map-location-dot me-3 fa-2x text-info flex-shrink-0"></i>
-                    <p class="mb-0 fw-medium text-dark">
-                        Pilih nama Anda untuk absen. <br>Pastikan **Layanan Lokasi (GPS) Anda aktif**!
+            <!-- Instruksi Absensi (Info Box) -->
+            <div class="col-12 col-lg-6">
+                <div class="d-flex align-items-center p-3 rounded-4 h-100 shadow-sm" 
+                     style="background-color: #f0f8ff; border: 1px solid #b3e5fc;">
+                    <i class="fa-solid fa-map-location-dot me-2 me-sm-3 fa-2x text-info flex-shrink-0"></i>
+                    <p class="mb-0 fw-medium text-dark small">
+                        Pilih nama Anda untuk absen. <br class="d-none d-sm-inline">
+                        Pastikan <strong>Layanan Lokasi (GPS) Anda aktif</strong>!
                     </p>
                 </div>
             </div>
 
-            <!-- Search Anggota (Mengadopsi Desain Rounded-Pill) -->
-            <div class="col-12 col-md-6">
-                <form action="" method="GET" class="d-flex w-100 justify-content-md-end">
+            <!-- Search Anggota -->
+            <div class="col-12 col-lg-6">
+                <form action="" method="GET">
                     <input type="hidden" name="tab" value="absensi">
 
-                    <div class="input-group" style="max-width: 350px;">
-                        <!-- Icon pencarian di awal input -->
-                        <span class="input-group-text bg-light border-0 rounded-start-pill">
-                            <i class="fas fa-user-search text-primary"></i>
-                        </span>
-                        <!-- Input pencarian dengan shadow lembut -->
-                        <input type="text" id="searchInputAbsensi" 
-                               class="form-control border-0 shadow-sm px-3 py-2"
-                               placeholder="Cari anggota untuk absen..." 
-                               name="search" 
-                               value="<?= htmlspecialchars($searchTerm) ?>">
-                        <!-- Tombol submit utama -->
-                        <button class="btn btn-primary rounded-end-pill" type="submit">
-                            <i class="fas fa-search"></i>
-                        </button>
+                    <div class="row g-2 align-items-center">
+                        <!-- Input Group -->
+                        <div class="col">
+                            <div class="input-group">
+                                <!-- Icon pencarian -->
+                                <span class="input-group-text bg-light border-0 rounded-start-pill">
+                                    <i class="fas fa-user-search text-primary"></i>
+                                </span>
+                                
+                                <!-- Input pencarian -->
+                                <input type="text" 
+                                       id="searchInputAbsensi" 
+                                       class="form-control border-0 shadow-sm px-3 py-2"
+                                       placeholder="Cari anggota..." 
+                                       name="search" 
+                                       value="<?= htmlspecialchars($searchTerm) ?>">
+                                
+                                <!-- Tombol submit -->
+                                <button class="btn btn-primary px-3 shadow-sm rounded-end-pill" type="submit">
+                                    <span class="d-none d-sm-inline">Cari</span>
+                                    <i class="fas fa-search d-inline d-sm-none"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
                         <!-- Tombol hapus pencarian -->
                         <?php if (!empty($searchTerm)): ?>
-                            <a href="?tab=absensi" 
-                               class="btn btn-outline-danger ms-2 rounded-pill" 
-                               title="Hapus Pencarian">
-                               <i class="fas fa-times"></i>
-                            </a>
+                            <div class="col-auto">
+                                <a href="?tab=absensi" 
+                                   class="btn btn-outline-danger rounded-pill d-flex align-items-center justify-content-center p-0" 
+                                   style="width: 42px; height: 42px;"
+                                   title="Hapus Pencarian">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </form>

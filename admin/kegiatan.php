@@ -169,82 +169,67 @@ if ($action === 'detail' && isset($_GET['id'])) {
     <!-- Tampilan LIST -->
 
     <!-- Card Pencarian dengan Tombol Tambah -->
-    <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
-        <div class="card-body py-3">
-            <!-- Desktop Layout -->
-            <div class="d-none d-md-flex align-items-center justify-content-between">
-                <!-- Form Pencarian -->
-                <form action="" method="GET" class="flex-grow-1 me-3">
+   <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-center">
+
+            <!-- Form Pencarian -->
+            <div class="col-12 col-md order-md-1">
+                <form action="" method="GET" class="mb-0">
                     <input type="hidden" name="tab" value="kegiatan">
                     
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
-                            <i class="fas fa-search text-primary"></i>
-                        </span>
+                    <div class="row g-2 align-items-center">
+                        <!-- Input Group -->
+                        <div class="col">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
+                                    <i class="fas fa-search text-primary"></i>
+                                </span>
+                                
+                                <input type="text" 
+                                    id="search-input" 
+                                    name="search" 
+                                    value="<?= htmlspecialchars($searchTerm) ?>" 
+                                    placeholder="Cari kegiatan..." 
+                                    class="form-control border-0 shadow-sm px-3 py-2">
+                                
+                                <!-- Tombol Submit -->
+                                <button class="btn btn-primary px-3 px-sm-4 shadow-sm rounded-end-pill" type="submit">
+                                    <span class="d-none d-sm-inline">Cari</span>
+                                    <i class="fas fa-search d-inline d-sm-none"></i>
+                                </button>
+                            </div>
+                        </div>
                         
-                        <input type="text" 
-                            id="search-input" 
-                            name="search" 
-                            value="<?= htmlspecialchars($searchTerm) ?>" 
-                            placeholder="Cari kegiatan..." 
-                            class="form-control border-0 shadow-sm px-3 py-2">
-                        
-                        <button class="btn btn-primary px-4 shadow-sm rounded-end-pill" type="submit">
-                            Cari
-                        </button>
+                        <?php if (!empty($searchTerm)): ?>
+                            <!-- Tombol Hapus Pencarian -->
+                            <div class="col-auto">
+                                <a href="?tab=kegiatan" 
+                                   class="btn btn-outline-danger rounded-pill d-flex align-items-center justify-content-center p-0"
+                                   style="width: 42px; height: 42px;"
+                                   title="Hapus Pencarian">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                        <!-- Tombol Tambah Transaksi -->
+                        <div class="col-12 col-sm-auto">
+                            <button type="button" 
+                                    class="btn btn-primary rounded-pill px-4 py-2 shadow-sm w-100 w-sm-auto" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addKegiatanModal">
+                                <i class="fa-solid fa-plus-circle me-2"></i> 
+                                <span class="d-none d-lg-inline">Tambah Kegiatan</span>
+                                <span class="d-inline d-lg-none">Tambah</span>
+                            </button>
+                        </div>
                     </div>
                 </form>
-                
-                <!-- Tombol Tambah Kegiatan -->
-                <button type="button" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm flex-shrink-0" data-bs-toggle="modal" data-bs-target="#addKegiatanModal">
-                    <i class="fa-solid fa-plus-circle me-2"></i> Tambah Kegiatan
-                </button>
             </div>
 
-            <!-- Mobile Layout -->
-            <div class="d-md-none">
-                <!-- Tombol Tambah Kegiatan di atas -->
-                <div class="mb-3">
-                    <button type="button" class="btn btn-primary rounded-pill w-100 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addKegiatanModal">
-                        <i class="fa-solid fa-plus-circle me-2"></i> Tambah Kegiatan
-                    </button>
-                </div>
-                
-                <!-- Form Pencarian di bawah -->
-                <form action="" method="GET">
-                    <input type="hidden" name="tab" value="kegiatan">
-                    
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
-                            <i class="fas fa-search text-primary"></i>
-                        </span>
-                        
-                        <input type="text" 
-                            id="search-input-mobile" 
-                            name="search" 
-                            value="<?= htmlspecialchars($searchTerm) ?>" 
-                            placeholder="Cari kegiatan..." 
-                            class="form-control border-0 shadow-sm px-3 py-2">
-                        
-                        <button class="btn btn-primary shadow-sm rounded-end-pill" type="submit" style="width: 50px;">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-            
-            <?php if (!empty($searchTerm)): ?>
-                <!-- Tombol Hapus Pencarian -->
-                <div class="text-center mt-3">
-                    <a href="?tab=kegiatan" 
-                       class="btn btn-outline-danger rounded-pill px-3 py-2"
-                       title="Hapus Pencarian">
-                        <i class="fas fa-times me-2"></i> Hapus Pencarian
-                    </a>
-                </div>
-            <?php endif; ?>
         </div>
     </div>
+</div>
 
     <!-- Daftar Kegiatan -->
     <div class="mt-4">

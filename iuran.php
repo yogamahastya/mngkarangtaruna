@@ -40,10 +40,7 @@
                     <input type="hidden" name="tab" value="iuran">
                     <input type="hidden" name="member_id" value="<?= htmlspecialchars($attendanceMemberId) ?>">
 
-                    <label for="year-iuran" class="form-label mb-0 fw-bold text-dark d-flex align-items-center">
-                        <i class="fa-solid fa-calendar-alt me-2 text-primary"></i>
-                        Pilih Tahun
-                    </label>
+                  
 
                     <div class="input-group" style="max-width: 220px;">
                         <span class="input-group-text bg-primary text-white border-0 rounded-start-pill">
@@ -320,19 +317,18 @@
             </div>
         </div>
         <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
-        <div class="card-body py-3">
-            <div class="row gy-3 align-items-center">
+    <div class="card-body py-3">
+        <div class="row g-3 align-items-center">
 
-                <div class="col-12 col-md-6">
-                    <form action="" method="GET" class="d-flex align-items-center gap-2 w-100">
-                        <input type="hidden" name="tab" value="iuran">
+            <!-- Filter Tahun -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <form action="" method="GET" class="mb-0">
+                    <input type="hidden" name="tab" value="iuran">
 
-                        <label for="year-iuran" class="form-label mb-0 fw-bold text-dark d-flex align-items-center">
-                            <i class="fa-solid fa-calendar-alt me-2 text-primary"></i>
-                            Pilih Tahun
-                        </label>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        
 
-                        <div class="input-group" style="max-width: 200px;">
+                        <div class="input-group flex-grow-1" style="min-width: 150px;">
                             <span class="input-group-text bg-primary text-white border-0 rounded-start-pill">
                                 <i class="fa-solid fa-calendar"></i>
                             </span>
@@ -368,40 +364,56 @@
                                 <?php } ?>
                             </select>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
+            </div>
 
-                <div class="col-12 col-md-6">
-                    <form action="" method="GET" class="d-flex w-100 justify-content-md-end">
-                        <input type="hidden" name="tab" value="iuran">
-                        <input type="hidden" name="year" value="<?= htmlspecialchars($selectedYear) ?>">
+            <!-- Search Anggota -->
+            <div class="col-12 col-md-6 col-lg-8">
+                <form action="" method="GET" class="mb-0">
+                    <input type="hidden" name="tab" value="iuran">
+                    <input type="hidden" name="year" value="<?= htmlspecialchars($selectedYear) ?>">
 
-                        <div class="input-group" style="max-width: 300px;">
-                            <span class="input-group-text bg-light border-0 rounded-start-pill">
-                                <i class="fas fa-search text-primary"></i>
-                            </span>
-                            <input type="text" id="searchInputIuran" 
-                                    class="form-control border-0 shadow-sm px-3 py-2"
-                                    placeholder="Cari anggota..." 
-                                    name="search" 
-                                    value="<?= htmlspecialchars($searchTerm ?? '') ?>">
-                            <button class="btn btn-primary rounded-end-pill" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                            <?php if (!empty($searchTerm)): ?>
+                    <div class="row g-2 align-items-center">
+                        <!-- Input Group -->
+                        <div class="col">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 rounded-start-pill">
+                                    <i class="fas fa-search text-primary"></i>
+                                </span>
+                                <input type="text" 
+                                       id="searchInputIuran" 
+                                       class="form-control border-0 shadow-sm px-3 py-2"
+                                       placeholder="Cari anggota..." 
+                                       name="search" 
+                                       value="<?= htmlspecialchars($searchTerm ?? '') ?>">
+                                
+                                <!-- Tombol Submit -->
+                                <button class="btn btn-primary px-3 px-sm-4 shadow-sm rounded-end-pill" type="submit">
+                                    <span class="d-none d-sm-inline">Cari</span>
+                                    <i class="fas fa-search d-inline d-sm-none"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <?php if (!empty($searchTerm)): ?>
+                            <!-- Tombol Hapus Pencarian -->
+                            <div class="col-auto">
                                 <a href="?tab=iuran&year=<?= htmlspecialchars($selectedYear) ?>" 
-                                    class="btn btn-outline-danger ms-2 rounded-pill" 
-                                    title="Hapus Pencarian">
+                                   class="btn btn-outline-danger rounded-pill d-flex align-items-center justify-content-center p-0"
+                                   style="width: 42px; height: 42px;"
+                                   title="Hapus Pencarian">
                                     <i class="fas fa-times"></i>
                                 </a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
-                </div>
-
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </form>
             </div>
+
         </div>
     </div>
+</div>
 
         <div class="">
             <div class="row">

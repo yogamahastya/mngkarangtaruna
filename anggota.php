@@ -9,47 +9,48 @@ $offset = $offset ?? 0;
 ?>
 <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
     <div class="card-body py-3">
-    <!-- Menggunakan d-flex untuk menata form pencarian dan tombol clear (jika ada) -->
-        <div class="d-flex align-items-center">
-
-            <!-- Form Pencarian Anggota -->
-            <form action="" method="GET" class="w-100 me-2">
-                <input type="hidden" name="tab" value="anggota">
-                
-                <div class="input-group">
-                    <!-- Ikon Prefix (mengadopsi style card contoh) -->
-                    <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
-                        <i class="fas fa-search text-primary"></i>
-                    </span>
-                    
-                    <!-- Input Field (mengadopsi style card contoh: border-0 shadow-sm) -->
-                    <input type="text" 
-                        id="search-input" 
-                        name="search" 
-                        value="<?= htmlspecialchars($searchTerm) ?>" 
-                        placeholder="Cari anggota..." 
-                        class="form-control border-0 shadow-sm px-3 py-2">
-                    
-                    <!-- Tombol Submit (mengadopsi style pill dan shadow) -->
-                    <button class="btn btn-primary px-4 shadow-sm rounded-end-pill" type="submit">
-                        Cari
-                    </button>
-                </div>
-            </form>
+        <!-- Form Pencarian Anggota -->
+        <form action="" method="GET" class="mb-0">
+            <input type="hidden" name="tab" value="anggota">
             
-            <?php 
-            // Tambahkan tombol untuk menghapus pencarian jika $searchTerm tidak kosong.
-            // Ini mengadopsi pola UX dari contoh desain.
-            if (!empty($searchTerm)): ?>
-                <!-- Tombol Hapus Pencarian -->
-                <a href="?tab=anggota" 
-                class="btn btn-outline-danger rounded-pill flex-shrink-0 d-flex align-items-center justify-content-center p-0"
-                style="width: 42px; height: 42px;"
-                title="Hapus Pencarian">
-                <i class="fas fa-times"></i>
-                </a>
-            <?php endif; ?>
-        </div>
+            <div class="row g-2 align-items-center">
+                <!-- Search Input Group -->
+                <div class="col">
+                    <div class="input-group">
+                        <!-- Ikon Prefix -->
+                        <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
+                            <i class="fas fa-search text-primary"></i>
+                        </span>
+                        
+                        <!-- Input Field -->
+                        <input type="text" 
+                            id="search-input" 
+                            name="search" 
+                            value="<?= htmlspecialchars($searchTerm) ?>" 
+                            placeholder="Cari anggota..." 
+                            class="form-control border-0 shadow-sm px-3 py-2">
+                        
+                        <!-- Tombol Submit -->
+                        <button class="btn btn-primary px-3 px-sm-4 shadow-sm rounded-end-pill" type="submit">
+                            <span class="d-none d-sm-inline">Cari</span>
+                            <i class="fas fa-search d-inline d-sm-none"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <?php if (!empty($searchTerm)): ?>
+                    <!-- Tombol Hapus Pencarian -->
+                    <div class="col-auto">
+                        <a href="?tab=anggota" 
+                           class="btn btn-outline-danger rounded-pill d-flex align-items-center justify-content-center p-0"
+                           style="width: 42px; height: 42px;"
+                           title="Hapus Pencarian">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </form>
     </div>
 </div>
 

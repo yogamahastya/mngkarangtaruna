@@ -140,127 +140,97 @@
    <!-- Filter Tahun, Pencarian, dan Tombol Tambah Iuran -->
 <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
     <div class="card-body py-3">
-
-        <!-- Desktop Layout -->
-        <div class="d-none d-md-block">
-            <div class="row align-items-center">
-                
-                <!-- Filter Tahun -->
-                <div class="col-md-3">
-                    <div class="input-group">
-                        <span class="input-group-text bg-primary text-white border-0 rounded-start-pill">
-                            <i class="fa-solid fa-calendar-alt"></i>
-                        </span>
-                        <select class="form-select border-0 shadow-sm rounded-end-pill px-3 py-2"
-                                onchange="window.location.href='?tab=iuran&year='+this.value+'<?= !empty($searchTerm) ? '&search='.urlencode($searchTerm) : '' ?>'">
-                            <?php
-                            $currentYear = date('Y');
-                            if (isset($conn) && $conn) {
-                                $resultYears = @$conn->query("SELECT DISTINCT YEAR(tanggal_bayar) AS year FROM iuran ORDER BY year DESC");
-                                $years = [];
-                                if ($resultYears) {
-                                    while ($row = $resultYears->fetch_assoc()) {
-                                        $years[] = $row['year'];
-                                    }
-                                }
-                                if (!in_array($currentYear, $years)) {
-                                    $years[] = $currentYear;
-                                    rsort($years);
-                                }
-                                foreach ($years as $year): ?>
-                                    <option value="<?= htmlspecialchars($year) ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($year) ?>
-                                    </option>
-                                <?php endforeach;
-                            } else { ?>
-                                <option value="<?= htmlspecialchars($currentYear) ?>" selected><?= htmlspecialchars($currentYear) ?></option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Search Iuran -->
-                <div class="col-md-6">
-                    <form action="" method="GET" class="d-flex w-100">
-                        <input type="hidden" name="tab" value="iuran">
-                        <input type="hidden" name="year" value="<?= htmlspecialchars($selectedYear) ?>">
-
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-0 rounded-start-pill">
-                                <i class="fas fa-search text-primary"></i>
-                            </span>
-                            <input type="text" class="form-control border-0 shadow-sm px-3 py-2 rounded-end"
-                                   placeholder="Cari iuran..."
-                                   name="search"
-                                   value="<?= htmlspecialchars($searchTerm ?? '') ?>">
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Tombol Tambah -->
-                <div class="col-md-3 text-end">
-                    <button type="button" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm w-100" data-bs-toggle="modal" data-bs-target="#addIuranModal">
-                        <i class="fa-solid fa-plus-circle me-2"></i> Tambah Pembayaran
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mobile Layout -->
-        <div class="d-md-none">
+        <div class="row g-3 align-items-center">
             
             <!-- Filter Tahun -->
-            <div class="mb-3">
+            <div class="col-12 col-md-4 col-lg-3">
                 <div class="input-group">
                     <span class="input-group-text bg-primary text-white border-0 rounded-start-pill">
                         <i class="fa-solid fa-calendar-alt"></i>
                     </span>
                     <select class="form-select border-0 shadow-sm rounded-end-pill px-3 py-2"
                             onchange="window.location.href='?tab=iuran&year='+this.value+'<?= !empty($searchTerm) ? '&search='.urlencode($searchTerm) : '' ?>'">
-                        <?php foreach ($years as $year): ?>
-                            <option value="<?= htmlspecialchars($year) ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($year) ?>
-                            </option>
-                        <?php endforeach; ?>
+                        <?php
+                        $currentYear = date('Y');
+                        if (isset($conn) && $conn) {
+                            $resultYears = @$conn->query("SELECT DISTINCT YEAR(tanggal_bayar) AS year FROM iuran ORDER BY year DESC");
+                            $years = [];
+                            if ($resultYears) {
+                                while ($row = $resultYears->fetch_assoc()) {
+                                    $years[] = $row['year'];
+                                }
+                            }
+                            if (!in_array($currentYear, $years)) {
+                                $years[] = $currentYear;
+                                rsort($years);
+                            }
+                            foreach ($years as $year): ?>
+                                <option value="<?= htmlspecialchars($year) ?>" <?= ($year == $selectedYear) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($year) ?>
+                                </option>
+                            <?php endforeach;
+                        } else { ?>
+                            <option value="<?= htmlspecialchars($currentYear) ?>" selected><?= htmlspecialchars($currentYear) ?></option>
+                        <?php } ?>
                     </select>
                 </div>
             </div>
 
-            <!-- Tombol Tambah -->
-            <div class="mb-3">
-                <button type="button" class="btn btn-primary rounded-pill w-100 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addIuranModal">
-                    <i class="fa-solid fa-plus-circle me-2"></i> Tambah Pembayaran
-                </button>
+            <!-- Form Pencarian & Tombol Tambah -->
+            <div class="col-12 col-md-8 col-lg-9">
+                <form action="" method="GET" class="mb-0">
+                    <input type="hidden" name="tab" value="iuran">
+                    <input type="hidden" name="year" value="<?= htmlspecialchars($selectedYear) ?>">
+
+                    <div class="row g-2 align-items-center">
+                        <!-- Input Group -->
+                        <div class="col">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0 rounded-start-pill">
+                                    <i class="fas fa-search text-primary"></i>
+                                </span>
+                                <input type="text" 
+                                       class="form-control border-0 shadow-sm px-3 py-2"
+                                       placeholder="Cari iuran..."
+                                       name="search"
+                                       value="<?= htmlspecialchars($searchTerm ?? '') ?>">
+                                
+                                <!-- Tombol Submit -->
+                                <button class="btn btn-primary px-3 px-sm-4 shadow-sm rounded-end-pill" type="submit">
+                                    <span class="d-none d-sm-inline">Cari</span>
+                                    <i class="fas fa-search d-inline d-sm-none"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <?php if (!empty($searchTerm)): ?>
+                            <!-- Tombol Hapus Pencarian -->
+                            <div class="col-auto">
+                                <a href="?tab=iuran&year=<?= htmlspecialchars($selectedYear) ?>"
+                                   class="btn btn-outline-danger rounded-pill d-flex align-items-center justify-content-center p-0"
+                                   style="width: 42px; height: 42px;"
+                                   title="Hapus Pencarian">
+                                    <i class="fas fa-times"></i>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Tombol Tambah Pembayaran -->
+                        <div class="col-12 col-sm-auto">
+                            <button type="button" 
+                                    class="btn btn-primary rounded-pill px-4 py-2 shadow-sm w-100 w-sm-auto" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#addIuranModal">
+                                <i class="fa-solid fa-plus-circle me-2"></i> 
+                                <span class="d-none d-lg-inline">Tambah Pembayaran</span>
+                                <span class="d-inline d-lg-none">Tambah</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
 
-            <!-- Search -->
-            <form action="" method="GET">
-                <input type="hidden" name="tab" value="iuran">
-                <input type="hidden" name="year" value="<?= htmlspecialchars($selectedYear) ?>">
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-0 rounded-start-pill">
-                        <i class="fas fa-search text-primary"></i>
-                    </span>
-                    <input type="text" class="form-control border-0 shadow-sm px-3 py-2"
-                           placeholder="Cari iuran..."
-                           name="search"
-                           value="<?= htmlspecialchars($searchTerm ?? '') ?>">
-                    <button class="btn btn-primary shadow-sm rounded-end-pill" type="submit" style="width: 50px;">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </form>
         </div>
-
-        <?php if (!empty($searchTerm)): ?>
-            <div class="text-center mt-3">
-                <a href="?tab=iuran&year=<?= htmlspecialchars($selectedYear) ?>"
-                   class="btn btn-outline-danger rounded-pill px-3 py-2">
-                    <i class="fas fa-times me-2"></i> Hapus Pencarian
-                </a>
-            </div>
-        <?php endif; ?>
-
     </div>
 </div>
 
