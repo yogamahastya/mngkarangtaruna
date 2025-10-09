@@ -544,9 +544,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const updateSuccessBadge = document.getElementById('updateSuccessBadge');
 
     let timeoutId; // Untuk menyimpan ID timeout agar bisa dibersihkan
+    let isUpdating = false; // Flag untuk mencegah multiple requests
 
     // Fungsi untuk menampilkan badge dan mengelola visibilitas teks "Auto Update"
-    function showStatusFeedback(message, type, duration = 3000) {
+    function showStatusFeedback(message, type, duration = 1000) {
         // Hentikan timeout sebelumnya jika ada
         if (timeoutId) {
             clearTimeout(timeoutId);
@@ -569,6 +570,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fungsi untuk memperbarui status di server
     function updateServerStatus(status) {
+        // Cegah multiple requests
+        if (isUpdating) {
+            console.log('Update already in progress...');
+            return;
+        }
+
+        isUpdating = true;
+        
         fetch('../application/update_settings.php', {
             method: 'POST',
             headers: {
@@ -576,60 +585,90 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ auto_update: status }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             console.log('Server response:', data);
             if (data.status === 'success') {
+                // Pastikan checkbox sesuai dengan status yang berhasil disimpan
+                checkbox.checked = status;
                 showStatusFeedback('Berhasil', 'success');
             } else {
-                showStatusFeedback('Gagal', 'danger');
                 // Jika gagal, kembalikan status checkbox ke nilai sebelumnya
                 checkbox.checked = !status;
-                // Dan langsung tampilkan teks "Auto Update" jika gagal, tidak menunggu timeout
+                showStatusFeedback('Gagal', 'danger');
+                
+                // Bersihkan timeout dan tampilkan teks
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                updateSuccessBadge.classList.add('d-none');
                 autoUpdateText.classList.remove('d-none');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showStatusFeedback('Error', 'danger');
             // Jika error, kembalikan status checkbox ke nilai sebelumnya
             checkbox.checked = !status;
-            // Dan langsung tampilkan teks "Auto Update" jika error, tidak menunggu timeout
+            showStatusFeedback('Error', 'danger');
+            
+            // Bersihkan timeout dan tampilkan teks
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            updateSuccessBadge.classList.add('d-none');
             autoUpdateText.classList.remove('d-none');
+        })
+        .finally(() => {
+            // Reset flag setelah request selesai
+            isUpdating = false;
         });
     }
 
     // Fungsi untuk mengatur tampilan awal berdasarkan status checkbox dari server
     function setInitialDisplay(isChecked) {
-        if (isChecked) {
-            autoUpdateText.classList.remove('d-none'); // Selalu tampilkan teks jika aktif
-            updateSuccessBadge.classList.add('d-none'); // Badge tersembunyi
-        } else {
-            autoUpdateText.classList.remove('d-none'); // Selalu tampilkan teks jika tidak aktif
-            updateSuccessBadge.classList.add('d-none'); // Badge tersembunyi
-        }
+        // Selalu tampilkan teks "Auto Update" dan sembunyikan badge saat inisialisasi
+        autoUpdateText.classList.remove('d-none');
+        updateSuccessBadge.classList.add('d-none');
     }
 
     // Ambil status dari server saat halaman dimuat
     fetch('../application/auto_update_status.json')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch status');
+            }
+            return response.json();
+        })
         .then(data => {
-            const isAutoUpdateActive = (data && data.auto_update) ? true : false;
+            console.log('Initial status from server:', data);
+            const isAutoUpdateActive = (data && data.auto_update === true) || (data && data.auto_update === 1);
             checkbox.checked = isAutoUpdateActive;
-            setInitialDisplay(isAutoUpdateActive); // Panggil setelah mendapatkan status awal
+            setInitialDisplay(isAutoUpdateActive);
         })
         .catch(error => {
             console.error('Gagal memuat pengaturan awal:', error);
             checkbox.checked = false; // Default ke false jika gagal
-            setInitialDisplay(false); // Atur tampilan awal ke non-aktif
+            setInitialDisplay(false);
         });
 
     // Mendengarkan perubahan pada checkbox
-    checkbox.addEventListener('change', function() {
+    checkbox.addEventListener('change', function(e) {
+        // Cegah event default jika sedang updating
+        if (isUpdating) {
+            e.preventDefault();
+            return;
+        }
+        
+        const newStatus = this.checked;
+        console.log('Checkbox changed to:', newStatus);
+        
         // Panggil updateServerStatus untuk mengirim perubahan ke server
-        updateServerStatus(this.checked);
-        // Teks "Auto Update" akan disembunyikan oleh showStatusFeedback()
-        // dan muncul kembali setelah badge hilang
+        updateServerStatus(newStatus);
     });
 });
 </script>
