@@ -1,31 +1,88 @@
 <?php
+// === HANDLE AJAX REQUEST UNTUK UPDATE ONLINE COUNT ===
+if (isset($_GET['ajax_update_online'])) {
+    header('Content-Type: application/json');
+    
+    if (!session_id()) {
+        session_start();
+    }
+    
+    $file = "online_users.txt";
+    $lockFile = "online_users.lock";
+    $user_identifier = session_id() . '_' . md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
+    
+    $fp = fopen($lockFile, 'w');
+    if (flock($fp, LOCK_EX)) {
+        $online_users = [];
+        if (file_exists($file)) {
+            $data = file_get_contents($file);
+            $online_users = json_decode($data, true);
+            if (!is_array($online_users)) {
+                $online_users = [];
+            }
+        }
+        
+        $current_time = time();
+        foreach ($online_users as $identifier => $last_time) {
+            if ($current_time - $last_time > 30) {
+                unset($online_users[$identifier]);
+            }
+        }
+        
+        $online_users[$user_identifier] = $current_time;
+        file_put_contents($file, json_encode($online_users));
+        flock($fp, LOCK_UN);
+    }
+    fclose($fp);
+    
+    echo json_encode([
+        'count' => count($online_users),
+        'status' => 'success'
+    ]);
+    exit;
+}
+
 require_once 'process_data.php';
 
 // Logika tab & tahun aktif
 $active_tab = isset($_GET['tab']) ? $_GET['tab'] : 'anggota';
 $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
 
-// Logika user online
+// === LOGIKA USER ONLINE ===
+if (!session_id()) {
+    session_start();
+}
+
 $file = "online_users.txt";
+$lockFile = "online_users.lock";
 
-$online_users = [];
-if (file_exists($file)) {
-    $data = file_get_contents($file);
-    $online_users = json_decode($data, true) ?? [];
-}
+$user_identifier = session_id() . '_' . md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
 
-$current_time = time();
-foreach ($online_users as $session => $last_time) {
-    if ($current_time - $last_time > 10) {
-        unset($online_users[$session]);
+$fp = fopen($lockFile, 'w');
+if (flock($fp, LOCK_EX)) {
+    $online_users = [];
+    if (file_exists($file)) {
+        $data = file_get_contents($file);
+        $online_users = json_decode($data, true);
+        if (!is_array($online_users)) {
+            $online_users = [];
+        }
     }
+
+    $current_time = time();
+    
+    foreach ($online_users as $identifier => $last_time) {
+        if ($current_time - $last_time > 30) {
+            unset($online_users[$identifier]);
+        }
+    }
+
+    $online_users[$user_identifier] = $current_time;
+    file_put_contents($file, json_encode($online_users));
+    
+    flock($fp, LOCK_UN);
 }
-
-if (!session_id()) session_start();
-$session_id = session_id();
-$online_users[$session_id] = $current_time;
-
-file_put_contents($file, json_encode($online_users));
+fclose($fp);
 
 $online_count = count($online_users);
 ?>
@@ -85,6 +142,17 @@ $online_count = count($online_users);
         gap: 0.4rem;
         font-size: 0.85rem;
         border: 1px solid #e5e7eb;
+    }
+    .online-pulse {
+        width: 8px;
+        height: 8px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
     }
     .menu-toggle {
         border: none;
@@ -180,8 +248,8 @@ $online_count = count($online_users);
     </div>
     <div class="d-flex align-items-center gap-2">
         <div class="online-status">
-            <i class="fa-solid fa-user-check text-primary"></i>
-            <span>Online: <strong class="text-primary"><?= $online_count ?></strong></span>
+            <div class="online-pulse"></div>
+            <span>Online: <strong class="text-success" id="onlineCount"><?= $online_count ?></strong></span>
         </div>
         <button class="menu-toggle d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
             <i class="fa-solid fa-bars"></i>
@@ -204,7 +272,7 @@ $online_count = count($online_users);
             </nav>
             <div class="mt-4 pt-4 border-top">
                 <div class="stat-card text-center">
-                    <h3><?= $total_anggota ?></h3>
+                    <h3 id="totalAnggotaDesktop"><?= $total_anggota ?></h3>
                     <p>Total Anggota Aktif <?= date('Y') ?></p>
                 </div>
             </div>
@@ -246,7 +314,7 @@ $online_count = count($online_users);
             <li><a class="nav-link <?= ($active_tab == 'iuran' || $active_tab == 'iuran17') ? 'active' : '' ?>" href="#" data-bs-toggle="modal" data-bs-target="#iuranModal"><i class="fa-solid fa-receipt me-2"></i> Iuran</a></li>
         </ul>
         <div class="stat-card text-center">
-            <h3><?= $total_anggota ?></h3>
+            <h3 id="totalAnggotaMobile"><?= $total_anggota ?></h3>
             <p>Total Anggota Aktif <?= date('Y') ?></p>
         </div>
     </div>
@@ -282,6 +350,29 @@ $online_count = count($online_users);
         </div>
     </div>
 </div>
+
+<!-- Auto-refresh online count tanpa reload halaman -->
+<script>
+function updateOnlineCount() {
+    fetch('?ajax_update_online=1')
+        .then(response => response.json())
+        .then(data => {
+            // Update counter di header
+            document.getElementById('onlineCount').textContent = data.count;
+        })
+        .catch(error => console.log('Error updating online count:', error));
+}
+
+// Update setiap 15 detik
+setInterval(updateOnlineCount, 15000);
+
+// Update saat halaman kembali aktif
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        updateOnlineCount();
+    }
+});
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
