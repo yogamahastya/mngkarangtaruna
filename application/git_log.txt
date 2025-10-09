@@ -1,0 +1,189 @@
+[2025-09-12 17:02:34]
+Git Stash:
+No local changes to save
+
+
+Git Pull:
+From https://github.com/yogamahastya/mngkarangtaruna
+   e07bc43..0f1cc7a  main       -> origin/main
+Updating e07bc43..0f1cc7a
+Fast-forward
+ admin/anggota.php        | 58 +++++++++++++++++++++++-------------------------
+ anggota.php              | 48 +++++++++++++++++++--------------------
+ application/version.json |  2 +-
+ keuangan.php             | 34 +++++++++++++++++++++++++++-
+ 4 files changed, 86 insertions(+), 56 deletions(-)
+
+
+Git Stash Pop:
+
+
+[2025-09-24 16:16:54]
+=== DEBUG INFO ===
+User: desktop-ordme65\devnet
+Current dir: 'pwd' is not recognized as an internal or external command,
+operable program or batch file.
+Active branch: main
+Remote:
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (fetch)
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (push)
+
+Repo Path: C:\laragon\www\mngkarangtaruna
+Local Version: 
+Remote Version: 2.2.4
+==================
+
+Git Stash:
+Saved working directory and index state WIP on main: 8d04eee update
+
+
+Git Pull:
+Already up to date.
+
+
+Git Stash Pop:
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   application/updater_script.php
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.env
+	.user.ini
+	application/git_log.txt
+	config.php
+	database.php
+	online_users.txt
+	tjmuda_db.sql
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (7704f8ae3eeed430d0906d9679dc0fc8a5d95f74)
+
+
+
+
+[2025-09-24 16:48:32]
+=== DEBUG INFO ===
+User: desktop-ordme65\devnet
+Current dir: 'pwd' is not recognized as an internal or external command,
+operable program or batch file.
+Active branch: main
+Remote:
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (fetch)
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (push)
+
+Repo Path: C:\laragon\www\mngkarangtaruna
+Local Version: 
+Remote Version: 2.2.6
+==================
+
+Git Stash:
+Saved working directory and index state WIP on main: b69800e update
+
+
+Git Pull:
+Already up to date.
+
+
+Git Stash Pop:
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   application/update_settings.php
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.env
+	.user.ini
+	application/git_log.txt
+	config.php
+	database.php
+	online_users.txt
+	tjmuda_db.sql
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (c70f2b34436ef8333ec1f36127601d4e47d175c7)
+
+
+
+
+[2025-09-25 03:00:19]
+=== DEBUG INFO ===
+User: desktop-ordme65\devnet
+Current dir: 'pwd' is not recognized as an internal or external command,
+operable program or batch file.
+Active branch: main
+Remote:
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (fetch)
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (push)
+
+Repo Path: C:\laragon\www\mngkarangtaruna
+Local Version: 
+Remote Version: 2.2.13
+==================
+
+Git Stash:
+No local changes to save
+
+
+Git Pull:
+Already up to date.
+
+
+
+
+[2025-09-25 03:16:36]
+=== DEBUG INFO ===
+User: desktop-ordme65\devnet
+Current dir: 'pwd' is not recognized as an internal or external command,
+operable program or batch file.
+Active branch: main
+Remote:
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (fetch)
+origin	https://github.com/yogamahastya/mngkarangtaruna.git (push)
+
+Repo Path: C:\laragon\www\mngkarangtaruna
+Local Version: 
+Remote Version: 2.2.14
+==================
+
+Git Stash:
+Saved working directory and index state WIP on main: 07ebe5d update
+
+
+Git Pull:
+Already up to date.
+
+
+Git Stash Pop:
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   application/updater.php
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.env
+	.user.ini
+	application/git_log.txt
+	config.php
+	database.php
+	online_users.txt
+	tjmuda_db.sql
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (98d1fd6c07ff56049ff9e9dfa5491cf648595854)
+
+
+
+
