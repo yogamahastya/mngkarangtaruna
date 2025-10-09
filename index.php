@@ -7,14 +7,26 @@ $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
 
 // Logika user online
 $file = "online_users.txt";
-$online_users = file_exists($file) ? json_decode(file_get_contents($file), true) : [];
-$current_time = time();
-$user_ip = $_SERVER['REMOTE_ADDR'];
-foreach ($online_users as $key => $last_time) {
-    if ($current_time - $last_time > 10) unset($online_users[$key]);
+
+$online_users = [];
+if (file_exists($file)) {
+    $data = file_get_contents($file);
+    $online_users = json_decode($data, true) ?? [];
 }
-$online_users[$user_ip] = $current_time;
+
+$current_time = time();
+foreach ($online_users as $session => $last_time) {
+    if ($current_time - $last_time > 10) {
+        unset($online_users[$session]);
+    }
+}
+
+if (!session_id()) session_start();
+$session_id = session_id();
+$online_users[$session_id] = $current_time;
+
 file_put_contents($file, json_encode($online_users));
+
 $online_count = count($online_users);
 ?>
 <!DOCTYPE html>
