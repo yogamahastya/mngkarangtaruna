@@ -543,42 +543,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const autoUpdateText = document.getElementById('autoUpdateText');
     const updateSuccessBadge = document.getElementById('updateSuccessBadge');
 
-    let timeoutId; // Untuk menyimpan ID timeout agar bisa dibersihkan
-    let isUpdating = false; // Flag untuk mencegah multiple requests
+    let timeoutId;
+    let isUpdating = false;
+    let currentStatus = false; // Track current status
 
-    // Fungsi untuk menampilkan badge dan mengelola visibilitas teks "Auto Update"
-    function showStatusFeedback(message, type, duration = 1000) {
-        // Hentikan timeout sebelumnya jika ada
+    // Fungsi untuk menampilkan badge feedback
+    function showStatusFeedback(message, type, duration = 1500) {
         if (timeoutId) {
             clearTimeout(timeoutId);
         }
 
-        // 1. Sembunyikan teks "Auto Update"
         autoUpdateText.classList.add('d-none');
-
-        // 2. Tampilkan badge dengan pesan dan tipe yang sesuai
-        updateSuccessBadge.textContent = message;
+        updateSuccessBadge.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'} me-1"></i> ${message}`;
         updateSuccessBadge.classList.remove('d-none', 'bg-success', 'bg-danger');
         updateSuccessBadge.classList.add(`bg-${type}`);
 
-        // 3. Set timeout untuk menyembunyikan badge dan menampilkan kembali teks "Auto Update"
         timeoutId = setTimeout(() => {
-            updateSuccessBadge.classList.add('d-none'); // Sembunyikan badge
-            autoUpdateText.classList.remove('d-none'); // Tampilkan kembali teks "Auto Update"
+            updateSuccessBadge.classList.add('d-none');
+            autoUpdateText.classList.remove('d-none');
         }, duration);
     }
 
     // Fungsi untuk memperbarui status di server
     function updateServerStatus(status) {
-        // Cegah multiple requests
         if (isUpdating) {
             console.log('Update already in progress...');
-            return;
+            return Promise.reject('Already updating');
         }
 
         isUpdating = true;
         
-        fetch('../application/update_settings.php', {
+        return fetch('../application/update_settings.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -594,50 +589,37 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log('Server response:', data);
             if (data.status === 'success') {
-                // Pastikan checkbox sesuai dengan status yang berhasil disimpan
+                currentStatus = status;
                 checkbox.checked = status;
                 showStatusFeedback('Berhasil', 'success');
+                return true;
             } else {
-                // Jika gagal, kembalikan status checkbox ke nilai sebelumnya
-                checkbox.checked = !status;
-                showStatusFeedback('Gagal', 'danger');
-                
-                // Bersihkan timeout dan tampilkan teks
-                if (timeoutId) {
-                    clearTimeout(timeoutId);
-                }
-                updateSuccessBadge.classList.add('d-none');
-                autoUpdateText.classList.remove('d-none');
+                throw new Error(data.message || 'Update failed');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            // Jika error, kembalikan status checkbox ke nilai sebelumnya
-            checkbox.checked = !status;
-            showStatusFeedback('Error', 'danger');
+            // Kembalikan ke status sebelumnya
+            checkbox.checked = currentStatus;
+            showStatusFeedback('Gagal', 'danger');
             
-            // Bersihkan timeout dan tampilkan teks
             if (timeoutId) {
                 clearTimeout(timeoutId);
             }
-            updateSuccessBadge.classList.add('d-none');
-            autoUpdateText.classList.remove('d-none');
+            setTimeout(() => {
+                updateSuccessBadge.classList.add('d-none');
+                autoUpdateText.classList.remove('d-none');
+            }, 2000);
+            
+            return false;
         })
         .finally(() => {
-            // Reset flag setelah request selesai
             isUpdating = false;
         });
     }
 
-    // Fungsi untuk mengatur tampilan awal berdasarkan status checkbox dari server
-    function setInitialDisplay(isChecked) {
-        // Selalu tampilkan teks "Auto Update" dan sembunyikan badge saat inisialisasi
-        autoUpdateText.classList.remove('d-none');
-        updateSuccessBadge.classList.add('d-none');
-    }
-
     // Ambil status dari server saat halaman dimuat
-    fetch('../application/auto_update_status.json')
+    fetch('../application/auto_update_status.json?' + new Date().getTime()) // Cache busting
         .then(response => {
             if (!response.ok) {
                 throw new Error('Failed to fetch status');
@@ -646,29 +628,49 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             console.log('Initial status from server:', data);
-            const isAutoUpdateActive = (data && data.auto_update === true) || (data && data.auto_update === 1);
+            // Parsing yang lebih robust
+            const isAutoUpdateActive = data.auto_update === true || 
+                                       data.auto_update === 1 || 
+                                       data.auto_update === "1" ||
+                                       data.auto_update === "true";
+            
+            currentStatus = isAutoUpdateActive;
             checkbox.checked = isAutoUpdateActive;
-            setInitialDisplay(isAutoUpdateActive);
+            
+            autoUpdateText.classList.remove('d-none');
+            updateSuccessBadge.classList.add('d-none');
+            
+            console.log('Auto update set to:', isAutoUpdateActive);
         })
         .catch(error => {
             console.error('Gagal memuat pengaturan awal:', error);
-            checkbox.checked = false; // Default ke false jika gagal
-            setInitialDisplay(false);
+            currentStatus = false;
+            checkbox.checked = false;
+            autoUpdateText.classList.remove('d-none');
+            updateSuccessBadge.classList.add('d-none');
         });
 
-    // Mendengarkan perubahan pada checkbox
+    // Event listener untuk checkbox
     checkbox.addEventListener('change', function(e) {
-        // Cegah event default jika sedang updating
         if (isUpdating) {
             e.preventDefault();
+            checkbox.checked = currentStatus;
             return;
         }
         
         const newStatus = this.checked;
         console.log('Checkbox changed to:', newStatus);
         
-        // Panggil updateServerStatus untuk mengirim perubahan ke server
+        // Update ke server
         updateServerStatus(newStatus);
+    });
+
+    // Prevent double-click issues
+    checkbox.addEventListener('click', function(e) {
+        if (isUpdating) {
+            e.preventDefault();
+            return false;
+        }
     });
 });
 </script>

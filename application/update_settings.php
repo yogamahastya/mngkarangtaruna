@@ -8,29 +8,79 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 header('Content-Type: application/json');
 
+// Log untuk debugging (opsional, bisa dihapus di production)
+error_log('POST received: ' . file_get_contents('php://input'));
+
 $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 
-if (!isset($data['auto_update']) || !is_bool($data['auto_update'])) {
+// Validasi data
+if (json_last_error() !== JSON_ERROR_NONE) {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'Invalid data received.']);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid JSON: ' . json_last_error_msg()]);
     exit;
 }
 
-$autoUpdateStatus = $data['auto_update'];
+if (!isset($data['auto_update'])) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Missing auto_update parameter']);
+    exit;
+}
+
+// Konversi ke boolean - terima berbagai format
+$autoUpdateStatus = filter_var($data['auto_update'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+
+if ($autoUpdateStatus === null) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid boolean value for auto_update']);
+    exit;
+}
 
 // Lokasi file untuk menyimpan status auto update
-// Path-nya adalah di direktori yang sama dengan file ini
 $settingsFile = __DIR__ . '/auto_update_status.json';
 
 try {
-    if (file_put_contents($settingsFile, json_encode(['auto_update' => $autoUpdateStatus]))) {
-        echo json_encode(['status' => 'success', 'message' => 'Auto update status updated.']);
-    } else {
-        throw new Exception("Failed to write to file.");
+    // Pastikan direktori bisa ditulis
+    if (!is_writable(dirname($settingsFile))) {
+        throw new Exception("Directory is not writable");
     }
+    
+    // Simpan dengan pretty print untuk debugging
+    $jsonContent = json_encode(['auto_update' => $autoUpdateStatus], JSON_PRETTY_PRINT);
+    
+    if ($jsonContent === false) {
+        throw new Exception("Failed to encode JSON: " . json_last_error_msg());
+    }
+    
+    $bytesWritten = file_put_contents($settingsFile, $jsonContent, LOCK_EX);
+    
+    if ($bytesWritten === false) {
+        throw new Exception("Failed to write to file");
+    }
+    
+    // Log untuk debugging (opsional)
+    error_log("Auto update status saved: " . ($autoUpdateStatus ? 'true' : 'false'));
+    
+    // Verifikasi file tersimpan dengan benar
+    $savedContent = file_get_contents($settingsFile);
+    $savedData = json_decode($savedContent, true);
+    
+    if (!isset($savedData['auto_update'])) {
+        throw new Exception("File saved but verification failed");
+    }
+    
+    echo json_encode([
+        'status' => 'success', 
+        'message' => 'Auto update status updated successfully',
+        'auto_update' => $autoUpdateStatus
+    ]);
+    
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['status' => 'error', 'message' => 'Failed to save settings file: ' . $e->getMessage()]);
+    error_log("Error saving settings: " . $e->getMessage());
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'Failed to save settings: ' . $e->getMessage()
+    ]);
 }
 ?>

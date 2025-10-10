@@ -1,43 +1,6 @@
 <head>
-<style>
-    /* Gradient Cards */
-    .bg-success-gradient { background: linear-gradient(135deg, #28a745, #1c7c33); }
-    .bg-danger-gradient { background: linear-gradient(135deg, #dc3545, #a22734); }
-    .bg-primary-gradient { background: linear-gradient(135deg, #007bff, #0056b3); }
-
-    /* Card Hover */
-    .stat-card, .transaction-card { transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 12px; }
-    .stat-card:hover, .transaction-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-
-    /* Responsive Amount */
-    .responsive-amount { font-size: 2rem; white-space: nowrap; }
-    @media (max-width: 767.98px) { .responsive-amount { font-size: 1.5rem; } }
-    @media (max-width: 575.98px) { .responsive-amount { font-size: 1.25rem; } }
-
-    /* Avatar */
-    .avatar-md { width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:1.25rem; }
-
-    /* Badges */
-    .badge-soft-success { background-color: rgba(40,167,69,0.2); color: #28a745; font-weight:500; }
-    .badge-soft-danger { background-color: rgba(220,53,69,0.2); color: #dc3545; font-weight:500; }
-
-    /* Table Responsive Card */
-    .table-responsive-card { display:block; width:100%; overflow-x:auto; }
-
-    /* Filter & Search */
-    .input-group .form-control { border-radius: 50px 0 0 50px; }
-    .input-group .btn { border-radius: 0 50px 50px 0; }
-
-    /* Transaction Cards */
-    .transaction-card { background:#fff; padding:15px; margin-bottom:15px; }
-    .transaction-card .amount { font-weight:700; }
-
-    /* Charts */
-    .card-header { font-weight:600; }
-
-    /* Pagination */
-    .pagination .page-item.active .page-link { background-color:#007bff; border-color:#007bff; }
-</style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+   <link href="assets/css/style.css" rel="stylesheet">
 </head>
 <!--<h2 class="mb-4 text-primary"><i class="fa-solid fa-wallet me-2"></i>Laporan Keuangan</h2>-->
 

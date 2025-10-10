@@ -107,34 +107,7 @@ $total_pages = ceil($totalRows/$limit);
 
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        /* Gradient Cards */
-        .bg-success-gradient { background: linear-gradient(135deg, #28a745, #1c7c33); }
-        .bg-danger-gradient { background: linear-gradient(135deg, #dc3545, #a22734); }
-        .bg-primary-gradient { background: linear-gradient(135deg, #007bff, #0056b3); }
-
-        /* Card Hover */
-        .stat-card, .transaction-card { transition: transform 0.3s ease, box-shadow 0.3s ease; border-radius: 12px; }
-        .stat-card:hover, .transaction-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-
-        /* Responsive Amount */
-        .responsive-amount { font-size: 2rem; white-space: nowrap; }
-        @media (max-width: 767.98px) { .responsive-amount { font-size: 1.5rem; } }
-        @media (max-width: 575.98px) { .responsive-amount { font-size: 1.25rem; } }
-
-        /* Avatar */
-        .avatar-md { width: 50px; height: 50px; display:flex; align-items:center; justify-content:center; border-radius:50%; font-size:1.25rem; }
-
-        /* Badges */
-        .badge-soft-success { background-color: rgba(40,167,69,0.2); color: #28a745; font-weight:500; }
-        .badge-soft-danger { background-color: rgba(220,53,69,0.2); color: #dc3545; font-weight:500; }
-
-        /* Charts */
-        .card-header { font-weight:600; }
-
-        /* Pagination */
-        .pagination .page-item.active .page-link { background-color:#007bff; border-color:#007bff; }
-    </style>
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 
 <!-- Filter Tahun & Pencarian dengan Tombol Tambah -->
@@ -162,18 +135,6 @@ $total_pages = ceil($totalRows/$limit);
                         <?php endfor; ?>
                     </select>
                 </div>
-            </div>
-
-            <!-- Tombol Tambah Transaksi -->
-            <div class="col-12 col-md-auto order-3 order-md-2">
-                <button type="button" 
-                        class="btn btn-primary rounded-pill px-4 py-2 shadow-sm w-100 w-md-auto" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#addKeuanganModal">
-                    <i class="fa-solid fa-plus-circle me-2"></i> 
-                    <span class="d-none d-md-inline">Tambah</span>
-                    <span class="d-inline d-md-none">Tambah Transaksi</span>
-                </button>
             </div>
 
             <!-- Form Pencarian -->
@@ -214,13 +175,14 @@ $total_pages = ceil($totalRows/$limit);
                                 </a>
                             </div>
                         <?php endif; ?>
+                         <!-- Tombol Tambah Transaksi -->
                         <div class="col-12 col-sm-auto">
                             <button type="button" 
                                     class="btn btn-primary rounded-pill px-4 py-2 shadow-sm w-100 w-sm-auto" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#addIuranModal">
+                                    data-bs-target="#addKeuanganModal">
                                 <i class="fa-solid fa-plus-circle me-2"></i> 
-                                <span class="d-none d-lg-inline">Tambah Pembayaran</span>
+                                <span class="d-none d-lg-inline">Tambah Transaksi</span>
                                 <span class="d-inline d-lg-none">Tambah</span>
                             </button>
                         </div>
@@ -287,61 +249,61 @@ $total_pages = ceil($totalRows/$limit);
 
 <!-- Daftar Transaksi -->
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-<?php if(count($keuangan)>0): foreach($keuangan as $row):
-    $isPemasukan = ($row['jenis_transaksi']=='pemasukan');
-    $badge_class = $isPemasukan?'badge-soft-success':'badge-soft-danger';
-    $icon_class = $isPemasukan?'bi bi-cash-stack':'bi bi-cart-dash';
-    $amount_color = $isPemasukan?'text-success':'text-danger';
-?>
-    <div class="col">
-        <div class="transaction-card shadow bg-white p-3 rounded-4 d-flex flex-column h-100">
-            <div class="d-flex align-items-start mb-2">
-                <div class="avatar-md me-3 <?= $isPemasukan?'bg-success-gradient text-white':'bg-danger-gradient text-white' ?>">
-                    <i class="<?= $icon_class ?>"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <h6 class="mb-1"><?= htmlspecialchars($isPemasukan?'Pemasukan':'Pengeluaran') ?></h6>
-                    <span class="badge <?= $badge_class ?>"><?= htmlspecialchars(ucfirst($row['deskripsi'])) ?></span>
-                </div>
-                
-                <!-- Dropdown Menu -->
-                <div class="dropdown ms-2">
-                    <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" style="text-decoration: none; cursor: pointer;">
-                        <i class="fas fa-ellipsis-v"></i>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item edit-btn" href="#" 
-                           data-bs-toggle="modal" 
-                           data-bs-target="#editKeuanganModal" 
-                           data-id="<?= $row['id'] ?>" 
-                           data-jenis="<?= $row['jenis_transaksi'] ?>" 
-                           data-jumlah="<?= $row['jumlah'] ?>" 
-                           data-deskripsi="<?= $row['deskripsi'] ?>" 
-                           data-tanggal="<?= $row['tanggal_transaksi'] ?>">
-                            <i class="bx bx-edit me-1"></i> Edit
+    <?php if(count($keuangan)>0): foreach($keuangan as $row):
+        $isPemasukan = ($row['jenis_transaksi']=='pemasukan');
+        $badge_class = $isPemasukan?'badge-soft-success':'badge-soft-danger';
+        $icon_class = $isPemasukan?'bi bi-cash-stack':'bi bi-cart-dash';
+        $amount_color = $isPemasukan?'text-success':'text-danger';
+    ?>
+        <div class="col">
+            <div class="transaction-card shadow bg-white p-3 rounded-4 d-flex flex-column h-100">
+                <div class="d-flex align-items-start mb-2">
+                    <div class="avatar-md me-3 <?= $isPemasukan?'bg-success-gradient text-white':'bg-danger-gradient text-white' ?>">
+                        <i class="<?= $icon_class ?>"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1"><?= htmlspecialchars($isPemasukan?'Pemasukan':'Pengeluaran') ?></h6>
+                        <span class="badge <?= $badge_class ?>"><?= htmlspecialchars(ucfirst($row['deskripsi'])) ?></span>
+                    </div>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="dropdown ms-2">
+                        <a class="text-muted" href="#" role="button" data-bs-toggle="dropdown" style="text-decoration: none; cursor: pointer;">
+                            <i class="fas fa-ellipsis-v"></i>
                         </a>
-                        <form action="" method="POST" class="d-inline">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="tab" value="keuangan">
-                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                <i class="bx bx-trash me-1"></i> Hapus
-                            </button>
-                        </form>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item edit-btn" href="#" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editKeuanganModal" 
+                            data-id="<?= $row['id'] ?>" 
+                            data-jenis="<?= $row['jenis_transaksi'] ?>" 
+                            data-jumlah="<?= $row['jumlah'] ?>" 
+                            data-deskripsi="<?= $row['deskripsi'] ?>" 
+                            data-tanggal="<?= $row['tanggal_transaksi'] ?>">
+                                <i class="bx bx-edit me-1"></i> Edit
+                            </a>
+                            <form action="" method="POST" class="d-inline">
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="tab" value="keuangan">
+                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                    <i class="bx bx-trash me-1"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
+                
+                <div class="<?= $amount_color ?> amount fw-bold fs-5 mb-2">
+                    Rp<?= number_format($row['jumlah'],0,',','.') ?>
+                </div>
+                
+                <small class="text-muted d-block"><i class="bi bi-calendar-range me-1"></i><?= htmlspecialchars($row['tanggal_transaksi']) ?></small>
+                <?php if(!empty($row['dicatat_oleh_nama'])): ?>
+                    <small class="text-muted d-block"><i class="bi bi-person me-1"></i>Dicatat oleh: <?= htmlspecialchars($row['dicatat_oleh_nama']) ?></small>
+                <?php endif; ?>
             </div>
-            
-            <div class="<?= $amount_color ?> amount fw-bold fs-5 mb-2">
-                Rp<?= number_format($row['jumlah'],0,',','.') ?>
-            </div>
-            
-            <small class="text-muted d-block"><i class="bi bi-calendar-range me-1"></i><?= htmlspecialchars($row['tanggal_transaksi']) ?></small>
-            <?php if(!empty($row['dicatat_oleh_nama'])): ?>
-                <small class="text-muted d-block"><i class="bi bi-person me-1"></i>Dicatat oleh: <?= htmlspecialchars($row['dicatat_oleh_nama']) ?></small>
-            <?php endif; ?>
-        </div>
-    </div>
+</div>
 <?php endforeach; else: ?>
     <div class="col-12 text-center text-muted mt-5">
         <i class="fas fa-receipt fa-3x mb-3 opacity-50"></i>

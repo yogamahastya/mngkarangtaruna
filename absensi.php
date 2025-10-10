@@ -274,7 +274,7 @@ function getAvatarColorClasses($id) {
         <div class="col-md-6">
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-header bg-success-subtle border-0 py-3 rounded-top-4">
-                    <h6 class="mb-0 text-success fw-">
+                    <h6 class="mb-0 text-white fw-">
                         <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Ini
                     </h6>
                 </div>
@@ -300,7 +300,7 @@ function getAvatarColorClasses($id) {
         <div class="col-md-6">
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-header bg-primary-subtle border-0 py-3 rounded-top-4">
-                    <h6 class="mb-0 text-primary fw-">
+                    <h6 class="mb-0 text-white fw-">
                         <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Lalu
                     </h6>
                 </div>

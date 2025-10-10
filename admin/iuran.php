@@ -1,61 +1,6 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        .bg-success-gradient {
-            background: linear-gradient(45deg, #28a745, #1d7e35);
-        }
-        .bg-danger-gradient {
-            background: linear-gradient(45deg, #dc3545, #a32734);
-        }
-        .bg-primary-gradient {
-            background: linear-gradient(45deg, #007bff, #0056b3);
-        }
-        .stat-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-        .table-responsive-card {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-        }
-        .responsive-amount {
-            font-size: 2rem;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 767.98px) {
-            .responsive-amount {
-                font-size: 1.5rem;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            .responsive-amount {
-                font-size: 1.25rem;
-            }
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #0d6efd, #0056b3);
-        }
-        .fw-medium { font-weight: 500; }
-        .fw-semibold { font-weight: 600; }
-        .bg-light { background-color: #f8f9fa !important; }
-        .btn-outline-primary {
-            transition: all 0.3s ease;
-        }
-        .btn-outline-primary:hover {
-            background-color: #0d6efd;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .rounded-pill { border-radius: 50px !important; }
-        .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    </style>
+    <link href="../assets/css/style.css" rel="stylesheet">
 </head>
 
 <div style="min-height: calc(100vh - 200px);">
@@ -234,7 +179,6 @@
     </div>
 </div>
 
-    
     <!-- Data Cards -->
     <div class="row">
         <?php if (count($iuran) > 0): ?>
@@ -322,8 +266,8 @@
     </div>
     
      <!-- Pagination -->
-    <nav aria-label="Page navigation example" class="mt-4 mb-4">
-        <ul class="pagination justify-content-center flex-wrap gap-1">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
             <?php 
             // Pastikan $total_pages terdefinisi sebelum perulangan
             $total_pages = $total_pages ?? 1;
