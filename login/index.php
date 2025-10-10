@@ -16,42 +16,83 @@ $login_error = '';
 
 // Memeriksa apakah form telah disubmit
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $input_username = trim($_POST['username']);
-    $input_password = trim($_POST['password']);
-
-    if (empty($input_username) || empty($input_password)) {
-        $login_error = "Username dan password tidak boleh kosong.";
-    } else {
-        // Query hanya cek username, password diverifikasi di PHP
-        $sql = "SELECT id, password, role FROM users WHERE username = ?";
-        $stmt = $conn->prepare($sql);
-
-        if ($stmt === false) {
-            $login_error = "Error dalam menyiapkan query: " . $conn->error;
+    
+    // Biometric Login
+    if (isset($_POST['biometric_login']) && $_POST['biometric_login'] == '1') {
+        $username = trim($_POST['username']);
+        
+        if (empty($username)) {
+            $login_error = "Username tidak boleh kosong.";
         } else {
-            $stmt->bind_param("s", $input_username);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $user = $result->fetch_assoc();
-
-                // 🔒 Verifikasi password
-                // Jika password sudah di-hash gunakan password_verify()
-                // Jika masih plaintext, cek langsung
-                if (password_verify($input_password, $user['password']) || $input_password === $user['password']) {
+            // Query untuk cek username
+            $sql = "SELECT id, role FROM users WHERE username = ?";
+            $stmt = $conn->prepare($sql);
+            
+            if ($stmt === false) {
+                $login_error = "Error dalam menyiapkan query: " . $conn->error;
+            } else {
+                $stmt->bind_param("s", $username);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                
+                if ($result->num_rows > 0) {
+                    $user = $result->fetch_assoc();
+                    
+                    // Set session untuk biometric login
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_role'] = $user['role'];
-
-                    header('Location: ../admin/');
+                    $_SESSION['biometric_auth'] = true;
+                    
+                    // Return success (akan dihandle oleh JavaScript)
+                    echo json_encode(['success' => true]);
                     exit();
                 } else {
-                    $login_error = "Password salah.";
+                    echo json_encode(['success' => false, 'error' => 'Username tidak ditemukan']);
+                    exit();
                 }
-            } else {
-                $login_error = "Username tidak ditemukan.";
+                $stmt->close();
             }
-            $stmt->close();
+        }
+    }
+    // Normal Login dengan Username & Password
+    else {
+        $input_username = trim($_POST['username']);
+        $input_password = trim($_POST['password']);
+
+        if (empty($input_username) || empty($input_password)) {
+            $login_error = "Username dan password tidak boleh kosong.";
+        } else {
+            // Query hanya cek username, password diverifikasi di PHP
+            $sql = "SELECT id, password, role FROM users WHERE username = ?";
+            $stmt = $conn->prepare($sql);
+
+            if ($stmt === false) {
+                $login_error = "Error dalam menyiapkan query: " . $conn->error;
+            } else {
+                $stmt->bind_param("s", $input_username);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $user = $result->fetch_assoc();
+
+                    // 🔒 Verifikasi password
+                    // Jika password sudah di-hash gunakan password_verify()
+                    // Jika masih plaintext, cek langsung
+                    if (password_verify($input_password, $user['password']) || $input_password === $user['password']) {
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['user_role'] = $user['role'];
+
+                        header('Location: ../admin/');
+                        exit();
+                    } else {
+                        $login_error = "Password salah.";
+                    }
+                } else {
+                    $login_error = "Username tidak ditemukan.";
+                }
+                $stmt->close();
+            }
         }
     }
 }
@@ -947,6 +988,12 @@ $conn->close();
                 const challenge = new Uint8Array(32);
                 window.crypto.getRandomValues(challenge);
 
+                // Get username from form or prompt
+                const username = document.getElementById('username').value || prompt('Masukkan username untuk registrasi biometric:');
+                if (!username) {
+                    throw new Error('Username diperlukan untuk registrasi biometric');
+                }
+
                 // Request credential creation
                 const credential = await navigator.credentials.create({
                     publicKey: {
@@ -957,8 +1004,8 @@ $conn->close();
                         },
                         user: {
                             id: new Uint8Array(16),
-                            name: "admin@dashboard.com",
-                            displayName: "Admin User"
+                            name: username,
+                            displayName: username
                         },
                         pubKeyCredParams: [
                             { alg: -7, type: "public-key" },  // ES256
@@ -975,11 +1022,12 @@ $conn->close();
                 });
 
                 if (credential) {
-                    // Save credential ID (dalam production, kirim ke server)
+                    // Save credential with username
                     const credentialData = {
                         id: credential.id,
                         rawId: arrayBufferToBase64(credential.rawId),
                         type: credential.type,
+                        username: username,
                         registered: new Date().toISOString()
                     };
                     
@@ -987,13 +1035,13 @@ $conn->close();
 
                     faceIdBtn.classList.remove('scanning');
                     fingerprintBtn.classList.remove('scanning');
-                    biometricStatus.textContent = '✅ Biometric berhasil didaftarkan! Login otomatis...';
+                    biometricStatus.textContent = '✅ Biometric berhasil didaftarkan!';
                     biometricStatus.className = 'biometric-status success';
 
-                    // Auto login after registration
-                    setTimeout(() => {
-                        window.location.href = '../admin/';
-                    }, 1500);
+                    // Login with biometric after registration
+                    setTimeout(async () => {
+                        await loginWithBiometric(username);
+                    }, 1000);
                 }
             } catch (error) {
                 throw error;
@@ -1026,16 +1074,63 @@ $conn->close();
                 if (assertion) {
                     faceIdBtn.classList.remove('scanning');
                     fingerprintBtn.classList.remove('scanning');
-                    biometricStatus.textContent = '✅ Autentikasi berhasil!';
+                    biometricStatus.textContent = '✅ Verifikasi berhasil!';
                     biometricStatus.className = 'biometric-status success';
 
-                    // Login successful - redirect
-                    setTimeout(() => {
-                        window.location.href = '../admin/';
-                    }, 1000);
+                    // Login with stored username
+                    setTimeout(async () => {
+                        await loginWithBiometric(storedCreds.username);
+                    }, 500);
                 }
             } catch (error) {
                 throw error;
+            }
+        }
+
+        // Login to backend with biometric authentication
+        async function loginWithBiometric(username) {
+            try {
+                biometricStatus.textContent = '🔄 Menghubungi server...';
+                biometricStatus.className = 'biometric-status';
+
+                // Create form data
+                const formData = new FormData();
+                formData.append('biometric_login', '1');
+                formData.append('username', username);
+
+                // Send to PHP backend
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        biometricStatus.textContent = '🎉 Login berhasil!';
+                        biometricStatus.className = 'biometric-status success';
+                        setTimeout(() => {
+                            window.location.href = '../admin/';
+                        }, 500);
+                    } else {
+                        biometricStatus.textContent = '❌ ' + (result.error || 'Login gagal');
+                        biometricStatus.className = 'biometric-status error';
+                    }
+                } else {
+                    // If not JSON, login successful and page will redirect
+                    biometricStatus.textContent = '🎉 Login berhasil!';
+                    biometricStatus.className = 'biometric-status success';
+                    setTimeout(() => {
+                        window.location.href = '../admin/';
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                biometricStatus.textContent = '❌ Gagal login: ' + error.message;
+                biometricStatus.className = 'biometric-status error';
             }
         }
 
