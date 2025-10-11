@@ -425,7 +425,7 @@
                 </span>
                 <?php 
                     // LOGIKA TETAP SAMA
-                    $monthlyFee = DUES_MONTHLY_FEE;
+                    $monthlyFee = DUES_MONTHLY_FEE17;
                     $joinDate = new DateTime($row['bergabung_sejak']);
                     $startOfSelectedYear = new DateTime("{$selectedYear}-01-01");
                     $endOfSelectedYear = new DateTime("{$selectedYear}-12-31");
