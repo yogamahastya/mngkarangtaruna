@@ -535,10 +535,9 @@
         </ul>
     </nav>
     <?php endif; ?>
-    
 </div>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
     const checkbox = document.getElementById('autoUpdateCheckbox');
     const autoUpdateText = document.getElementById('autoUpdateText');
     const updateSuccessBadge = document.getElementById('updateSuccessBadge');
@@ -630,9 +629,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Initial status from server:', data);
             // Parsing yang lebih robust
             const isAutoUpdateActive = data.auto_update === true || 
-                                       data.auto_update === 1 || 
-                                       data.auto_update === "1" ||
-                                       data.auto_update === "true";
+                                    data.auto_update === 1 || 
+                                    data.auto_update === "1" ||
+                                    data.auto_update === "true";
             
             currentStatus = isAutoUpdateActive;
             checkbox.checked = isAutoUpdateActive;
@@ -672,5 +671,5 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     });
-});
+    });
 </script>
