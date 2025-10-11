@@ -185,9 +185,6 @@ $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
     </div>
 </div>
 
-
-<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container"></div>
-
 <div class="modal fade" id="addAnggotaModal" tabindex="-1" aria-labelledby="addAnggotaModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
