@@ -160,7 +160,7 @@ $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
                     <div class="col-md-6">
                         <a href="?tab=iuran" class="card card-hover h-100 border-0 shadow-sm rounded-4 p-3 text-decoration-none">
                             <div class="card-body">
-                                <div class="icon-circle bg-primary-subtle text-primary mb-3">
+                                <div class="icon-circle text-primary mb-3">
                                     <i class="fa-solid fa-coins fa-2x"></i>
                                 </div>
                                 <h6 class="fw-bold mb-1">Iuran Kas</h6>
@@ -171,7 +171,7 @@ $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
                     <div class="col-md-6">
                         <a href="?tab=iuran17" class="card card-hover h-100 border-0 shadow-sm rounded-4 p-3 text-decoration-none">
                             <div class="card-body">
-                                <div class="icon-circle bg-danger-subtle text-danger mb-3">
+                                <div class="icon-circle  text-danger mb-3">
                                     <i class="fa-solid fa-star fa-2x"></i>
                                 </div>
                                 <h6 class="fw-bold mb-1">Iuran 17-an</h6>
