@@ -795,72 +795,71 @@ $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
 <script src="../assets/js/admin.js"></script>
 <script src="../assets/js/maps.js"></script> 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Ambil daftar anggota dari PHP dan konversi ke JavaScript
-    const anggotaList = <?= json_encode($anggotaList) ?>;
+        document.addEventListener('DOMContentLoaded', function() {
+        // Ambil daftar anggota dari PHP dan konversi ke JavaScript
+        const anggotaList = <?= json_encode($anggotaList) ?>;
 
-    const searchInput = document.getElementById('search-anggota-iuran');
-    const searchResultsDiv = document.getElementById('search-results-iuran');
-    const anggotaIdInput = document.getElementById('add-anggota-id-iuran');
-    const form = document.getElementById('addIuranForm');
+        const searchInput = document.getElementById('search-anggota-iuran');
+        const searchResultsDiv = document.getElementById('search-results-iuran');
+        const anggotaIdInput = document.getElementById('add-anggota-id-iuran');
+        const form = document.getElementById('addIuranForm');
 
-    // Fungsi untuk menampilkan hasil pencarian
-    const displayResults = (results) => {
-        searchResultsDiv.innerHTML = ''; // Hapus hasil sebelumnya
-        if (results.length > 0) {
-            results.forEach(anggota => {
-                const resultItem = document.createElement('a');
-                resultItem.href = '#';
-                resultItem.classList.add('list-group-item', 'list-group-item-action');
-                resultItem.textContent = anggota.nama_lengkap;
-                resultItem.setAttribute('data-id', anggota.id);
-                searchResultsDiv.appendChild(resultItem);
-            });
-            searchResultsDiv.style.display = 'block';
-        } else {
-            searchResultsDiv.style.display = 'none';
-        }
-    };
+        // Fungsi untuk menampilkan hasil pencarian
+        const displayResults = (results) => {
+            searchResultsDiv.innerHTML = ''; // Hapus hasil sebelumnya
+            if (results.length > 0) {
+                results.forEach(anggota => {
+                    const resultItem = document.createElement('a');
+                    resultItem.href = '#';
+                    resultItem.classList.add('list-group-item', 'list-group-item-action');
+                    resultItem.textContent = anggota.nama_lengkap;
+                    resultItem.setAttribute('data-id', anggota.id);
+                    searchResultsDiv.appendChild(resultItem);
+                });
+                searchResultsDiv.style.display = 'block';
+            } else {
+                searchResultsDiv.style.display = 'none';
+            }
+        };
 
-    // Event listener saat pengguna mengetik
-    searchInput.addEventListener('keyup', function() {
-        const query = this.value.toLowerCase();
-        if (query.length > 0) {
-            const filteredResults = anggotaList.filter(anggota =>
-                anggota.nama_lengkap.toLowerCase().includes(query)
-            );
-            displayResults(filteredResults);
-        } else {
-            searchResultsDiv.innerHTML = '';
-            searchResultsDiv.style.display = 'none';
-        }
+        // Event listener saat pengguna mengetik
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            if (query.length > 0) {
+                const filteredResults = anggotaList.filter(anggota =>
+                    anggota.nama_lengkap.toLowerCase().includes(query)
+                );
+                displayResults(filteredResults);
+            } else {
+                searchResultsDiv.innerHTML = '';
+                searchResultsDiv.style.display = 'none';
+            }
+        });
+
+        // Event listener saat hasil pencarian diklik
+        searchResultsDiv.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') {
+                e.preventDefault();
+                const selectedId = e.target.getAttribute('data-id');
+                const selectedNama = e.target.textContent;
+
+                // Isi input pencarian dan input tersembunyi
+                anggotaIdInput.value = selectedId;
+                searchInput.value = selectedNama;
+
+                // Sembunyikan hasil pencarian
+                searchResultsDiv.innerHTML = '';
+                searchResultsDiv.style.display = 'none';
+            }
+        });
+        
+        // Sembunyikan hasil pencarian jika klik di luar area input
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResultsDiv.contains(e.target)) {
+                searchResultsDiv.style.display = 'none';
+            }
+        });
     });
-
-    // Event listener saat hasil pencarian diklik
-    searchResultsDiv.addEventListener('click', function(e) {
-        if (e.target.tagName === 'A') {
-            e.preventDefault();
-            const selectedId = e.target.getAttribute('data-id');
-            const selectedNama = e.target.textContent;
-
-            // Isi input pencarian dan input tersembunyi
-            anggotaIdInput.value = selectedId;
-            searchInput.value = selectedNama;
-
-            // Sembunyikan hasil pencarian
-            searchResultsDiv.innerHTML = '';
-            searchResultsDiv.style.display = 'none';
-        }
-    });
-    
-    // Sembunyikan hasil pencarian jika klik di luar area input
-    document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchResultsDiv.contains(e.target)) {
-            searchResultsDiv.style.display = 'none';
-        }
-    });
-});
-
 // --- Fungsionalitas untuk iuran17 ---
     document.addEventListener('DOMContentLoaded', function() {
         // Ambil daftar anggota dari PHP dan konversi ke JavaScript
@@ -929,46 +928,46 @@ $selectedYear = isset($_GET['year']) ? $_GET['year'] : date('Y');
     });
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Pastikan data anggota tersedia (misal dari PHP)
-    const anggotaList = [
-        <?php foreach ($anggotaList as $anggota): ?>
-            { id: <?= $anggota['id'] ?>, nama: '<?= htmlspecialchars($anggota['nama_lengkap']) ?>' },
-        <?php endforeach; ?>
-    ];
+    document.addEventListener('DOMContentLoaded', function() {
+        // Pastikan data anggota tersedia (misal dari PHP)
+        const anggotaList = [
+            <?php foreach ($anggotaList as $anggota): ?>
+                { id: <?= $anggota['id'] ?>, nama: '<?= htmlspecialchars($anggota['nama_lengkap']) ?>' },
+            <?php endforeach; ?>
+        ];
 
-    // --- Skrip untuk Modal TAMBAH User (dari perbaikan sebelumnya) ---
-    const searchInputAdd = document.getElementById('search-anggota-user');
-    const searchResultsAdd = document.getElementById('search-results-user');
-    const selectedAnggotaIdAdd = document.getElementById('add-anggota-id-user');
+        // --- Skrip untuk Modal TAMBAH User (dari perbaikan sebelumnya) ---
+        const searchInputAdd = document.getElementById('search-anggota-user');
+        const searchResultsAdd = document.getElementById('search-results-user');
+        const selectedAnggotaIdAdd = document.getElementById('add-anggota-id-user');
 
-    if (searchInputAdd) {
-        searchInputAdd.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            searchResultsAdd.innerHTML = '';
-            if (query.length > 0) {
-                const filteredAnggota = anggotaList.filter(anggota =>
-                    anggota.nama.toLowerCase().includes(query)
-                );
-                filteredAnggota.forEach(anggota => {
-                    const item = document.createElement('a');
-                    item.href = '#';
-                    item.className = 'list-group-item list-group-item-action';
-                    item.textContent = anggota.nama;
-                    item.setAttribute('data-id', anggota.id);
-                    item.setAttribute('data-nama', anggota.nama);
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        searchInputAdd.value = this.getAttribute('data-nama');
-                        selectedAnggotaIdAdd.value = this.getAttribute('data-id');
-                        searchResultsAdd.innerHTML = '';
+        if (searchInputAdd) {
+            searchInputAdd.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                searchResultsAdd.innerHTML = '';
+                if (query.length > 0) {
+                    const filteredAnggota = anggotaList.filter(anggota =>
+                        anggota.nama.toLowerCase().includes(query)
+                    );
+                    filteredAnggota.forEach(anggota => {
+                        const item = document.createElement('a');
+                        item.href = '#';
+                        item.className = 'list-group-item list-group-item-action';
+                        item.textContent = anggota.nama;
+                        item.setAttribute('data-id', anggota.id);
+                        item.setAttribute('data-nama', anggota.nama);
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            searchInputAdd.value = this.getAttribute('data-nama');
+                            selectedAnggotaIdAdd.value = this.getAttribute('data-id');
+                            searchResultsAdd.innerHTML = '';
+                        });
+                        searchResultsAdd.appendChild(item);
                     });
-                    searchResultsAdd.appendChild(item);
-                });
-            }
-        });
-    }   
-});
+                }
+            });
+        }   
+    });
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -1003,20 +1002,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 </script> 
 <script> // Script deteksi scroll
-let lastScrollTop = 0;
-window.addEventListener("scroll", function() {
-  let st = window.pageYOffset || document.documentElement.scrollTop;
-  const nav = document.querySelector(".nav-pills-custom");
+    let lastScrollTop = 0;
+    window.addEventListener("scroll", function() {
+    let st = window.pageYOffset || document.documentElement.scrollTop;
+    const nav = document.querySelector(".nav-pills-custom");
 
-  if (st > lastScrollTop) {
-    // scroll ke bawah → sembunyikan
-    nav.classList.add("hide");
-  } else {
-    // scroll ke atas → tampilkan
-    nav.classList.remove("hide");
-  }
-  lastScrollTop = st <= 0 ? 0 : st; // biar gak negatif
-}, false);
+    if (st > lastScrollTop) {
+        // scroll ke bawah → sembunyikan
+        nav.classList.add("hide");
+    } else {
+        // scroll ke atas → tampilkan
+        nav.classList.remove("hide");
+    }
+    lastScrollTop = st <= 0 ? 0 : st; // biar gak negatif
+    }, false);
 </script>
 </body>
 </html>
