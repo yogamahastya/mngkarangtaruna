@@ -156,7 +156,7 @@ input:checked + .toggle-slider:before {
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <h2 class="mb-2 fw-bold text-dark d-flex align-items-center">
+                    <h2 class="mb-2  text-dark d-flex align-items-center">
                         <i class="fa-solid fa-user-shield me-3 text-primary" style="font-size: 2rem;"></i>
                         <span>Kelola Data Users</span>
                     </h2>
@@ -349,7 +349,7 @@ input:checked + .toggle-slider:before {
                                         </div>
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-1 fw-bold">
+                                        <h6 class="mb-1 ">
                                             <?= htmlspecialchars($row['username']) ?>
                                         </h6>
                                         <span class="<?= $badge_class ?>">
@@ -370,7 +370,7 @@ input:checked + .toggle-slider:before {
                                         </div>
                                         <div class="flex-grow-1 ms-3">
                                             <p class="mb-0 text-muted small fw-semibold">TERKAIT DENGAN</p>
-                                            <p class="mb-0 fw-bold text-dark"><?= htmlspecialchars($anggotaName) ?></p>
+                                            <p class="mb-0  text-dark"><?= htmlspecialchars($anggotaName) ?></p>
                                         </div>
                                     </div>
                                 </div>
@@ -382,7 +382,7 @@ input:checked + .toggle-slider:before {
         <?php else: ?>
             <div class="text-center text-muted py-5">
                 <i class="fa-solid fa-users-slash fa-3x mb-3 opacity-50"></i>
-                <p class="mb-2 fw-bold">Tidak Ada Data User</p>
+                <p class="mb-2 ">Tidak Ada Data User</p>
                 <p class="mb-3">Belum ada user yang terdaftar dalam sistem</p>
                 <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addUsersModal">
                     <i class="fa-solid fa-plus-circle me-2"></i> Tambah User Pertama
@@ -499,7 +499,7 @@ input:checked + .toggle-slider:before {
         if (this.checked) {
             // Enable auto update
             autoUpdateText.textContent = 'Auto Update (ON)';
-            autoUpdateText.classList.add('text-success', 'fw-bold');
+            autoUpdateText.classList.add('text-success', '');
             statusIndicator.classList.remove('status-inactive');
             statusIndicator.classList.add('status-active');
             
@@ -513,7 +513,7 @@ input:checked + .toggle-slider:before {
         } else {
             // Disable auto update
             autoUpdateText.textContent = 'Auto Update (OFF)';
-            autoUpdateText.classList.remove('text-success', 'fw-bold');
+            autoUpdateText.classList.remove('text-success', '');
             statusIndicator.classList.remove('status-active');
             statusIndicator.classList.add('status-inactive');
             

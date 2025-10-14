@@ -1,9 +1,18 @@
 <head>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-   <link href="assets/css/style.css" rel="stylesheet">
 </head>
-<!--<h2 class="mb-4 text-primary"><i class="fa-solid fa-wallet me-2"></i>Laporan Keuangan</h2>-->
-
+<div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h5 class="mb-0 text-dark d-flex align-items-center">
+                    <i class="bi bi-currency-dollar fs-5 me-2 flex-shrink-0 text-success" style="font-size: 1.25rem;"></i>
+                    <span>Kelola Data Keuangan</span>
+                </h5>                   
+            </div>
+        </div>
+    </div>
+</div>
 <?php
 // --- Data dasar & koneksi ---
 $selectedYear = isset($_GET['year']) ? (int)$_GET['year'] : date('Y');

@@ -167,9 +167,21 @@ if ($action === 'detail' && isset($_GET['id'])) {
     <?php endif; ?>
 
 <?php else: ?>
-
-    <!-- Tampilan LIST 
-    <h2 class="mb-4 text-primary fw-"><i class="fa-solid fa-calendar-alt me-3"></i>Daftar Kegiatan</h2>-->
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+    <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h5 class="mb-0 text-dark d-flex align-items-center">
+                    <i class="bi bi-calendar-event fs-5 me-2 flex-shrink-0 text-info" style="font-size: 1.25rem;"></i>
+                    <span>Daftar Kegiatan</span>
+                </h5>                   
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- Container utama dengan shadow dan border penekanan (Indigo/Primary) -->
 <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
