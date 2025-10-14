@@ -1,675 +1,641 @@
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        * {
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .bg-success-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .bg-danger-gradient {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        .bg-primary-gradient {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        .bg-info-gradient {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        
-        .stat-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        
-        .stat-card:hover::before {
-            opacity: 1;
-        }
-        
-        .responsive-amount {
-            font-size: 2.2rem;
-            font-weight: 700;
-            white-space: nowrap;
-            letter-spacing: -0.5px;
-        }
+<?php
+$users = $users ?? [];
+$anggotaList = $anggotaList ?? [];
+$searchTerm = $searchTerm ?? '';
+$page = $page ?? 1;
+$total_pages = $total_pages ?? 1;
+$offset = $offset ?? 0;
+?>
 
-        @media (max-width: 767.98px) {
-            .responsive-amount {
-                font-size: 1.6rem;
-            }
-        }
+<style>
+/* Toggle Switch Styling */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 30px;
+}
 
-        @media (max-width: 575.98px) {
-            .responsive-amount {
-                font-size: 1.3rem;
-            }
-        }
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
 
-        .card-modern {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-        
-        .card-modern:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-        
-        .card-header-modern {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            padding: 1.5rem;
-            position: relative;
-        }
-        
-        .card-header-modern::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #fff 0%, rgba(255,255,255,0.3) 100%);
-        }
-        
-        .user-card {
-            border: 1px solid #e9ecef;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .user-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #667eea, #764ba2);
-            transition: left 0.5s ease;
-        }
-        
-        .user-card:hover::before {
-            left: 100%;
-        }
-        
-        .user-card:hover {
-            border-color: #667eea;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
-        }
-        
-        .avatar-modern {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .badge-modern {
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-        
-        .badge-admin {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-        
-        .badge-user {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-        
-        .info-box {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 12px;
-            padding: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .info-box:hover {
-            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-            transform: scale(1.02);
-        }
-        
-        .btn-modern {
-            border-radius: 50px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 600;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
-        
-        .btn-edit {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-        }
-        
-        .btn-edit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-            color: white;
-        }
-        
-        .btn-delete {
-            background: transparent;
-            color: #f5576c;
-            border: 2px solid #f5576c;
-        }
-        
-        .btn-delete:hover {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
-        }
-        
-        .search-box {
-            border-radius: 50px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
-            background: white;
-        }
-        
-        .search-box:focus-within {
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-        
-        .page-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            border-radius: 20px;
-            color: white;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-        
-        .toggle-switch {
-            position: relative;
-            width: 60px;
-            height: 30px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-            transition: 0.4s;
-            border-radius: 50px;
-        }
-        
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        
-        input:checked + .toggle-slider {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        
-        input:checked + .toggle-slider:before {
-            transform: translateX(30px);
-        }
-        
-        .empty-state {
-            padding: 4rem 2rem;
-            text-align: center;
-        }
-        
-        .empty-state i {
-            font-size: 5rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.3;
-        }
-        
-        .pagination-modern .page-link {
-            border: none;
-            border-radius: 10px;
-            margin: 0 5px;
-            color: #667eea;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .pagination-modern .page-link:hover {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .pagination-modern .page-item.active .page-link {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .animate-card {
-            animation: fadeInUp 0.5s ease forwards;
-        }
-    </style>
-</head>
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.4s;
+    border-radius: 30px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+input:checked + .toggle-slider {
+    background-color: #0d6efd;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(30px);
+}
+
+.toggle-slider:hover {
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+}
+
+/* Status Indicator */
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    transition: all 0.3s ease;
+}
+
+.status-inactive {
+    background-color: #6c757d;
+}
+
+.status-active {
+    background-color: #28a745;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    50% {
+        opacity: 0.8;
+        box-shadow: 0 0 0 6px rgba(40, 167, 69, 0);
+    }
+}
+
+/* Success Badge Animation */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.badge-animate {
+    animation: bounceIn 0.5s ease-out;
+}
+
+/* Last Update Info */
+.last-update-info {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.update-spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0d6efd;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Card Animation on Update */
+.user-card-updating {
+    animation: cardPulse 0.5s ease-out;
+}
+
+@keyframes cardPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+</style>
 
 <div style="min-height: calc(100vh - 200px);">
     <!-- Page Header -->
-    <div class="page-header">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-                <h2 class="mb-2 fw-bold">
-                    <i class="fa-solid fa-user-circle me-3"></i>Kelola Data Users
-                </h2>
-                <p class="mb-0 opacity-75">Manajemen pengguna sistem dan hak akses</p>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <label class="toggle-switch mb-0">
-                    <input type="checkbox" id="autoUpdateCheckbox">
-                    <span class="toggle-slider"></span>
-                </label>
+    <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <span id="autoUpdateText" class="fw-semibold">Auto Update</span>
-                    <span id="updateSuccessBadge" class="badge bg-success rounded-pill ms-2 d-none">
-                        <i class="fas fa-check me-1"></i> Berhasil
-                    </span>
+                    <h2 class="mb-2 fw-bold text-dark d-flex align-items-center">
+                        <i class="fa-solid fa-user-shield me-3 text-primary" style="font-size: 2rem;"></i>
+                        <span>Kelola Data Users</span>
+                    </h2>
+                    <p class="mb-0 text-muted ms-5 ps-2">
+                        <i class="fas fa-info-circle me-2"></i>Manajemen pengguna sistem dan hak akses
+                    </p>
+                </div>
+                <div class="d-flex flex-column align-items-end gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <label class="toggle-switch mb-0">
+                            <input type="checkbox" id="autoUpdateCheckbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <div>
+                            <span class="status-indicator status-inactive" id="statusIndicator"></span>
+                            <span id="autoUpdateText" class="fw-semibold">Auto Update</span>
+                            <span id="updateSuccessBadge" class="badge bg-success rounded-pill ms-2 d-none">
+                                <i class="fas fa-check me-1"></i> Berhasil
+                            </span>
+                        </div>
+                    </div>
+                    <div class="last-update-info">
+                        <span id="updateSpinner" class="update-spinner d-none"></span>
+                        <i class="fas fa-clock me-1"></i>
+                        <span id="lastUpdateTime">Belum pernah diupdate</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Search and Actions -->
-    <div class="card card-modern shadow-lg mb-4">
-        <div class="card-body p-4">
-            <div class="row gy-3 align-items-center">
+    <!-- Search and Actions Card -->
+    <div class="card shadow-lg border-0 border-start border-5 border-primary mb-4 rounded-4">
+        <div class="card-body py-3">
+            <div class="row g-3 align-items-center">
                 
                 <!-- Search Bar -->
-                <div class="col-12 col-lg-6">
-                    <form action="" method="GET">
+                <div class="col-12 col-md order-md-1">
+                    <form action="" method="GET" class="mb-0">
                         <input type="hidden" name="tab" value="users">
-                        <div class="input-group search-box">
-                            <span class="input-group-text bg-transparent border-0 ps-4">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" 
-                                   class="form-control border-0 ps-0" 
-                                   placeholder="Cari username atau anggota..." 
-                                   name="search" 
-                                   value="<?= htmlspecialchars($searchTerm ?? '') ?>">
-                            <button class="btn btn-edit px-4" type="submit">
-                                Cari
-                            </button>
+                        
+                        <div class="row g-2 align-items-center">
+                            <!-- Input Group -->
+                            <div class="col">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0 rounded-start-pill border-end-0">
+                                        <i class="fas fa-search text-primary"></i>
+                                    </span>
+                                    
+                                    <input type="text" 
+                                        id="search-input" 
+                                        name="search" 
+                                        value="<?= htmlspecialchars($searchTerm) ?>" 
+                                        placeholder="Cari username atau anggota..." 
+                                        class="form-control border-0 shadow-sm px-3 py-2">
+                                    
+                                    <!-- Tombol Submit -->
+                                    <button class="btn btn-primary px-3 px-sm-4 shadow-sm rounded-end-pill" type="submit">
+                                        <span class="d-none d-sm-inline">Cari</span>
+                                        <i class="fas fa-search d-inline d-sm-none"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
                             <?php if (!empty($searchTerm)): ?>
-                                <a href="?tab=users" class="btn btn-delete px-3">
-                                    <i class="fas fa-times"></i>
-                                </a>
+                                <!-- Tombol Hapus Pencarian -->
+                                <div class="col-auto">
+                                    <a href="?tab=users" 
+                                       class="btn btn-outline-danger rounded-pill d-flex align-items-center justify-content-center p-0"
+                                       style="width: 42px; height: 42px;"
+                                       title="Hapus Pencarian">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
                             <?php endif; ?>
+                            
+                            <!-- Action Buttons -->
+                            <div class="col-12 col-sm-auto">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button" 
+                                            class="btn btn-primary rounded-pill px-4 py-2 shadow-sm flex-fill" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#addUsersModal">
+                                        <i class="fa-solid fa-plus-circle me-2"></i> 
+                                        <span class="d-none d-lg-inline">Tambah User</span>
+                                        <span class="d-inline d-lg-none">User</span>
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-info rounded-pill px-4 py-2 shadow-sm flex-fill text-white" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#addLokasiModal">
+                                        <i class="fa-solid fa-map-marker-alt me-2"></i> 
+                                        <span class="d-none d-lg-inline">Lokasi</span>
+                                        <span class="d-inline d-lg-none">Lokasi</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
-    
-                <!-- Action Buttons -->
-                <div class="col-12 col-lg-6">
-                    <div class="d-flex gap-2 justify-content-lg-end flex-wrap">
-                        <button type="button" class="btn btn-modern btn-edit" data-bs-toggle="modal" data-bs-target="#addUsersModal">
-                            <i class="fa-solid fa-plus-circle me-2"></i> Tambah User
-                        </button>
-                        <button type="button" class="btn btn-modern btn-edit" data-bs-toggle="modal" data-bs-target="#addLokasiModal">
-                            <i class="fa-solid fa-map-marker-alt me-2"></i> Lokasi Absensi
-                        </button>
-                    </div>
-                </div>
-    
+
             </div>
         </div>
     </div>
     
     <!-- User Cards -->
-    <div class="row g-4">
+    <div id="userCardsContainer">
         <?php if (count($users) > 0): ?>
-            <?php foreach ($users as $index => $row): ?>
-                <?php
-                $anggotaName = 'Tidak Terkait';
-                if ($row['anggota_id'] !== NULL) {
-                    foreach ($anggotaList as $member) {
-                        if ($member['id'] == $row['anggota_id']) {
-                            $anggotaName = $member['nama_lengkap'];
-                            break;
+            <div class="row g-4">
+                <?php foreach ($users as $index => $row): ?>
+                    <?php
+                    $anggotaName = 'Tidak Terkait';
+                    if ($row['anggota_id'] !== NULL) {
+                        foreach ($anggotaList as $member) {
+                            if ($member['id'] == $row['anggota_id']) {
+                                $anggotaName = $member['nama_lengkap'];
+                                break;
+                            }
                         }
                     }
-                }
-                
-                $badgeClass = ($row['role'] == 'admin') ? 'badge-admin' : 'badge-user';
-                ?>
-                <div class="col-lg-4 col-md-6 col-sm-12 animate-card" style="animation-delay: <?= $index * 0.1 ?>s">
-                    <div class="card user-card h-100 card-modern">
-                        <div class="card-body p-4">
-                            <!-- User Header -->
-                            <div class="d-flex align-items-start justify-content-between mb-4">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="avatar-modern">
-                                        <i class="bx bx-user"></i>
+                    
+                    // Badge styling berdasarkan role
+                    $role = strtolower($row['role']);
+                    $badge_class = 'badge rounded-pill px-3 py-2 ';
+                    $badge_icon = '';
+                    switch ($role) {
+                        case 'admin':
+                            $badge_class .= 'bg-danger';
+                            $badge_icon = '<i class="fas fa-crown me-1"></i>';
+                            break;
+                        case 'user':
+                            $badge_class .= 'bg-info text-white';
+                            $badge_icon = '<i class="fas fa-user me-1"></i>';
+                            break;
+                        default:
+                            $badge_class .= 'bg-secondary';
+                            $badge_icon = '<i class="fas fa-user-circle me-1"></i>';
+                            break;
+                    }
+                    
+                    // Avatar Inisial
+                    $nameParts = explode(' ', $row['username']);
+                    $initials = '';
+                    if (count($nameParts) >= 1) {
+                        $initials .= strtoupper($nameParts[0][0]);
+                    }
+                    if (count($nameParts) >= 2) {
+                        $initials .= strtoupper($nameParts[1][0]);
+                    } else if (strlen($nameParts[0]) > 1) {
+                        $initials .= strtoupper($nameParts[0][1]);
+                    }
+                    $avatarColor = sprintf("hsl(%d, 70%%, 50%%)", ($offset + $index) * 30 % 360);
+                    ?>
+                    <div class="col-lg-4 col-md-6 col-sm-12 user-card">
+                        <div class="card shadow-lg h-100 rounded-4 border-0">
+                            <div class="card-body">
+                                <!-- Dropdown Menu -->
+                                <div class="dropdown float-end">
+                                    <a class="text-muted dropdown-toggle font-size-16" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true">
+                                        <i class="bx bx-dots-horizontal-rounded"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end shadow-lg">
+                                        <a class="dropdown-item edit-btn" href="#" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editUsersModal" 
+                                            data-id="<?= $row['id'] ?>" 
+                                            data-username="<?= $row['username'] ?>" 
+                                            data-role="<?= $row['role'] ?>" 
+                                            data-anggota-id="<?= $row['anggota_id'] ?>">
+                                            <i class="bx bx-edit me-2"></i> Edit
+                                        </a>
+
+                                        <form action="" method="POST" class="d-inline">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="tab" value="users">
+                                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                            <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Yakin ingin menghapus user ini?')">
+                                                <i class="bx bx-trash me-2"></i> Hapus
+                                            </button>
+                                        </form>
                                     </div>
-                                    <div>
-                                        <h5 class="mb-1 fw-bold text-dark">
+                                </div>
+
+                                <!-- Avatar dan Info User -->
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0 avatar-lg me-3">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center shadow" 
+                                             style="width: 3.5rem; height: 3.5rem; font-size: 1.25rem; flex-shrink: 0; background-color: <?= $avatarColor ?>; color: white; font-weight: 600;">
+                                            <?= $initials ?>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-1 fw-bold">
                                             <?= htmlspecialchars($row['username']) ?>
-                                        </h5>
-                                        <span class="badge badge-modern <?= $badgeClass ?>">
+                                        </h6>
+                                        <span class="<?= $badge_class ?>">
+                                            <?= $badge_icon ?>
                                             <?= htmlspecialchars(ucfirst($row['role'])) ?>
                                         </span>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <!-- User Info -->
-                            <div class="info-box">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="mdi mdi-account-card-details text-primary" style="font-size: 1.3rem;"></i>
-                                        <span class="text-muted small fw-semibold">ANGGOTA</span>
+
+                                <!-- Info Anggota -->
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px; background-color: rgba(13, 110, 253, 0.1);">
+                                                <i class="fas fa-user-tag text-primary"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <p class="mb-0 text-muted small fw-semibold">TERKAIT DENGAN</p>
+                                            <p class="mb-0 fw-bold text-dark"><?= htmlspecialchars($anggotaName) ?></p>
+                                        </div>
                                     </div>
-                                    <span class="fw-bold text-dark small"><?= htmlspecialchars($anggotaName) ?></span>
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- Action Footer -->
-                        <div class="card-footer bg-transparent border-0 p-4 pt-0">
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-modern btn-edit flex-fill edit-btn"
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#editUsersModal" 
-                                        data-id="<?= $row['id'] ?>" 
-                                        data-username="<?= $row['username'] ?>" 
-                                        data-role="<?= $row['role'] ?>" 
-                                        data-anggota-id="<?= $row['anggota_id'] ?>">
-                                    <i class="bx bx-edit"></i> Edit
-                                </button>
-                                <form action="" method="POST" class="flex-fill">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="tab" value="users">
-                                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                                    <button type="submit" 
-                                            class="btn btn-modern btn-delete w-100" 
-                                            onclick="return confirm('Yakin ingin menghapus user ini?')">
-                                        <i class="bx bx-trash"></i> Hapus
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
                     </div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
         <?php else: ?>
-            <div class="col-12">
-                <div class="empty-state">
-                    <i class="fa-solid fa-users-slash d-block mb-4"></i>
-                    <h4 class="text-muted fw-bold mb-2">Tidak Ada Data User</h4>
-                    <p class="text-muted">Belum ada user yang terdaftar dalam sistem</p>
-                    <button class="btn btn-modern btn-edit mt-3" data-bs-toggle="modal" data-bs-target="#addUsersModal">
-                        <i class="fa-solid fa-plus-circle me-2"></i> Tambah User Pertama
-                    </button>
-                </div>
+            <div class="text-center text-muted py-5">
+                <i class="fa-solid fa-users-slash fa-3x mb-3 opacity-50"></i>
+                <p class="mb-2 fw-bold">Tidak Ada Data User</p>
+                <p class="mb-3">Belum ada user yang terdaftar dalam sistem</p>
+                <button class="btn btn-primary rounded-pill px-4 py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#addUsersModal">
+                    <i class="fa-solid fa-plus-circle me-2"></i> Tambah User Pertama
+                </button>
             </div>
         <?php endif; ?>
     </div>
     
     <!-- Pagination -->
-    <?php if (count($users) > 0): ?>
-    <nav aria-label="Page navigation" class="mt-5">
-        <ul class="pagination pagination-modern justify-content-center flex-wrap">
-            <?php 
-            $total_pages = $total_pages ?? 1;
-            $current_page = $page ?? 1;
-            
-            $show_pages = [];
-            
-            if ($total_pages <= 7) {
-                for ($i = 1; $i <= $total_pages; $i++) {
-                    $show_pages[] = $i;
-                }
-            } else {
-                $show_pages[] = 1;
-                
-                if ($current_page > 3) {
-                    $show_pages[] = '...';
-                }
-                
-                for ($i = max(2, $current_page - 1); $i <= min($total_pages - 1, $current_page + 1); $i++) {
-                    $show_pages[] = $i;
-                }
-                
-                if ($current_page < $total_pages - 2) {
-                    $show_pages[] = '...';
-                }
-                
-                if ($total_pages > 1) {
-                    $show_pages[] = $total_pages;
-                }
-            }
-            
-            foreach ($show_pages as $page_num): 
-                if ($page_num === '...'): ?>
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                <?php else: ?>
-                    <li class="page-item <?= ($current_page == $page_num) ? 'active' : '' ?>">
-                        <a class="page-link" href="?tab=users&page=<?= htmlspecialchars($page_num) ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">
-                            <?= htmlspecialchars($page_num) ?>
-                        </a>
-                    </li>
-                <?php endif;
-            endforeach; ?>
+    <?php if (count($users) > 0 && $total_pages > 1): ?>
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="?tab=users&page=<?= $i ?><?= !empty($searchTerm) ? '&search=' . htmlspecialchars($searchTerm) : '' ?>">
+                        <?= $i ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
         </ul>
     </nav>
     <?php endif; ?>
 </div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+(function() {
+    let autoUpdateInterval = null;
     const checkbox = document.getElementById('autoUpdateCheckbox');
     const autoUpdateText = document.getElementById('autoUpdateText');
     const updateSuccessBadge = document.getElementById('updateSuccessBadge');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const lastUpdateTime = document.getElementById('lastUpdateTime');
+    const updateSpinner = document.getElementById('updateSpinner');
 
-    let timeoutId;
-    let isUpdating = false;
-    let currentStatus = false; // Track current status
-
-    // Fungsi untuk menampilkan badge feedback
-    function showStatusFeedback(message, type, duration = 1500) {
-        if (timeoutId) {
-            clearTimeout(timeoutId);
+    // Fungsi untuk update data users
+    function updateUsersData() {
+        // Show loading spinner
+        updateSpinner.classList.remove('d-none');
+        
+        // Get current page and search term
+        const urlParams = new URLSearchParams(window.location.search);
+        const currentPage = urlParams.get('page') || 1;
+        const searchTerm = urlParams.get('search') || '';
+        
+        // Build fetch URL
+        let fetchUrl = '?tab=users&ajax=1&page=' + currentPage;
+        if (searchTerm) {
+            fetchUrl += '&search=' + encodeURIComponent(searchTerm);
         }
-
-        autoUpdateText.classList.add('d-none');
-        updateSuccessBadge.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'} me-1"></i> ${message}`;
-        updateSuccessBadge.classList.remove('d-none', 'bg-success', 'bg-danger');
-        updateSuccessBadge.classList.add(`bg-${type}`);
-
-        timeoutId = setTimeout(() => {
-            updateSuccessBadge.classList.add('d-none');
-            autoUpdateText.classList.remove('d-none');
-        }, duration);
+        
+        // Fetch updated data
+        fetch(fetchUrl)
+            .then(response => response.text())
+            .then(html => {
+                // Parse HTML response
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.querySelector('#userCardsContainer');
+                
+                if (newContent) {
+                    // Add animation class to cards
+                    const userCards = document.querySelectorAll('.user-card');
+                    userCards.forEach(card => {
+                        card.classList.add('user-card-updating');
+                    });
+                    
+                    // Update content after animation
+                    setTimeout(() => {
+                        const container = document.getElementById('userCardsContainer');
+                        container.innerHTML = newContent.innerHTML;
+                    }, 250);
+                }
+                
+                // Show success badge
+                updateSuccessBadge.classList.remove('d-none');
+                updateSuccessBadge.classList.add('badge-animate');
+                
+                // Update last update time
+                const now = new Date();
+                const timeString = now.getHours().toString().padStart(2, '0') + ':' + 
+                                 now.getMinutes().toString().padStart(2, '0') + ':' + 
+                                 now.getSeconds().toString().padStart(2, '0');
+                lastUpdateTime.textContent = 'Terakhir update: ' + timeString;
+                
+                // Hide spinner
+                updateSpinner.classList.add('d-none');
+                
+                // Hide success badge after 2 seconds
+                setTimeout(() => {
+                    updateSuccessBadge.classList.add('d-none');
+                    updateSuccessBadge.classList.remove('badge-animate');
+                }, 2000);
+                
+                console.log('Users data updated at:', timeString);
+            })
+            .catch(error => {
+                console.error('Error updating users data:', error);
+                updateSpinner.classList.add('d-none');
+                
+                // Show error notification (optional)
+                const errorBadge = document.createElement('span');
+                errorBadge.className = 'badge bg-danger rounded-pill ms-2';
+                errorBadge.innerHTML = '<i class="fas fa-times me-1"></i> Error';
+                autoUpdateText.parentNode.appendChild(errorBadge);
+                
+                setTimeout(() => {
+                    errorBadge.remove();
+                }, 3000);
+            });
     }
 
-    // Fungsi untuk memperbarui status di server
-    function updateServerStatus(status) {
-        if (isUpdating) {
-            console.log('Update already in progress...');
-            return Promise.reject('Already updating');
-        }
-
-        isUpdating = true;
-        
-        return fetch('../application/update_settings.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ auto_update: status }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Server response:', data);
-            if (data.status === 'success') {
-                currentStatus = status;
-                checkbox.checked = status;
-                showStatusFeedback('Berhasil', 'success');
-                return true;
-            } else {
-                throw new Error(data.message || 'Update failed');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Kembalikan ke status sebelumnya
-            checkbox.checked = currentStatus;
-            showStatusFeedback('Gagal', 'danger');
+    // Toggle auto update
+    checkbox.addEventListener('change', function() {
+        if (this.checked) {
+            // Enable auto update
+            autoUpdateText.textContent = 'Auto Update (ON)';
+            autoUpdateText.classList.add('text-success', 'fw-bold');
+            statusIndicator.classList.remove('status-inactive');
+            statusIndicator.classList.add('status-active');
             
-            if (timeoutId) {
-                clearTimeout(timeoutId);
+            // Update immediately
+            updateUsersData();
+            
+            // Set interval - update setiap 10 detik
+            autoUpdateInterval = setInterval(updateUsersData, 10000);
+            
+            console.log('Auto update enabled - refreshing every 10 seconds');
+        } else {
+            // Disable auto update
+            autoUpdateText.textContent = 'Auto Update (OFF)';
+            autoUpdateText.classList.remove('text-success', 'fw-bold');
+            statusIndicator.classList.remove('status-active');
+            statusIndicator.classList.add('status-inactive');
+            
+            // Clear interval
+            if (autoUpdateInterval) {
+                clearInterval(autoUpdateInterval);
+                autoUpdateInterval = null;
             }
-            setTimeout(() => {
+            
+            console.log('Auto update disabled');
+        }
+    });
+
+    // Manual update dengan keyboard shortcut (tekan 'U')
+    document.addEventListener('keydown', function(e) {
+        if ((e.key === 'u' || e.key === 'U') && !e.ctrlKey && !e.altKey) {
+            // Pastikan tidak sedang mengetik di input field
+            if (document.activeElement.tagName !== 'INPUT' && 
+                document.activeElement.tagName !== 'TEXTAREA') {
+                updateUsersData();
+                console.log('Manual update triggered');
+            }
+        }
+    });
+})();
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkbox = document.getElementById('autoUpdateCheckbox');
+        const autoUpdateText = document.getElementById('autoUpdateText');
+        const updateSuccessBadge = document.getElementById('updateSuccessBadge');
+
+        let timeoutId;
+        let isUpdating = false;
+        let currentStatus = false;
+
+        function showStatusFeedback(message, type, duration = 1500) {
+            if (timeoutId) clearTimeout(timeoutId);
+            autoUpdateText.classList.add('d-none');
+            updateSuccessBadge.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'times'} me-1"></i> ${message}`;
+            updateSuccessBadge.classList.remove('d-none', 'bg-success', 'bg-danger');
+            updateSuccessBadge.classList.add(`bg-${type}`);
+
+            timeoutId = setTimeout(() => {
                 updateSuccessBadge.classList.add('d-none');
                 autoUpdateText.classList.remove('d-none');
-            }, 2000);
-            
-            return false;
-        })
-        .finally(() => {
-            isUpdating = false;
-        });
-    }
+            }, duration);
+        }
 
-    // Ambil status dari server saat halaman dimuat
-    fetch('../application/auto_update_status.json?' + new Date().getTime()) // Cache busting
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to fetch status');
-            }
-            return response.json();
+        // ✅ Kirim status ke server
+        function updateServerStatus(status) {
+            if (isUpdating) return Promise.reject('Update in progress');
+            isUpdating = true;
+
+            return fetch('../application/update_settings.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ auto_update: status })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network error');
+                return res.json();
+            })
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.status === 'success') {
+                    currentStatus = status;
+                    checkbox.checked = status;
+                    showStatusFeedback('Berhasil', 'success');
+                } else {
+                    throw new Error(data.message || 'Update failed');
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                checkbox.checked = currentStatus;
+                showStatusFeedback('Gagal', 'danger');
+            })
+            .finally(() => {
+                isUpdating = false;
+            });
+        }
+
+        // ✅ Ambil status awal
+        fetch('../application/auto_update_status.json?' + new Date().getTime(), {
+            cache: 'no-store'
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Gagal mengambil status');
+            return res.json();
         })
         .then(data => {
-            console.log('Initial status from server:', data);
-            // Parsing yang lebih robust
-            const isAutoUpdateActive = data.auto_update === true || 
-                                    data.auto_update === 1 || 
-                                    data.auto_update === "1" ||
-                                    data.auto_update === "true";
-            
-            currentStatus = isAutoUpdateActive;
-            checkbox.checked = isAutoUpdateActive;
-            
+            console.log('Initial status:', data);
+            const isActive = data.auto_update === true || data.auto_update === 1 ||
+                            data.auto_update === "1" || data.auto_update === "true";
+            currentStatus = isActive;
+            checkbox.checked = isActive;
             autoUpdateText.classList.remove('d-none');
             updateSuccessBadge.classList.add('d-none');
-            
-            console.log('Auto update set to:', isAutoUpdateActive);
         })
-        .catch(error => {
-            console.error('Gagal memuat pengaturan awal:', error);
+        .catch(err => {
+            console.error('Gagal memuat status awal:', err);
             currentStatus = false;
             checkbox.checked = false;
             autoUpdateText.classList.remove('d-none');
             updateSuccessBadge.classList.add('d-none');
         });
 
-    // Event listener untuk checkbox
-    checkbox.addEventListener('change', function(e) {
-        if (isUpdating) {
-            e.preventDefault();
-            checkbox.checked = currentStatus;
-            return;
-        }
-        
-        const newStatus = this.checked;
-        console.log('Checkbox changed to:', newStatus);
-        
-        // Update ke server
-        updateServerStatus(newStatus);
-    });
+        checkbox.addEventListener('change', function(e) {
+            if (isUpdating) {
+                e.preventDefault();
+                checkbox.checked = currentStatus;
+                return;
+            }
+            updateServerStatus(this.checked);
+        });
 
-    // Prevent double-click issues
-    checkbox.addEventListener('click', function(e) {
-        if (isUpdating) {
-            e.preventDefault();
-            return false;
-        }
-    });
+        checkbox.addEventListener('click', function(e) {
+            if (isUpdating) {
+                e.preventDefault();
+                return false;
+            }
+        });
     });
 </script>
