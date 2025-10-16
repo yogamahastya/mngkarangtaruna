@@ -24,7 +24,7 @@
                             <i class="fa-solid fa-calendar-day me-1 text-primary"></i>
                             Bergabung Sejak: 
                             <span class="fw-semibold text-dark">
-                                <?= htmlspecialchars($memberDuesBreakdown['member']['bergabung_sejak']) ?>
+                                <?= formatTanggalIndo($memberDuesBreakdown['member']['bergabung_sejak']) ?>
                             </span>
                         </p>
                     </div>

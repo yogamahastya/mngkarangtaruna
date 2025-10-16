@@ -131,7 +131,7 @@ $offset = $offset ?? 0;
                             </div>
                             <div class="mt-3 pt-1 border-top">
                                 <p class="text-muted small mb-0">
-                                    <i class="fas fa-calendar-alt align-middle me-2 text-primary"></i> Bergabung: <?= htmlspecialchars($row['bergabung_sejak']) ?>
+                                    <i class="fas fa-calendar-alt align-middle me-2 text-primary"></i>Bergabung: <?= formatTanggalIndo($row['bergabung_sejak']) ?>
                                 </p>
                             </div>
                         </div>

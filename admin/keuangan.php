@@ -309,7 +309,7 @@ $total_pages = ceil($totalRows/$limit);
                     Rp<?= number_format($row['jumlah'],0,',','.') ?>
                 </div>
                 
-                <small class="text-muted d-block"><i class="bi bi-calendar-range me-1"></i><?= htmlspecialchars($row['tanggal_transaksi']) ?></small>
+                <small class="text-muted d-block"><i class="bi bi-calendar-range me-1"></i><?= formatTanggalIndo($row['tanggal_transaksi']) ?></small>
                 <?php if(!empty($row['dicatat_oleh_nama'])): ?>
                     <small class="text-muted d-block"><i class="bi bi-person me-1"></i>Dicatat oleh: <?= htmlspecialchars($row['dicatat_oleh_nama']) ?></small>
                 <?php endif; ?>

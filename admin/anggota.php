@@ -181,7 +181,7 @@ $totalAnggota = $totalAnggota ?? count($anggota);
                             <div class="mt-3 pt-1 border-top">
                                 <p class="text-muted small mb-2">
                                     <i class="fas fa-calendar-alt align-middle me-2 text-primary"></i> 
-                                    Bergabung: <?= htmlspecialchars($row['bergabung_sejak']) ?>
+                                    Bergabung: <?= formatTanggalIndo($row['bergabung_sejak']) ?>
                                 </p>
                                 <p class="text-muted small mb-0">
                                     <i class="fas fa-phone align-middle me-2 text-primary"></i> 

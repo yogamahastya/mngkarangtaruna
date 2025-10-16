@@ -54,7 +54,7 @@ function getAvatarColorClasses($id) {
                     <span class="badge bg-info-subtle text-info fw- me-2">Anggota</span>
                 </p>
                 <p class="card-text text-muted small mb-0">
-                    <i class="fa-solid fa-calendar-day me-1"></i>Bergabung Sejak: **<?= htmlspecialchars($attendanceMemberBreakdown['member']['bergabung_sejak']) ?>**
+                    <i class="fa-solid fa-calendar-day me-1"></i>Bergabung Sejak: **<?= formatTanggalIndo($attendanceMemberBreakdown['member']['bergabung_sejak']) ?>**
                 </p>
             </div>
         </div>

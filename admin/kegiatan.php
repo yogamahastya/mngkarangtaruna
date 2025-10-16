@@ -131,7 +131,7 @@ if ($action === 'detail' && isset($_GET['id'])) {
                     </div>
                     <div class="detail-info">
                         <p><i class="fa-solid fa-tag fa-fw me-3 text-primary"></i><span class="fw-medium">Nama:</span> <?= htmlspecialchars($kegiatanDetail['nama_kegiatan'] ?? 'N/A') ?></p>
-                        <p><i class="fa-solid fa-calendar-day fa-fw me-3 text-primary"></i><span class="fw-medium">Tanggal:</span> <?= htmlspecialchars($kegiatanDetail['tanggal_mulai'] ?? 'N/A') ?></p>
+                        <p><i class="fa-solid fa-calendar-day fa-fw me-3 text-primary"></i><span class="fw-medium">Tanggal:</span> <?= formatTanggalIndo($kegiatanDetail['tanggal_mulai'] ?? 'N/A') ?></p>
                         <p><i class="fa-solid fa-map-marker-alt fa-fw me-3 text-primary"></i><span class="fw-medium">Lokasi:</span> <?= htmlspecialchars($kegiatanDetail['lokasi'] ?? 'N/A') ?></p>
                         <p><i class="fa-solid fa-user-edit fa-fw me-3 text-primary"></i><span class="fw-medium">Dibuat Oleh:</span> <?= htmlspecialchars($kegiatanDetail['dibuat_oleh'] ?? 'N/A') ?></p>
                     </div>
@@ -300,7 +300,7 @@ if ($action === 'detail' && isset($_GET['id'])) {
                                 </p>
                                 <p class="mb-2 fw-semibold text-dark">
                                     <i class="fa-solid fa-calendar-day me-2 text-primary"></i>
-                                    <?= htmlspecialchars($row['tanggal_mulai'] ?? '-') ?>
+                                    <?= formatTanggalIndo($row['tanggal_mulai'] ?? '-') ?>
                                 </p>
                                 <div class="mt-3">
                                     <span class="badge <?= $badge_info['class'] ?> px-3 py-2 fw-semibold rounded-pill">

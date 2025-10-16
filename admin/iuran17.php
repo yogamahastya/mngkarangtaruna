@@ -232,7 +232,7 @@
                                     <i class="mdi mdi-calendar font-size-18 me-2 text-primary"></i>
                                     <span class="fw-medium text-dark">Tanggal Bayar</span>
                                 </div>
-                                <span class="fw-bold text-dark"><?= htmlspecialchars($row['tanggal_bayar']) ?></span>
+                                <span class="fw-bold text-dark"><?= formatTanggalIndo($row['tanggal_bayar']) ?></span>
                             </div>
     
                             <div class="d-flex justify-content-between align-items-center p-3 rounded bg-light shadow-sm">
