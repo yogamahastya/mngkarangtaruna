@@ -221,43 +221,43 @@ function getAvatarColorClasses($id) {
     $labelsJson = json_encode($labels);
 
     // ============================
-    // Top 5 Absen Tercepat Bulan Ini & Bulan Lalu (DARI KODE ASLI)
+    // Top lists: 1-year most attendances (tie-break by earliest time) & Top 5 Absen Tercepat Bulan Lalu
     // ============================
-    $topThisMonth = [];
+    $topYearMost = [];
     $topLastMonth = [];
 
     if (isset($conn)) {
-        // Bulan ini
-        $stmt = $conn->prepare("
-            SELECT a.anggota_id, an.nama_lengkap, MIN(a.tanggal_absen) AS waktu_absen
-            FROM absensi a
-            JOIN anggota an ON a.anggota_id = an.id
-            WHERE MONTH(a.tanggal_absen) = MONTH(CURDATE()) 
-            AND YEAR(a.tanggal_absen) = YEAR(CURDATE())
-            GROUP BY a.anggota_id
-            ORDER BY waktu_absen ASC
-            LIMIT 5
-        ");
+        // 1 Tahun: ambil anggota dengan jumlah absensi terbanyak dalam 1 tahun terakhir,
+        // jika memiliki jumlah yang sama, urutkan berdasarkan waktu absensi tercepat (waktu hariannya paling awal)
+        $stmt = $conn->prepare(
+            "SELECT a.anggota_id, an.nama_lengkap, COUNT(*) AS hadir_count, MIN(TIME(a.tanggal_absen)) AS waktu_tercepat, MIN(a.tanggal_absen) AS earliest_absen
+             FROM absensi a
+             JOIN anggota an ON a.anggota_id = an.id
+             WHERE a.tanggal_absen >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)
+             GROUP BY a.anggota_id
+             ORDER BY hadir_count DESC, waktu_tercepat ASC
+             LIMIT 5"
+        );
         if ($stmt) {
             $stmt->execute();
             $result = $stmt->get_result();
             while ($row = $result->fetch_assoc()) {
-                $topThisMonth[] = $row;
+                $topYearMost[] = $row;
             }
             $stmt->close();
         }
 
-        // Bulan lalu
-        $stmt = $conn->prepare("
-            SELECT a.anggota_id, an.nama_lengkap, MIN(a.tanggal_absen) AS waktu_absen
-            FROM absensi a
-            JOIN anggota an ON a.anggota_id = an.id
-            WHERE MONTH(a.tanggal_absen) = MONTH(CURDATE() - INTERVAL 1 MONTH) 
-            AND YEAR(a.tanggal_absen) = YEAR(CURDATE() - INTERVAL 1 MONTH)
-            GROUP BY a.anggota_id
-            ORDER BY waktu_absen ASC
-            LIMIT 5
-        ");
+        // Bulan lalu: tetap menampilkan Top 5 absen tercepat pada bulan lalu
+        $stmt = $conn->prepare(
+            "SELECT a.anggota_id, an.nama_lengkap, MIN(a.tanggal_absen) AS waktu_absen
+             FROM absensi a
+             JOIN anggota an ON a.anggota_id = an.id
+             WHERE MONTH(a.tanggal_absen) = MONTH(CURDATE() - INTERVAL 1 MONTH)
+             AND YEAR(a.tanggal_absen) = YEAR(CURDATE() - INTERVAL 1 MONTH)
+             GROUP BY a.anggota_id
+             ORDER BY waktu_absen ASC
+             LIMIT 5"
+        );
         if ($stmt) {
             $stmt->execute();
             $result = $stmt->get_result();
@@ -289,24 +289,27 @@ function getAvatarColorClasses($id) {
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-header bg-success-subtle border-0 py-3 rounded-top-4">
                     <h6 class="mb-0 text-white fw-">
-                        <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Ini
+                        <i class="fa-solid fa-trophy me-2"></i>Top 5 Anggota Terbanyak Absen (1 Tahun)
                     </h6>
                 </div>
                 <ul class="list-group list-group-flush">
-                    <?php if (!empty($topThisMonth)): ?>
-                        <?php foreach ($topThisMonth as $i => $row): ?>
+                    <?php if (!empty($topYearMost)): ?>
+                        <?php foreach ($topYearMost as $i => $row): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-success me-3 rounded-circle" style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
                                         <?= $i+1 ?>
                                     </span>
-                                    <span class="fw-medium text-dark fs-6"><?= htmlspecialchars($row['nama_lengkap']) ?></span>
+                                    <div>
+                                        <div class="fw-medium text-dark fs-6"><?= htmlspecialchars($row['nama_lengkap']) ?></div>
+                                        <div class="small text-muted">Jumlah absen: <strong><?= htmlspecialchars($row['hadir_count']) ?></strong></div>
+                                    </div>
                                 </div>
-                                <span class="badge bg-success fw- px-3 py-2 rounded-pill"><?= date('d M H:i', strtotime($row['waktu_absen'])) ?></span>
+                                <span class="badge bg-success fw- px-3 py-2 rounded-pill"><?= date('H:i', strtotime($row['waktu_tercepat'])) ?></span>
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li class="list-group-item text-center text-muted py-3">Belum ada data kehadiran bulan ini.</li>
+                        <li class="list-group-item text-center text-muted py-3">Belum ada data kehadiran 1 tahun terakhir.</li>
                     <?php endif; ?>
                 </ul>
             </div>
@@ -315,12 +318,12 @@ function getAvatarColorClasses($id) {
             <div class="card shadow-lg border-0 rounded-4">
                 <div class="card-header bg-primary-subtle border-0 py-3 rounded-top-4">
                     <h6 class="mb-0 text-white fw-">
-                        <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Lalu
+                        <i class="fa-solid fa-trophy me-2"></i>Top 5 Absen Tercepat Bulan Ini
                     </h6>
                 </div>
                 <ul class="list-group list-group-flush">
-                    <?php if (!empty($topLastMonth)): ?>
-                        <?php foreach ($topLastMonth as $i => $row): ?>
+                    <?php if (!empty($topThisMonth)): ?>
+                        <?php foreach ($topThisMonth as $i => $row): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center py-3">
                                 <div class="d-flex align-items-center">
                                     <span class="badge bg-primary me-3 rounded-circle" style="width: 2rem; height: 2rem; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
@@ -332,7 +335,7 @@ function getAvatarColorClasses($id) {
                             </li>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <li class="list-group-item text-center text-muted py-3">Belum ada data kehadiran bulan lalu.</li>
+                        <li class="list-group-item text-center text-muted py-3">Belum ada data kehadiran bulan ini.</li>
                     <?php endif; ?>
                 </ul>
             </div>
