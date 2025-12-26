@@ -5,6 +5,15 @@ body {
     padding: 0.5rem 1rem;
 }
 
+/* Reduce overall scale: set a slightly smaller root font-size for a more compact UI */
+html {
+    font-size: 14px; /* default is 16px in most browsers */
+}
+
+@media (max-width: 575.98px) {
+    html { font-size: 13px; }
+}
+
 /* Padding khusus untuk mobile agar tidak mepet */
 @media (max-width: 767.98px) {
     body {
@@ -26,8 +35,8 @@ header {
     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
     border-radius: 1.5rem;
     box-shadow: 0 8px 32px rgba(14, 165, 233, 0.12);
-    padding: 1.2rem 1.5rem;
-    margin-bottom: 1.5rem;
+    padding: 0.9rem 1rem;
+    margin-bottom: 1rem;
     border: 1px solid rgba(14, 165, 233, 0.1);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
@@ -60,10 +69,10 @@ header:hover {
 .logo-icon {
     background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 50%, #10b981 100%);
     color: white;
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 3rem;
+    height: 3rem;
     font-weight: 800;
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -236,9 +245,9 @@ header:hover {
     background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
     font-size: 1.4rem;
     color: #0369a1;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 1rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.9rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -260,9 +269,9 @@ header:hover {
 /* Responsive Design */
 @media (max-width: 767.98px) {
     .logo-icon {
-        width: 3.2rem;
-        height: 3.2rem;
-        font-size: 1.3rem;
+        width: 2.6rem;
+        height: 2.6rem;
+        font-size: 1rem;
         border-radius: 1.1rem;
     }
     
@@ -290,17 +299,17 @@ header:hover {
     }
     
     .menu-toggle {
-        width: 2.8rem;
-        height: 2.8rem;
-        font-size: 1.3rem;
+        width: 2.4rem;
+        height: 2.4rem;
+        font-size: 1.05rem;
     }
 }
 
 @media (max-width: 575.98px) {
     .logo-icon {
-        width: 3rem;
-        height: 3rem;
-        font-size: 1.2rem;
+        width: 2.4rem;
+        height: 2.4rem;
+        font-size: 0.95rem;
         border-radius: 1rem;
     }
     
@@ -333,9 +342,9 @@ header:hover {
     }
     
     .menu-toggle {
-        width: 2.5rem;
-        height: 2.5rem;
-        font-size: 1.2rem;
+        width: 2.2rem;
+        height: 2.2rem;
+        font-size: 1rem;
     }
 }
 
@@ -347,19 +356,19 @@ header:hover {
 
 /* Tambahan: Efek saat scroll */
 header.scrolled {
-    padding: 0.9rem 1.5rem;
+    padding: 0.7rem 1rem;
     box-shadow: 0 4px 24px rgba(14, 165, 233, 0.15);
 }
 
 @media (max-width: 767.98px) {
     header.scrolled {
-        padding: 0.85rem 1.2rem;
+        padding: 0.65rem 0.9rem;
     }
 }
 
 @media (max-width: 575.98px) {
     header.scrolled {
-        padding: 0.8rem 1rem;
+        padding: 0.6rem 0.8rem;
     }
 }
 
@@ -515,7 +524,7 @@ header.scrolled {
 
 .sidebar-desktop .stat-card h3,
 .offcanvas-body .stat-card h3 {
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     margin: 0;
     font-weight: 800;
     letter-spacing: -0.02em;
@@ -811,7 +820,7 @@ header.scrolled {
     }
     
     .offcanvas-body .stat-card h3 {
-        font-size: 2rem;
+        font-size: 1.6rem;
     }
     
     .offcanvas-body .stat-card p {
@@ -994,3 +1003,118 @@ header.scrolled {
 
         /* Pagination */
         .pagination .page-item.active .page-link { background-color:#007bff; border-color:#007bff; }
+
+        /* === WhatsApp Floating Support Button === */
+        .whatsapp-float {
+            position: fixed;
+            right: 1.25rem;
+            bottom: 1.25rem;
+            z-index: 2200;
+            display: flex;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .whatsapp-btn {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(180deg,#25d366,#1ebe57);
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 8px 24px rgba(37,211,102,0.22);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            font-size: 1.35rem;
+        }
+
+        /* Label beside the button to inform users */
+        .whatsapp-label {
+            display: inline-block;
+            margin-right: 0.6rem;
+            background: rgba(2,6,23,0.9);
+            color: #fff;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(2,6,23,0.12);
+            transition: transform 0.12s ease, opacity 0.12s ease;
+        }
+
+        /* Full and short label variants */
+        .whatsapp-label-full { display: inline; }
+        .whatsapp-label-short { display: none; }
+
+        .whatsapp-label:hover { transform: translateY(-3px); text-decoration: none; opacity: 0.95; }
+
+        /* Small caret/arrow effect */
+        .whatsapp-label::after {
+            content: '';
+            display: inline-block;
+            margin-left: 0.6rem;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid rgba(255,255,255,0.12);
+            vertical-align: middle;
+            transform: translateY(-1px) rotate(180deg);
+        }
+
+        .whatsapp-btn:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 12px 30px rgba(37,211,102,0.26); }
+
+        .whatsapp-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #ff4d6d;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+        }
+
+        @media (max-width: 575.98px) {
+            .whatsapp-float { right: 0.75rem; bottom: 0.75rem; }
+            .whatsapp-btn { width: 48px; height: 48px; font-size: 1.05rem; }
+            .whatsapp-badge { top: -5px; right: -5px; min-width: 18px; height: 18px; font-size: 0.65rem; }
+            /* Mobile: tombol tetap di kanan-bawah; label ditampilkan di bawah dan rata kanan */
+            .whatsapp-float { flex-direction: column-reverse; align-items: flex-end; gap: 0.25rem; }
+            .whatsapp-label {
+                display: inline-block;
+                margin-right: 0;
+                margin-top: 0.15rem;
+                padding: 0.4rem 0.75rem;
+                font-size: 0.86rem;
+                border-radius: 0.9rem;
+                max-width: 90vw;
+                white-space: normal; /* allow wrapping */
+                overflow-wrap: anywhere;
+                word-break: break-word;
+                text-align: right; /* align text to the right edge */
+            }
+            /* caret tidak cocok di bawah tombol jadi disembunyikan di mobile */
+            .whatsapp-label::after { display: none; }
+        }
+
+        /* Show short label on very narrow screens */
+        @media (max-width: 380px) {
+            .whatsapp-label-full { display: none; }
+            .whatsapp-label-short { display: inline-block; }
+            .whatsapp-label { font-size: 0.85rem; padding: 0.35rem 0.6rem; }
+        }
+
+        /* Allow hiding via .hidden if needed */
+        .whatsapp-float.hidden { display: none !important; }

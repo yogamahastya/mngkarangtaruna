@@ -156,11 +156,11 @@ input:checked + .toggle-slider:before {
         <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <h2 class="mb-2  text-dark d-flex align-items-center">
-                        <i class="fa-solid fa-user-shield me-3 text-primary" style="font-size: 2rem;"></i>
+                    <h5 class="mb-2  text-dark d-flex align-items-center">
+                        <i class="fa-solid fa-user-shield me-3 text-primary" style="font-size: 1.25rem;"></i>
                         <span>Kelola Data Users</span>
-                    </h2>
-                    <p class="mb-0 text-muted ms-5 ps-2">
+                    </h5>
+                    <p class="mb-0 text-muted ms-5">
                         <i class="fas fa-info-circle me-2"></i>Manajemen pengguna sistem dan hak akses
                     </p>
                 </div>

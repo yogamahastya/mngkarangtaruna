@@ -100,3 +100,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 </script>
+
+<!-- WhatsApp Support Floating Button -->
+<?php
+// nomor admin — ubah sesuai kebutuhan
+$wa_number = '62895359046670';
+
+// teks default
+$wa_label_full = 'Butuh bantuan? Klik WhatsApp';
+$wa_label_short = 'Bantuan';
+$wa_message = 'Halo Admin, saya butuh bantuan';
+
+// jika berada di tab absensi beri instruksi khusus
+if (isset($active_tab) && $active_tab === 'absensi') {
+    $wa_label_full = 'Gagal absen? Hubungi admin dan sebutkan nama Anda';
+    $wa_label_short = 'Gagal absen?';
+    $wa_message = 'Halo Admin, saya tidak bisa absen. Nama: ';
+}
+
+$wa_href = 'https://wa.me/' . $wa_number . '?text=' . rawurlencode($wa_message);
+?>
+
+<div class="whatsapp-float" aria-hidden="false">
+  <a class="whatsapp-label" href="<?= htmlspecialchars($wa_href) ?>" target="_blank" rel="noopener noreferrer">
+    <span class="whatsapp-label-full"><?= htmlspecialchars($wa_label_full) ?></span>
+    <span class="whatsapp-label-short"><?= htmlspecialchars($wa_label_short) ?></span>
+  </a>
+  <a class="whatsapp-btn" href="<?= htmlspecialchars($wa_href) ?>" target="_blank" rel="noopener noreferrer" aria-label="Chat WhatsApp Admin">
+    <i class="fab fa-whatsapp"></i>
+    <span class="whatsapp-badge">1</span>
+  </a>
+</div>
+
+<!-- End WhatsApp Support -->
