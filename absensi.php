@@ -266,6 +266,45 @@ function getAvatarColorClasses($id) {
             }
             $stmt->close();
         }
+
+        // Bulan ini: Top 5 Absen Tercepat Bulan Ini (populasi untuk tampilan)
+        $topThisMonth = [];
+        $stmt = $conn->prepare(
+            "SELECT a.anggota_id, an.nama_lengkap, MIN(a.tanggal_absen) AS waktu_absen
+             FROM absensi a
+             JOIN anggota an ON a.anggota_id = an.id
+             WHERE MONTH(a.tanggal_absen) = MONTH(CURDATE())
+             AND YEAR(a.tanggal_absen) = YEAR(CURDATE())
+             GROUP BY a.anggota_id
+             ORDER BY waktu_absen ASC
+             LIMIT 5"
+        );
+        if ($stmt) {
+            if (!$stmt->execute()) {
+                error_log('absensi.php: gagal execute query Bulan ini: ' . $stmt->error);
+            } else {
+                if (method_exists($stmt, 'get_result')) {
+                    $result = $stmt->get_result();
+                    if ($result) {
+                        while ($row = $result->fetch_assoc()) {
+                            $topThisMonth[] = $row;
+                        }
+                    }
+                } else {
+                    $stmt->bind_result($anggota_id, $nama_lengkap, $waktu_absen);
+                    while ($stmt->fetch()) {
+                        $topThisMonth[] = [
+                            'anggota_id' => $anggota_id,
+                            'nama_lengkap' => $nama_lengkap,
+                            'waktu_absen' => $waktu_absen,
+                        ];
+                    }
+                }
+            }
+            $stmt->close();
+        } else {
+            error_log('absensi.php: gagal prepare query Bulan ini: ' . $conn->error);
+        }
     }
     // =========================================================================
     ?>
