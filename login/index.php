@@ -44,13 +44,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['biometric_auth'] = true;
                     
                     // Return success (akan dihandle oleh JavaScript)
+                    $stmt->close();
                     echo json_encode(['success' => true]);
                     exit();
                 } else {
+                    $stmt->close();
                     echo json_encode(['success' => false, 'error' => 'Username tidak ditemukan']);
                     exit();
                 }
-                $stmt->close();
             }
         }
     }

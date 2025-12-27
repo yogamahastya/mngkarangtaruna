@@ -106,6 +106,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Sembunyikan tombol WhatsApp hanya pada mode mobile saat modal 'Atur Lokasi' terbuka
+    const waFloat = document.querySelector('.whatsapp-float');
+    const mobileQuery = window.matchMedia('(max-width: 575.98px)');
+    if (addLokasiModal && waFloat) {
+        addLokasiModal.addEventListener('shown.bs.modal', function() {
+            if (mobileQuery.matches) {
+                waFloat.classList.add('hidden');
+            }
+        });
+        addLokasiModal.addEventListener('hidden.bs.modal', function() {
+            // Hapus class hidden saat modal ditutup (aman jika tidak ada)
+            waFloat.classList.remove('hidden');
+        });
+        // Jika ukuran layar berubah saat modal terbuka, pastikan state WA sesuai
+        mobileQuery.addEventListener && mobileQuery.addEventListener('change', (e) => {
+            const modalShown = addLokasiModal.classList.contains('show');
+            if (modalShown) {
+                if (e.matches) waFloat.classList.add('hidden');
+                else waFloat.classList.remove('hidden');
+            }
+        });
+    }
+
     // Event listener untuk tombol "Gunakan Lokasi Perangkat Sekarang"
     if (detectDeviceLocationBtn) {
         detectDeviceLocationBtn.addEventListener('click', detectAndShowLocation);

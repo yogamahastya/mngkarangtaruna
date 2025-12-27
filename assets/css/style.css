@@ -1009,7 +1009,7 @@ header.scrolled {
             position: fixed;
             right: 1.25rem;
             bottom: 1.25rem;
-            z-index: 2200;
+            z-index: 1030; /* lower than Bootstrap modal (1050) so modals are not covered */
             display: flex;
             align-items: center;
             pointer-events: auto;
